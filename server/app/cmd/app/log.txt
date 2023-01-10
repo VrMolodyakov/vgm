@@ -11,3 +11,30 @@
 
 {"level":"info","ts":"Tue, 10 Jan 2023 18:43:03 MSK","caller":"app/main.go:16","msg":"start app"}
 {"level":"info","ts":"Tue, 10 Jan 2023 18:43:03 MSK","caller":"app/main.go:22","msg":"c:\\Users\\Loken\\goProjects\\vgm\\server\\app\\cmd\\app"}
+
+
+{"level":"info","ts":"Tue, 10 Jan 2023 23:48:39 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Tue, 10 Jan 2023 23:53:24 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Tue, 10 Jan 2023 23:55:28 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Tue, 10 Jan 2023 23:58:57 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 01:04:06 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 01:14:43 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 01:15:07 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 01:15:27 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 01:15:42 MSK","caller":"app/main.go:16","msg":"start app"}

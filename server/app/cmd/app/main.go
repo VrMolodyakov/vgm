@@ -1,23 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"path/filepath"
-	"runtime"
 
+	"github.com/VrMolodyakov/vgm/internal/config"
 	"github.com/VrMolodyakov/vgm/pkg/logging"
 )
 
 func main() {
 	logger, err := logging.New("info", "log.txt")
 	if err != nil {
-
+		log.Fatal(err)
 	}
 	logger.Info("start app")
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		log.Fatal("cannot")
-	}
-	dirname := filepath.Dir(filename)
-	logger.Info(dirname)
+
+	config := config.GetConfig()
+	fmt.Println(config)
 }
