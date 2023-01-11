@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
     postgres:
@@ -10,7 +10,7 @@ services:
             - ./db_data:/var/lib/postgresql/data
             - ./server/scripts/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
         env_file:
-            - .env    
+            - local.env    
         healthcheck:
             test: [ "CMD", "pg_isready", "-q", "-d", "devdb", "-U","postgres" ]
             timeout: 45s
@@ -26,5 +26,19 @@ services:
           - ./server/migrations:/migrations
         command:
           [ "-database",  "postgres://postgres:postgres@postgres:5432/devdb?sslmode=disable" , "-path", "/migrations", "up" ]
+    app:
+        build: 
+          context: ./server/app
+          dockerfile: Dockerfile
+        env_file:
+            - local.env
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=devdb
+        volumes:
+            - ./configs:/configs    
+
+
 
         

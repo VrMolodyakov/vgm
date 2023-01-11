@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -19,7 +20,6 @@ type Postgres struct {
 	User     string `env:"POSTGRES_USER"     env-required:""`
 	Password string `env:"POSTGRES_PASSWORD" env-required:""`
 	Database string `env:"POSTGRES_DB"       env-required:""`
-	URL      string `env:"POSTGRES_URL"       env-required:""`
 }
 
 type HTTP struct {
@@ -39,26 +39,34 @@ type HTTP struct {
 }
 
 type Config struct {
-	HTTP HTTP `yaml:"http"`
+	HTTP     HTTP `yaml:"http"`
+	Postgres Postgres
 }
 
 var instance *Config
 var once sync.Once
 
+//TODO: remote root path
 func GetConfig() *Config {
 	once.Do(func() {
 		rootPath, _ := os.Getwd()
 		root := filepath.Dir(filepath.Dir(filepath.Dir(filepath.Dir(rootPath))))
 		instance = &Config{}
 		path := root + configPath
+		dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+		containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
+		fmt.Println("container docker path : ", containerConfigPath)
 		if exist, _ := Exists(path); exist {
 			if err := cleanenv.ReadConfig(path, instance); err != nil {
 				log.Fatal(err)
 			}
+		} else if exist, _ := Exists(containerConfigPath + "/configs/config.yaml"); exist {
+			fmt.Println("inside docker path")
+			if err := cleanenv.ReadConfig(containerConfigPath+"/configs/config.yaml", instance); err != nil {
+				log.Fatal(err)
+			}
 		}
 	})
-	var P Postgres
-	cleanenv.ReadEnv(P)
 	return instance
 }
 
