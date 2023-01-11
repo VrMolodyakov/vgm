@@ -1,3 +1,25 @@
-port: 8080
-host: localhost
-loglvl : debug
+
+http:
+  ip: 0.0.0.0
+  port: 8080
+  cors:
+    allowed_methods: ["GET", "POST", "PATCH", "PUT", "OPTIONS", "DELETE"]
+    allowed_origins:
+      - "http://localhost:3000"
+    allow_credentials: true
+    allowed_headers:
+      - "Authorization"
+      - "Location"
+      - "Charset"
+      - "Access-Control-Allow-Origin"
+      - "Content-Type"
+      - "Origin"
+      - "Accept"
+      - "Content-Length"
+      - "Accept-Encoding"
+      - "X-CSRF-Token"
+    options_passthrough: true
+    exposed_headers:
+      - "Location"
+      - "Authorization"
+      - "Content-Disposition"

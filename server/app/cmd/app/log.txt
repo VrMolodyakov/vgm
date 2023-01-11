@@ -38,3 +38,102 @@
 
 
 {"level":"info","ts":"Wed, 11 Jan 2023 01:15:42 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 02:57:13 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 02:57:29 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 02:59:11 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:02:12 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:02:23 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:03:03 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:03:25 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:05:02 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:06:23 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:11:18 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:11:35 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:11:41 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:11:50 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:11:57 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:18:35 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:19:10 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:20:21 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:20:52 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:32:58 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:33:48 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:34:12 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:34:21 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:34:32 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:35:39 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:35:43 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:36:01 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:36:36 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:39:06 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 03:42:21 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 04:02:14 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 04:22:33 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 04:22:44 MSK","caller":"app/main.go:16","msg":"start app"}
+
+
+{"level":"info","ts":"Wed, 11 Jan 2023 04:23:23 MSK","caller":"app/main.go:16","msg":"start app"}
