@@ -8,7 +8,6 @@ services:
             - '5432:5432'    
         volumes:
             - ./db_data:/var/lib/postgresql/data
-            - ./server/scripts/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
         env_file:
             - local.env    
         healthcheck:
@@ -22,20 +21,18 @@ services:
         depends_on:
           postgres:
             condition: service_healthy
+        env_file:
+            - local.env    
         volumes:
-          - ./server/migrations:/migrations
+            - ./server/migrations:/migrations
         command:
-          [ "-database",  "postgres://postgres:postgres@postgres:5432/devdb?sslmode=disable" , "-path", "/migrations", "up" ]
+          [ "-database",  "postgres://$$POSTGRES_USER:$$POSTGRES_PASSWORD@$$POSTGRES_IP:$$POSTGRES_PORT/$$POSTGRES_DB?sslmode=disable" , "-path", "/migrations", "up" ]
     app:
         build: 
           context: ./server/app
           dockerfile: Dockerfile
         env_file:
             - local.env
-        environment:
-            - POSTGRES_USER=postgres
-            - POSTGRES_PASSWORD=postgres
-            - POSTGRES_DB=devdb
         volumes:
             - ./configs:/configs    
 

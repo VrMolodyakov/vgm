@@ -19,7 +19,7 @@ const (
 type Postgres struct {
 	User     string `env:"POSTGRES_USER"     env-required:""`
 	Password string `env:"POSTGRES_PASSWORD" env-required:""`
-	Database string `env:"POSTGRES_DB"       env-required:""`
+	Database string `env:"POSTGRES_IP"       env-required:""`
 }
 
 type HTTP struct {
