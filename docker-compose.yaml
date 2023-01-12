@@ -9,7 +9,7 @@ services:
         volumes:
             - ./db_data:/var/lib/postgresql/data
         env_file:
-            - local.env    
+            - .env    
         healthcheck:
             test: [ "CMD", "pg_isready", "-q", "-d", "devdb", "-U","postgres" ]
             timeout: 45s
@@ -20,19 +20,17 @@ services:
         restart: on-failure
         depends_on:
           postgres:
-            condition: service_healthy
-        env_file:
-            - local.env    
+            condition: service_healthy   
         volumes:
             - ./server/migrations:/migrations
         command:
-          [ "-database",  "postgres://$$POSTGRES_USER:$$POSTGRES_PASSWORD@$$POSTGRES_IP:$$POSTGRES_PORT/$$POSTGRES_DB?sslmode=disable" , "-path", "/migrations", "up" ]
+          [ "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_IP}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" , "-path", "/migrations", "up" ]
     app:
         build: 
           context: ./server/app
           dockerfile: Dockerfile
         env_file:
-            - local.env
+            - .env
         volumes:
             - ./configs:/configs    
 
