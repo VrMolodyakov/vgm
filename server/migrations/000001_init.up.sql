@@ -1,5 +1,19 @@
-CREATE TABLE users(
-    u_id SERIAL PRIMARY KEY,
-    u_password VARCHAR(200) NOT NULL,
-    u_name VARCHAR(200) NOT NULL
+BEGIN;
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE currency
+(
+    currency_id SERIAL PRIMARY KEY,
+    name   TEXT,
+    symbol TEXT
 );
+
+CREATE TABLE music_album(
+    album_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    catalog_number TEXT,
+    Barcode TEXT,
+    release_date DATE NOT NULL,
+
+);
+
