@@ -12,6 +12,7 @@ CREATE TABLE currency
 CREATE TABLE music_album
 (
     album_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT,
     catalog_number TEXT,
     barcode TEXT,
     release_date DATE NOT NULL,
@@ -23,3 +24,29 @@ CREATE TABLE music_album
 
 );
 
+CREATE TABLE musical_profession
+(
+    profession_id SERIAL PRIMARY KEY,
+    professional_title TEXT
+);
+
+CREATE TABLE person
+(
+    person_id SERIAL PRIMARY KEY,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL
+);
+
+create table credit(
+    person_id INT REFERENCES person (person_id),
+    album_id INT REFERENCES music_album (album_id),
+    profession_id INT REFERENCES musical_profession (profession_id),
+    PRIMARY KEY(person_id,album_id,profession_id)
+
+); 
+
+create table tracklist 
+(
+    track_id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL
+); 
