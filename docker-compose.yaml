@@ -22,7 +22,7 @@ services:
           postgres:
             condition: service_healthy   
         volumes:
-            - ./server/migrations:/migrations
+            - ./music/migrations:/migrations
         command:
           [ "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_IP}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" , "-path", "/migrations", "up" ]
     user:

@@ -1,0 +1,13 @@
+
+syntax = "proto3";
+
+package music_service.album.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/prod/music_service/album/v1;pb_music_album";
+
+
+message Tracklist {
+    uint32 track_id = 1;
+    string title = 2;
+}
+
