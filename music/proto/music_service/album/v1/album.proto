@@ -1,0 +1,32 @@
+
+syntax = "proto3";
+
+package music_service.album.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/prod/music_service/album/v1;pb_music_album";
+
+
+message Album {
+    // Identifier
+    string album_id = 1;
+    // Name
+    string title = 2;
+    // Description
+    string catalog_number = 3;
+    // Image ID
+    optional string image_id = 4;
+    // Price
+    uint64 price = 5;
+    // Prince Currency
+    uint32 currency_id = 6;
+    // Rating
+    uint32 rating = 7;
+    // Category ID
+    uint32 category_id = 8;
+    // Specification
+    string specification = 9;
+    // Updated at
+    int64 updated_at = 10;
+    // Create at
+    int64 created_at = 11;
+  }

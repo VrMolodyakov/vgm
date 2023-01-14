@@ -25,9 +25,9 @@ services:
             - ./server/migrations:/migrations
         command:
           [ "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_IP}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" , "-path", "/migrations", "up" ]
-    app:
+    user:
         build: 
-          context: ./server/app
+          context: ./user/app
           dockerfile: Dockerfile
         env_file:
             - .env

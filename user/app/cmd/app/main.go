@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/VrMolodyakov/vgm/internal/config"
-	"github.com/VrMolodyakov/vgm/pkg/logging"
+	"github.com/VrMolodyakov/vgm/user/internal/config"
+	"github.com/VrMolodyakov/vgm/user/pkg/logging"
 )
 
 func main() {
