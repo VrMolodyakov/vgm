@@ -3,19 +3,13 @@ syntax = "proto3";
 
 package music_service.album.v1;
 
-option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/prod/music_service/album/v1;pb_music_album";
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/album/v1;pb_music_album";
 
 
 message Album {
     string album_id = 1;
     string title = 2;
-    string catalog_number = 3;
-    optional string image_src = 4;
-    optional string barcode = 4;
-    int64 release_date = 5;
-    float price = 6;
-    uint32 currency_id = 7;
-    string media_format = 8;
-    string classification = 9;
-    string publisher = 10;
-  }
+    uint32 create_at = 3;
+}
+
+

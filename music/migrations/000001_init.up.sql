@@ -9,11 +9,20 @@ CREATE TABLE currency
     symbol TEXT
 );
 
-CREATE TABLE music_album
+
+CREATE TABLE album
 (
     album_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT,
+    create_at DATE NOT NULL
+);
+
+
+CREATE TABLE album_info
+(
+    album_info_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     catalog_number TEXT,
+    image_srs TEXT,
     barcode TEXT,
     release_date DATE NOT NULL,
     price NUMERIC(5,2) NOT NULL,
