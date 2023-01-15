@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package music_service.album.v1;
+package proto.music_service.album.v1;
 
 option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/album/v1;pb_music_album";
 
-import "music_service/album/v1/album.proto";
+import "proto/music_service/album/v1/album.proto";
 
 service AlbumService {
     rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
