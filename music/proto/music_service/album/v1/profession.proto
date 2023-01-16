@@ -1,0 +1,11 @@
+
+syntax = "proto3";
+
+package proto.music_service.album.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/album/v1;pb_music_album";
+
+message Profession {
+    uint32 profession_id = 1;
+    string professional_title = 2;
+}
