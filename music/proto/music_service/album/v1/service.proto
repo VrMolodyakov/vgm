@@ -6,6 +6,7 @@ option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/album/v1
 
 import "proto/music_service/album/v1/album.proto";
 
+
 service AlbumService {
     rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
 }
