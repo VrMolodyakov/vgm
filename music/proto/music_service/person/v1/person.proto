@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package proto.music_service.album.v1;
+package proto.music_service.person.v1;
 
 option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/album/v1;pb_music_album";
 

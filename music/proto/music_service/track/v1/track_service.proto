@@ -1,0 +1,21 @@
+
+syntax = "proto3";
+
+package proto.music_service.track.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/track/v1;pb_music_album";
+
+import "proto/music_service/track/v1/track.proto";
+
+
+service TrackService {
+    rpc CreateTracklist(CreateTracklistRequest) returns (CreateTracklistResponse) {}
+}
+  
+message CreateTracklistRequest{
+    repeated Track track = 1;
+}
+
+message CreateTracklistResponse{
+    Album album = 1;
+}

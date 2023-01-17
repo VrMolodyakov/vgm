@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package proto.music_service.info.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/info/v1;pb_music_album";
+
+import "proto/music_service/info/v1/info.proto";
+
+service InfoService {
+    rpc CreateAlbumInfo(CreateAlbumInfoRequest) returns (CreateAlbumInfoResponse) {}
+}
+
+message CreateAlbumInfoRequest{
+    string album_title = 1;
+    string catalog_number = 2;
+    optional string image_src = 3;
+    optional string barcode = 4;
+    uint32 release_date = 5;
+    float price = 6;
+    string currency_symbol = 7;
+    string media_format = 8;
+    string classification = 9;
+    string publisher = 10;
+}
+
+message CreateAlbumInfoResponse{
+    Info info = 1;
+}

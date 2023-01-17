@@ -1,0 +1,21 @@
+
+syntax = "proto3";
+
+package proto.music_service.credit.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/credit/v1;pb_music_credit";
+
+import "proto/music_service/credit/v1/credit.proto";
+
+service CreditService {
+    rpc CreateCredit(CreateCreditRequest) returns (CreateCreditResponse) {} 
+}
+
+message CreateCreditRequest{
+    repeated Credit credits = 1;
+}
+
+message CreateCreditResponse{
+   Credit credit = 1;
+}
+

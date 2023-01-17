@@ -5,16 +5,10 @@ package proto.music_service.album.v1;
 option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/album/v1;pb_music_album";
 
 import "proto/music_service/album/v1/album.proto";
-import "proto/music_service/album/v1/credit.proto";
-import "proto/music_service/album/v1/info.proto";
-import "proto/music_service/album/v1/track.proto";
 
 
 service AlbumService {
     rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
-    rpc CreateCredit(CreateCreditRequest) returns (CreateCreditResponse) {}
-    rpc CreateAlbumInfo(CreateAlbumInfoRequest) returns (CreateAlbumInfoResponse) {}
-    rpc CreateTracklist(CreateTracklistRequest) returns (CreateTracklistResponse) {}
 }
   
 
@@ -26,35 +20,3 @@ message CreateAlbumResponse{
     Album album = 1;
 }
 
-message CreateCreditRequest{
-    repeated Credit credits = 1;
-}
-
-message CreateCreditResponse{
-   Credit credit = 1;
-}
-
-message CreateAlbumInfoRequest{
-    string album_title = 1;
-    string catalog_number = 2;
-    optional string image_src = 3;
-    optional string barcode = 4;
-    uint32 release_date = 5;
-    float price = 6;
-    string currency_symbol = 7;
-    string media_format = 8;
-    string classification = 9;
-    string publisher = 10;
-}
-
-message CreateAlbumInfoResponse{
-    Info info = 1;
-}
-
-message CreateTracklistRequest{
-    repeated Track track = 1;
-}
-
-message CreateTracklistResponse{
-    Album album = 1;
-}

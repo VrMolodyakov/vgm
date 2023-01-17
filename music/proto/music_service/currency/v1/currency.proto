@@ -1,0 +1,12 @@
+
+syntax = "proto3";
+
+package proto.music_service.currency.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/currency/v1;pb_music_currency";
+
+message Currency {
+    uint32 currency_id = 1;
+    string name = 2;
+    string symbol = 3;
+}
