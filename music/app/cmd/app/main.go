@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/VrMolodyakov/vgm/music/pkg/logging"
+)
 
 func main() {
-	fmt.Println("music service")
+	fmt.Println("music service start")
+	logging.NewLogger("debug", nil, nil)
+
 }

@@ -8,49 +8,57 @@ import "proto/music_service/album/v1/album.proto";
 import "proto/music_service/credit/v1/credit.proto";
 import "proto/music_service/track/v1/track.proto";
 import "proto/music_service/info/v1/info.proto";
+import "proto/filter/v1/filter.proto";
 
 
 service AlbumService {
-    rpc Create(CreateRequest) returns (CreateResponse) {}
-    rpc Find(FindRequest) returns (FindResponse) {}
-    rpc FindFull(FindFullRequest) returns (FindFullResponse) {}
-    rpc FindAll(FindAllRequest) returns (FindAllResponse) {}
+    rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
+    rpc FindAlbum(FindAlbumRequest) returns (FindAlbumResponse) {}
+    rpc FindFullAlbum(FindFullAlbumRequest) returns (FindFullAlbumResponse) {}
+    rpc FindAllAlbums(FindAllAlbumsRequest) returns (FindAllAlbumsResponse) {}
 }
   
 
-message CreateRequest {
+message CreateAlbumRequest {
     string title = 1;
 }
 
-message CreateResponse{
+message CreateAlbumResponse{
     Album album = 1;
 }
 
 
-message FindRequest {
+message FindAlbumRequest {
     string title = 1;
 }
 
-message FindResponse{
-    Album album = 1;
-}
-
-message FindFullRequest{
-    string title = 1;
-}
-
-message FindFullResponse{
+message FullAlbum{
     Album album = 1;
     proto.music_service.info.v1.Info info = 4;
     repeated proto.music_service.credit.v1.Credit credits = 2;
     repeated proto.music_service.track.v1.Track tracklist = 3;
 }
 
-message FindAllRequest{
-    string title = 1;
-
+message FindAlbumResponse{
+    Album album = 1;
 }
-message FindAllResponse{
+
+message FindFullAlbumRequest{
     string title = 1;
+}
+
+message FindFullAlbumResponse{
+    FullAlbum album = 1;
+}
+
+message FindAllAlbumsRequest{
+    filter.v1.Pagination pagination = 1;
+    filter.v1.StringFieldFilter name = 2;
+    filter.v1.StringFieldFilter person = 3;
+    filter.v1.IntFieldFilter published_at = 4;
+    filter.v1.Sort sort = 5;
+}
+message FindAllAlbumsResponse{
+    repeated Album albums = 1;
 } 
 
