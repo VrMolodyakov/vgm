@@ -3,10 +3,10 @@ syntax = "proto3";
 
 package proto.music_service.track.v1;
 
-option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/track/v1;pb_music_album";
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/track/v1;pb_music_track";
 
 import "proto/music_service/track/v1/track.proto";
-
+import "proto/music_service/album/v1/album.proto";
 
 service TrackService {
     rpc CreateTracklist(CreateTracklistRequest) returns (CreateTracklistResponse) {}
@@ -17,5 +17,5 @@ message CreateTracklistRequest{
 }
 
 message CreateTracklistResponse{
-    Album album = 1;
+    proto.music_service.album.v1.Album album = 1;
 }

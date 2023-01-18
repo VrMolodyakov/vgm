@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package proto.music_service.album.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/album/v1;pb_music_album";
+
+import "proto/music_service/album/v1/album.proto";
+import "proto/music_service/credit/v1/credit.proto";
+import "proto/music_service/track/v1/track.proto";
+import "proto/music_service/info/v1/info.proto";
+
+
+service AlbumService {
+    rpc Create(CreateRequest) returns (CreateResponse) {}
+    rpc Find(FindRequest) returns (FindResponse) {}
+    rpc FindFull(FindFullRequest) returns (FindFullResponse) {}
+    rpc FindAll(FindAllRequest) returns (FindAllResponse) {}
+}
+  
+
+message CreateRequest {
+    string title = 1;
+}
+
+message CreateResponse{
+    Album album = 1;
+}
+
+
+message FindRequest {
+    string title = 1;
+}
+
+message FindResponse{
+    Album album = 1;
+}
+
+message FindFullRequest{
+    string title = 1;
+}
+
+message FindFullResponse{
+    Album album = 1;
+    proto.music_service.info.v1.Info info = 4;
+    repeated proto.music_service.credit.v1.Credit credits = 2;
+    repeated proto.music_service.track.v1.Track tracklist = 3;
+}
+
+message FindAllRequest{
+    string title = 1;
+
+}
+message FindAllResponse{
+    string title = 1;
+} 
+

@@ -3,7 +3,7 @@ syntax = "proto3";
 
 package proto.music_service.track.v1;
 
-option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/track/v1;pb_music_album";
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/track/v1;pb_music_track";
 
 
 message Track {
