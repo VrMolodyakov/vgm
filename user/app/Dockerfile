@@ -1,6 +1,6 @@
 FROM golang:alpine
 
-WORKDIR /app/vgm-server
+WORKDIR /app/user-service
 
 COPY go.mod .
 COPY go.sum .
@@ -9,6 +9,6 @@ RUN go mod download
 
 #build appliction
 COPY . .
-RUN go build -o vgm-server ./cmd/app/main.go
+RUN go build -o user-service ./cmd/app/main.go
 
-CMD ["./vgm-server"]
+CMD ["./user-service"]

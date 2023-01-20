@@ -1,0 +1,258 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "proto/music_service/album/v1/album_service.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AlbumService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Album": {
+      "type": "object",
+      "properties": {
+        "albumId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "createAt": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1CreateAlbumResponse": {
+      "type": "object",
+      "properties": {
+        "album": {
+          "$ref": "#/definitions/v1Album"
+        }
+      }
+    },
+    "v1Credit": {
+      "type": "object",
+      "properties": {
+        "profession": {
+          "type": "string"
+        },
+        "personFirstName": {
+          "type": "string"
+        },
+        "personLastName": {
+          "type": "string"
+        },
+        "albumTitle": {
+          "type": "string"
+        }
+      }
+    },
+    "v1FindAlbumResponse": {
+      "type": "object",
+      "properties": {
+        "album": {
+          "$ref": "#/definitions/v1Album"
+        }
+      }
+    },
+    "v1FindAllAlbumsResponse": {
+      "type": "object",
+      "properties": {
+        "albums": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Album"
+          }
+        }
+      }
+    },
+    "v1FindFullAlbumResponse": {
+      "type": "object",
+      "properties": {
+        "album": {
+          "$ref": "#/definitions/v1FullAlbum"
+        }
+      }
+    },
+    "v1FullAlbum": {
+      "type": "object",
+      "properties": {
+        "album": {
+          "$ref": "#/definitions/v1Album"
+        },
+        "info": {
+          "$ref": "#/definitions/v1Info"
+        },
+        "credits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Credit"
+          }
+        },
+        "tracklist": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Track"
+          }
+        }
+      }
+    },
+    "v1Info": {
+      "type": "object",
+      "properties": {
+        "albumInfoId": {
+          "type": "string"
+        },
+        "catalogNumber": {
+          "type": "string"
+        },
+        "imageSrc": {
+          "type": "string"
+        },
+        "barcode": {
+          "type": "string"
+        },
+        "releaseDate": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "price": {
+          "type": "number",
+          "format": "float"
+        },
+        "currencyId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "mediaFormat": {
+          "type": "string"
+        },
+        "classification": {
+          "type": "string"
+        },
+        "publisher": {
+          "type": "string"
+        }
+      }
+    },
+    "v1IntFieldFilter": {
+      "type": "object",
+      "properties": {
+        "op": {
+          "$ref": "#/definitions/v1IntFieldFilterOperator"
+        },
+        "val": {
+          "type": "string"
+        }
+      },
+      "title": "Filter for int values, example: ?age.op=gt\u0026age.val=18"
+    },
+    "v1IntFieldFilterOperator": {
+      "type": "string",
+      "enum": [
+        "OPERATOR_UNSPECIFIED",
+        "OPERATOR_EQ",
+        "OPERATOR_NEQ",
+        "OPERATOR_LT",
+        "OPERATOR_LTE",
+        "OPERATOR_GT",
+        "OPERATOR_GTE"
+      ],
+      "default": "OPERATOR_UNSPECIFIED"
+    },
+    "v1Pagination": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1Sort": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string"
+        }
+      }
+    },
+    "v1StringFieldFilter": {
+      "type": "object",
+      "properties": {
+        "op": {
+          "$ref": "#/definitions/v1StringFieldFilterOperator"
+        },
+        "val": {
+          "type": "string"
+        }
+      },
+      "title": "Filter for string values, example: ?email.op=eq\u0026email.val=me@example.com"
+    },
+    "v1StringFieldFilterOperator": {
+      "type": "string",
+      "enum": [
+        "OPERATOR_UNSPECIFIED",
+        "OPERATOR_EQ",
+        "OPERATOR_NEQ",
+        "OPERATOR_LIKE"
+      ],
+      "default": "OPERATOR_UNSPECIFIED"
+    },
+    "v1Track": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "string"
+        },
+        "albumTitle": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

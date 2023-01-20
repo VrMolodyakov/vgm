@@ -67,6 +67,9 @@ func GetConfig() *Config {
 			}
 		}
 	})
+	var P Postgres
+	cleanenv.ReadEnv(P)
+	fmt.Println(P)
 	return instance
 }
 

@@ -3,7 +3,7 @@ syntax = "proto3";
 
 package proto.music_service.credit.v1;
 
-option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/credit/v1;pb_music_credit";
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/credit/v1;pb_music_credit";
 
 message Credit {
     string profession = 1;

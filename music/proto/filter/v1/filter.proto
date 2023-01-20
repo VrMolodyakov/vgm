@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.filter.v1;
 
-option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/filter/v1;pb_filter";
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/filter/v1;pb_filter";
 
 
 

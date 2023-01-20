@@ -3,11 +3,9 @@ syntax = "proto3";
 
 package proto.music_service.credit.v1;
 
-option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/credit/v1;pb_music_credit";
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/credit/v1;pb_music_credit";
 
 import "proto/music_service/credit/v1/credit.proto";
-import "proto/music_service/album/v1/album.proto";
-
 
 service CreditService {
     rpc CreateCredit(CreateCreditRequest) returns (CreateCreditResponse) {} 
@@ -18,6 +16,6 @@ message CreateCreditRequest{
 }
 
 message CreateCreditResponse{
-    proto.music_service.album.v1.Album album = 1;
+    string title = 1;
 }
 

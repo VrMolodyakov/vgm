@@ -3,3 +3,6 @@ proto-music-check:
 
 proto-music-gen:
 	cd music && buf generate
+
+start: 
+	docker-compose up --build 

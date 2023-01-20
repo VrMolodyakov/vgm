@@ -32,7 +32,15 @@ services:
         env_file:
             - .env
         volumes:
-            - ./configs:/configs    
+            - ./configs:/configs
+    music:
+        build: 
+          context: ./music/app
+          dockerfile: Dockerfile
+        env_file:
+            - .env
+        volumes:
+            - ./configs:/configs      
 
 
 

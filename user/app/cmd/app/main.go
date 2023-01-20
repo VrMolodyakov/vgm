@@ -1,11 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"time"
 
-	"github.com/VrMolodyakov/vgm/user/internal/config"
 	"github.com/VrMolodyakov/vgm/user/pkg/logging"
 )
 
@@ -14,10 +11,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	logger.Info("starting app")
-	config := config.GetConfig()
-	fmt.Println("config: ", config.Postgres)
-	for {
-		time.Sleep(10 * time.Minute)
-	}
+	logger.Info("user service star")
+	logger.Info("user service end")
 }

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proto.music_service.info.v1;
 
-option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/music/info/v1;pb_music_album";
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/info/v1;pb_music_album";
 
 
 message Info {
