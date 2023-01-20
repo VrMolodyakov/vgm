@@ -25,7 +25,7 @@ CREATE TABLE album_info
     image_srs TEXT,
     barcode TEXT,
     release_date DATE NOT NULL,
-    price NUMERIC(5,2) NOT NULL,
+    price NUMERIC(8,2) NOT NULL,
     currency_id INT REFERENCES currency (currency_id),
     media_format TEXT,
     classification TEXT,
@@ -48,7 +48,7 @@ CREATE TABLE person
 
 create table credit(
     person_id INT REFERENCES person (person_id),
-    album_id INT REFERENCES music_album (album_id),
+    album_id UUID  REFERENCES album (album_id),
     profession_id INT REFERENCES musical_profession (profession_id),
     PRIMARY KEY(person_id,album_id,profession_id)
 
@@ -59,3 +59,5 @@ create table tracklist
     track_id SERIAL PRIMARY KEY,
     title TEXT NOT NULL
 ); 
+
+COMMIT;
