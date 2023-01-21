@@ -21,6 +21,7 @@ CREATE TABLE album
 CREATE TABLE album_info
 (
     album_info_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    album_id UUID  REFERENCES album (album_id),
     catalog_number TEXT,
     image_srs TEXT,
     barcode TEXT,
@@ -57,6 +58,7 @@ create table credit(
 create table tracklist 
 (
     track_id SERIAL PRIMARY KEY,
+    album_id UUID  REFERENCES album (album_id),
     title TEXT NOT NULL
 ); 
 

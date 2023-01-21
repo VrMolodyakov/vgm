@@ -6,17 +6,17 @@ import (
 )
 
 type Credit struct {
-	PersonID     string `mapstructure:"album_id"`
+	PersonID     int64  `mapstructure:"person_id"`
 	AlbumID      string `mapstructure:"album_id"`
-	ProfessionID string `mapstructure:"album_id"`
+	ProfessionID int64  `mapstructure:"profession_id"`
 }
 
 func ToMap(a *Credit) (map[string]interface{}, error) {
-	var updateAlbumMap map[string]interface{}
-	err := mapstructure.Decode(a, &updateAlbumMap)
+	var updateCreditMap map[string]interface{}
+	err := mapstructure.Decode(a, &updateCreditMap)
 	if err != nil {
-		return updateAlbumMap, errors.Wrap(err, "mapstructure.Decode(product)")
+		return updateCreditMap, errors.Wrap(err, "mapstructure.Decode(product)")
 	}
 
-	return updateAlbumMap, nil
+	return updateCreditMap, nil
 }

@@ -7,6 +7,7 @@ import (
 
 type Info struct {
 	ID             string  `mapstructure:"album_info_id"`
+	AlbumID        string  `mapstructure:"album_id"`
 	CatalogNumber  string  `mapstructure:"catalog_number" `
 	ImageSrc       string  `mapstructure:"image_srs" `
 	Barcode        string  `mapstructure:"barcode" `
