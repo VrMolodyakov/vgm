@@ -10,7 +10,8 @@ import (
 func main() {
 	logger, err := logging.New("info", "log.txt")
 	if err != nil {
-		fmt.Errorf("cannot start app due to %v", err)
+		fmt.Printf("cannot start app due to %v", err)
+		return
 	}
 	logger.Info("music service start")
 	cfg := config.GetConfig()

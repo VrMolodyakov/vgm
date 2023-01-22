@@ -25,6 +25,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/ilyakaznacheev/cleanenv v1.4.2 // indirect
+	github.com/jackc/pgx v3.6.2+incompatible
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0

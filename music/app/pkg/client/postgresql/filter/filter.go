@@ -11,11 +11,6 @@ type Filterable interface {
 	Limit() uint64
 	Offset() uint64
 	Fields() []Field
-	AddField(name string, operator string, value string) error
-}
-
-type Fielder interface {
-	Fields() []Field
 }
 
 type Field struct {
