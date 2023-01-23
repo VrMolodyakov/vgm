@@ -48,9 +48,9 @@ func (a *AlbumDAO) All(ctx context.Context, filtering filter.Filterable, sorting
 		logger.Error(err.Error())
 		return nil, err
 	}
-	rows, err := a.client.Query(ctx, sql, args...)
-	if err != nil {
-		err := db.ErrDoQuery(err)
+	rows, queryErr := a.client.Query(ctx, sql, args...)
+	if queryErr != nil {
+		err := db.ErrDoQuery(queryErr)
 		logger.Error(err.Error())
 		return nil, err
 	}
@@ -58,14 +58,14 @@ func (a *AlbumDAO) All(ctx context.Context, filtering filter.Filterable, sorting
 	albums := make([]AlbumStorage, 0)
 	for rows.Next() {
 		as := AlbumStorage{}
-		if err = rows.Scan(
+		if queryErr = rows.Scan(
 			&as.ID,
 			&as.Title,
 			&as.CreateAt,
-		); err != nil {
-			err = db.ErrScan(err)
-			logger.Error(err.Error())
-			return nil, err
+		); queryErr != nil {
+			queryErr = db.ErrScan(queryErr)
+			logger.Error(queryErr.Error())
+			return nil, queryErr
 		}
 
 		albums = append(albums, as)
