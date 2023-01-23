@@ -8,7 +8,21 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func NewLogger(consoleLevel string, console io.Writer, files ...io.Writer) *zap.Logger {
+var l logger
+
+type Logger interface {
+	WithFields(args ...interface{})
+}
+
+type logger struct {
+	*zap.Logger
+}
+
+func GetLogger() *logger {
+	return &l
+}
+
+func initLogger(consoleLevel string, console io.Writer, files ...io.Writer) {
 	config := zap.NewProductionEncoderConfig()
 
 	config.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC1123)
@@ -57,10 +71,15 @@ func NewLogger(consoleLevel string, console io.Writer, files ...io.Writer) *zap.
 			zap.DebugLevel,
 		)
 	}
-	logger := zap.New(
+
+	zap := zap.New(
 		zapcore.NewTee(cores...),
 		zap.AddCaller(),
 	)
 
-	return logger
+	l = logger{zap}
+}
+
+func (l *logger) WithFields(args ...interface{}) {
+	l.Logger.Sugar().With(args...).Desugar()
 }

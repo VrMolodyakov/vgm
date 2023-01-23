@@ -1,36 +1,41 @@
 package logging
 
 import (
-	"fmt"
+	"log"
 	"os"
-
-	"go.uber.org/zap"
+	"sync"
 )
 
 const separator = "\n\n"
 
-func New(consoleLevel, path string) (*zap.Logger, error) {
+var once sync.Once
 
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		return nil, fmt.Errorf("create/open log file (%s): %w", path, err)
-	}
+func Init(consoleLevel, path string) {
 
-	info, err := file.Stat()
-	if err != nil {
-		return nil, fmt.Errorf("get file stats: %w", err)
-	}
+	once.Do(func() {
 
-	if info.IsDir() {
-		return nil, fmt.Errorf("%s is directory", info.Name())
-	}
-
-	if info.Size() > 0 {
-		_, err = file.WriteString(separator)
+		file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 		if err != nil {
-			return nil, fmt.Errorf("write separator to file: %w", err)
+			log.Fatal("create/open log file (%s): %w", path, err)
 		}
-	}
 
-	return NewLogger(consoleLevel, os.Stdout, file), nil
+		info, err := file.Stat()
+		if err != nil {
+			log.Fatal("get file stats: %w", err)
+		}
+
+		if info.IsDir() {
+			log.Fatal("%s is directory", info.Name())
+		}
+
+		if info.Size() > 0 {
+			_, err = file.WriteString(separator)
+			if err != nil {
+				log.Fatal("write separator to file: %w", err)
+			}
+		}
+
+		initLogger(consoleLevel, os.Stdout, file)
+	})
+
 }
