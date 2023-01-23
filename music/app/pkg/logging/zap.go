@@ -18,6 +18,7 @@ type logger struct {
 	*zap.Logger
 }
 
+//TODO: probably remove it
 func GetLogger() *logger {
 	return &l
 }
@@ -80,6 +81,8 @@ func initLogger(consoleLevel string, console io.Writer, files ...io.Writer) {
 	l = logger{zap}
 }
 
-func (l *logger) WithFields(args ...interface{}) {
-	l.Logger.Sugar().With(args...).Desugar()
+func (l *logger) Infow(msg string, keyAndValues ...interface{}) {
+	sugar := l.Logger.Sugar()
+	sugar.Infow(msg, keyAndValues...)
+	l.Logger = sugar.Desugar()
 }

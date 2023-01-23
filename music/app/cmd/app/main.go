@@ -5,11 +5,14 @@ import (
 	_ "fmt"
 
 	_ "github.com/VrMolodyakov/vgm/music/app/internal/config"
-	_ "github.com/VrMolodyakov/vgm/music/app/pkg/logging"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 )
 
 func main() {
-	// logging.Init("info", "log.txt")
+	logging.Init("info", "log.txt")
+	logger := logging.GetLogger()
+	logger.Infow("album", "sql", "args")
+	logger.Info("msg")
 	// if err != nil {
 	// 	fmt.Printf("cannot start app due to %v", err)
 	// 	return
