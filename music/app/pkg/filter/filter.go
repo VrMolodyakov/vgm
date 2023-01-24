@@ -30,25 +30,23 @@ type Field struct {
 }
 
 type Options struct {
-	filter      string
-	limit       uint64
-	offset      uint64
-	filterTypes map[string]string
-	fields      []Field
+	filter string
+	limit  uint64
+	offset uint64
+	fields []Field
 }
 
 type Filterable interface {
 	Limit() uint64
 	Offset() uint64
 	Fields() []Field
-	AddField(name string, operator string, value string) error
+	AddField(name string, operator string, value string, fieldType string) error
 }
 
-func NewOptions(limit, offset uint64, filterTypes map[string]string) *Options {
+func NewOptions(limit, offset uint64) *Options {
 	return &Options{
-		limit:       limit,
-		offset:      offset,
-		filterTypes: filterTypes,
+		limit:  limit,
+		offset: offset,
 	}
 }
 
@@ -64,17 +62,13 @@ func (o *Options) Fields() []Field {
 	return o.fields
 }
 
-func (o *Options) AddField(name string, operator string, value string) error {
+func (o *Options) AddField(name string, operator string, value string, fieldType string) error {
 	err := validateOperator(operator)
 	if err != nil {
 		return err
 	}
-	dType, ok := o.filterTypes[name]
-	if !ok {
-		return fmt.Errorf("unknown param:`%s`", value)
-	}
 
-	if dType == DataTypeArray && operator != OperatorIn {
+	if fieldType == DataTypeArray && operator != OperatorIn {
 		return fmt.Errorf("with array type name you can use only `in` operator. wrong query param:`%s, %s, %s`",
 			name, operator, value)
 	}
@@ -83,7 +77,7 @@ func (o *Options) AddField(name string, operator string, value string) error {
 		Name:     name,
 		Value:    value,
 		Operator: operator,
-		Type:     dType,
+		Type:     fieldType,
 	})
 	return nil
 }

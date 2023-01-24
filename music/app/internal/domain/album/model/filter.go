@@ -7,24 +7,26 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/types"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
 )
 
 const (
+	nameFilterType    = filter.DataTypeStr
+	publishFilterType = filter.DataTypeDate
+	personFilterType  = filter.DataTypeStr
+
 	nameFilter    = "name"
 	publishFilter = "published_at"
 	personFilter  = "person"
 )
 
-func AlbumFilterFields() map[string]string {
-	return map[string]string{
-		nameFilter:    filter.DataTypeStr,
-		publishFilter: filter.DataTypeDate,
-		personFilter:  filter.DataTypeStr,
-	}
+func AlbumSort(req *albumPb.FindAllAlbumsRequest) sort.Sortable {
+	field := req.GetSort().GetField()
+	return sort.NewOptions(field)
 }
 
 func AlbumFilter(req *albumPb.FindAllAlbumsRequest) filter.Filterable {
-	options := filter.NewOptions(req.GetPagination().GetLimit(), req.GetPagination().GetOffset(), AlbumFilterFields())
+	options := filter.NewOptions(req.GetPagination().GetLimit(), req.GetPagination().GetOffset())
 
 	if req == nil {
 		return options
@@ -33,30 +35,32 @@ func AlbumFilter(req *albumPb.FindAllAlbumsRequest) filter.Filterable {
 	name := req.GetName()
 	if name != nil {
 		operator := types.StringOperatorFromPB(req.GetName().GetOp())
-		addFilterField(nameFilter, name.GetVal(), operator, options)
+		addFilterField(nameFilter, name.GetVal(), operator, nameFilterType, options)
 	}
 
 	published := req.GetPublishedAt()
 	if published != nil {
 		operator := types.IntOperatorFromPB(req.GetPublishedAt().GetOp())
-		addFilterField(publishFilter, published.GetVal(), operator, options)
+		addFilterField(publishFilter, published.GetVal(), operator, publishFilterType, options)
 	}
 
 	person := req.GetPerson()
 	if person != nil {
 		operator := types.StringOperatorFromPB(req.GetPerson().GetOp())
-		addFilterField(personFilter, person.GetVal(), operator, options)
+		addFilterField(personFilter, person.GetVal(), operator, personFilterType, options)
 	}
 
-	return nil
+	return options
 }
 
 func addFilterField(
-	name, value string,
+	name string,
+	value string,
 	operator string,
+	fieldType string,
 	options filter.Filterable,
 ) {
-	err := options.AddField(name, operator, value)
+	err := options.AddField(name, operator, value, fieldType)
 	if err != nil {
 		logging.GetLogger().With(
 			err,

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/dao"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/mitchellh/mapstructure"
 )
@@ -19,4 +20,8 @@ func ToMap(a *Album) (map[string]interface{}, error) {
 	}
 
 	return updateAlbumMap, nil
+}
+
+func NewAlbum(albumDao dao.AlbumDAO) Album {
+	return Album{}
 }
