@@ -82,7 +82,7 @@ func (o *Options) AddField(name string, operator string, value string) error {
 	o.fields = append(o.fields, Field{
 		Name:     name,
 		Value:    value,
-		Operator: string(operator),
+		Operator: operator,
 		Type:     dType,
 	})
 	return nil
