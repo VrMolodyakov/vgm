@@ -12,12 +12,11 @@ import (
 
 const (
 	nameFilterType    = filter.DataTypeStr
-	publishFilterType = filter.DataTypeDate
+	releaseFilterType = filter.DataTypeDate
 	personFilterType  = filter.DataTypeStr
 
 	nameFilter    = "name"
-	publishFilter = "published_at"
-	personFilter  = "person"
+	releaseFilter = "published_at"
 )
 
 func AlbumSort(req *albumPb.FindAllAlbumsRequest) sort.Sortable {
@@ -38,16 +37,10 @@ func AlbumFilter(req *albumPb.FindAllAlbumsRequest) filter.Filterable {
 		addFilterField(nameFilter, name.GetVal(), operator, nameFilterType, options)
 	}
 
-	published := req.GetPublishedAt()
-	if published != nil {
-		operator := types.IntOperatorFromPB(req.GetPublishedAt().GetOp())
-		addFilterField(publishFilter, published.GetVal(), operator, publishFilterType, options)
-	}
-
-	person := req.GetPerson()
-	if person != nil {
-		operator := types.StringOperatorFromPB(req.GetPerson().GetOp())
-		addFilterField(personFilter, person.GetVal(), operator, personFilterType, options)
+	released := req.GetReleasedAt()
+	if released != nil {
+		operator := types.IntOperatorFromPB(req.GetReleasedAt().GetOp())
+		addFilterField(releaseFilter, released.GetVal(), operator, releaseFilterType, options)
 	}
 
 	return options

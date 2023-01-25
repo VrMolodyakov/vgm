@@ -9,7 +9,8 @@ option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_se
 message Album {
     string album_id = 1;
     string title = 2;
-    uint32 create_at = 3;
+    int64  created_at = 3;
+    int64  released_at = 4;
 }
 
 

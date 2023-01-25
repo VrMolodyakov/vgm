@@ -53,8 +53,12 @@
         "title": {
           "type": "string"
         },
-        "createAt": {
-          "type": "integer",
+        "createdAt": {
+          "type": "string",
+          "format": "int64"
+        },
+        "releasedAt": {
+          "type": "string",
           "format": "int64"
         }
       }

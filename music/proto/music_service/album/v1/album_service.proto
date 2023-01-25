@@ -21,6 +21,7 @@ service AlbumService {
 
 message CreateAlbumRequest {
     string title = 1;
+    int64 release_at = 2;
 }
 
 message CreateAlbumResponse{
@@ -54,9 +55,8 @@ message FindFullAlbumResponse{
 message FindAllAlbumsRequest{
     filter.v1.Pagination pagination = 1;
     filter.v1.StringFieldFilter name = 2;
-    filter.v1.StringFieldFilter person = 3;
-    filter.v1.IntFieldFilter published_at = 4;
-    filter.v1.Sort sort = 5;
+    filter.v1.IntFieldFilter released_at = 3;
+    filter.v1.Sort sort = 4;
 }
 message FindAllAlbumsResponse{
     repeated Album albums = 1;
