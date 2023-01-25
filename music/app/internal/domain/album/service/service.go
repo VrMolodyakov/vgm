@@ -10,21 +10,21 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
 )
 
-type repository interface {
+type albumDAO interface {
 	All(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]dao.AlbumStorage, error)
 	Create(ctx context.Context, m map[string]interface{}) (dao.AlbumStorage, error)
 }
 
 type albumService struct {
-	repository repository
+	albumDAO albumDAO
 }
 
-func NewAlbumService(repository repository) *albumService {
-	return &albumService{repository: repository}
+func NewAlbumService(repository albumDAO) *albumService {
+	return &albumService{albumDAO: repository}
 }
 
 func (a *albumService) All(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.Album, error) {
-	dbAlbums, err := a.repository.All(ctx, filter, sort)
+	dbAlbums, err := a.albumDAO.All(ctx, filter, sort)
 	if err != nil {
 		return nil, errors.Wrap(err, "albumService.All")
 	}
@@ -42,7 +42,7 @@ func (s *albumService) Create(ctx context.Context, album model.Album) (model.Alb
 		return model.Album{}, err
 	}
 
-	dbAlbum, err := s.repository.Create(ctx, albumStorageMap)
+	dbAlbum, err := s.albumDAO.Create(ctx, albumStorageMap)
 	if err != nil {
 		return model.Album{}, errors.Wrap(err, "albumService.Create")
 	}
