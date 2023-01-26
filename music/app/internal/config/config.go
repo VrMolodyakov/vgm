@@ -38,9 +38,15 @@ type HTTP struct {
 	} `yaml:"cors"`
 }
 
+type GRPC struct {
+	IP   string `yaml:"ip" env:"GRPC-IP"`
+	Port int    `yaml:"port" env:"GRPC-PORT"`
+}
+
 type Config struct {
 	HTTP     HTTP `yaml:"http"`
 	Postgres Postgres
+	GRPC     GRPC `yaml:"grpc"`
 }
 
 var instance *Config
