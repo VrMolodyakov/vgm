@@ -1,8 +1,12 @@
 package model
 
 import (
+	"time"
+
+	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/dao"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
+	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -27,7 +31,25 @@ func NewAlbum(album dao.AlbumStorage) Album {
 	return Album{
 		ID:         album.ID,
 		Title:      album.Title,
-		CreatedAt:  album.CreatedAt.Unix(),
-		ReleasedAt: album.ReleasedAt.Unix(),
+		CreatedAt:  album.CreatedAt.UnixMicro(),
+		ReleasedAt: album.ReleasedAt.UnixMicro(),
+	}
+}
+
+func (a Album) ToProto() *albumPb.Album {
+	return &albumPb.Album{
+		AlbumId:    a.ID,
+		Title:      a.Title,
+		CreatedAt:  a.CreatedAt,
+		ReleasedAt: a.ReleasedAt,
+	}
+}
+
+func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) Album {
+	return Album{
+		ID:         uuid.New().String(),
+		Title:      pb.GetTitle(),
+		ReleasedAt: pb.GetReleaseAt(),
+		CreatedAt:  time.Now().UnixMicro(),
 	}
 }

@@ -31,6 +31,6 @@ func (p *albumPolicy) All(ctx context.Context, filtering filter.Filterable, sort
 	return products, nil
 }
 
-func (p *albumPolicy) CreateProduct(ctx context.Context, product model.Album) (model.Album, error) {
-	return p.albumService.Create(ctx, product)
+func (p *albumPolicy) CreateProduct(ctx context.Context, album model.Album) (model.Album, error) {
+	return p.albumService.Create(ctx, album)
 }

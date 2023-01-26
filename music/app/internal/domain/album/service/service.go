@@ -19,8 +19,8 @@ type albumService struct {
 	albumDAO albumDAO
 }
 
-func NewAlbumService(repository albumDAO) *albumService {
-	return &albumService{albumDAO: repository}
+func NewAlbumService(dao albumDAO) *albumService {
+	return &albumService{albumDAO: dao}
 }
 
 func (a *albumService) All(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.Album, error) {

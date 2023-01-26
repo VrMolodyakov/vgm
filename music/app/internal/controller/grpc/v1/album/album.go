@@ -4,17 +4,33 @@ import (
 	"context"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
 )
 
-func (s *server) CreateAlbum(context.Context, *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
+func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
 	return nil, nil
 }
-func (s *server) FindAlbum(context.Context, *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {
+func (s *server) FindAlbum(ctx context.Context, request *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {
 	return nil, nil
 }
-func (s *server) FindAllAlbums(context.Context, *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
-	return nil, nil
+func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
+	sort := model.AlbumSort(request)
+	filter := model.AlbumFilter(request)
+
+	all, err := s.albumPolicy.All(ctx, filter, sort)
+	if err != nil {
+		return nil, err
+	}
+
+	pbAlbums := make([]*albumPb.Album, len(all))
+	for i, a := range all {
+		pbAlbums[i] = a.ToProto()
+	}
+
+	return &albumPb.FindAllAlbumsResponse{
+		Albums: pbAlbums,
+	}, nil
 }
-func (s *server) FindFullAlbum(context.Context, *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
+func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
 	return nil, nil
 }
