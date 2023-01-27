@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"net/http"
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
@@ -16,29 +15,26 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/service"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
-	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/julienschmidt/httprouter"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-type App struct {
-	cfg *config.Config
-
-	router     *httprouter.Router
-	httpServer *http.Server
+type app struct {
+	cfg        *config.Config
 	grpcServer *grpc.Server
-
-	pgClient *pgxpool.Pool
 }
 
-func (a *App) Run(ctx context.Context) {
-
+func NewApp(cfg *config.Config) *app {
+	return &app{cfg: cfg}
 }
 
-func (a *App) startGrpc(ctx context.Context) {
+func (a *app) Run(ctx context.Context) {
+	a.startGrpc(ctx)
+}
+
+func (a *app) startGrpc(ctx context.Context) {
 	logger := logging.LoggerFromContext(ctx)
-	logger.With("gprc ip : ", a.cfg.GRPC.IP, "gprc port : ", a.cfg.GRPC.Port)
+	logger.Infow("grpc cfg ", "gprc ip : ", a.cfg.GRPC.IP, "gprc port : ", a.cfg.GRPC.Port)
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
 	if err != nil {
 		logger.Error(err.Error())
@@ -66,8 +62,9 @@ func (a *App) startGrpc(ctx context.Context) {
 
 	albumPb.RegisterAlbumServiceServer(a.grpcServer, albumServer)
 
-	a.grpcServer.Serve(listener)
-
 	//TODO: remove ?
 	reflection.Register(a.grpcServer)
+
+	a.grpcServer.Serve(listener)
+
 }

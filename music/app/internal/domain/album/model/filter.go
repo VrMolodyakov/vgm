@@ -55,8 +55,8 @@ func addFilterField(
 ) {
 	err := options.AddField(name, operator, value, fieldType)
 	if err != nil {
-		logging.GetLogger().With(
-			err,
+		logging.GetLogger().Infow(
+			err.Error(),
 			fmt.Errorf("failed to add filter field. name=%s, operator=%s, value=%s",
 				name,
 				operator,

@@ -8,11 +8,18 @@ import (
 )
 
 func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
-	return nil, nil
+	a := model.NewAlbumFromPB(request)
+
+	album, err := s.albumPolicy.CreateAlbum(ctx, a)
+	if err != nil {
+		return nil, err
+	}
+
+	return &albumPb.CreateAlbumResponse{
+		Album: album.ToProto(),
+	}, nil
 }
-func (s *server) FindAlbum(ctx context.Context, request *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {
-	return nil, nil
-}
+
 func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
 	sort := model.AlbumSort(request)
 	filter := model.AlbumFilter(request)
@@ -31,6 +38,11 @@ func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbu
 		Albums: pbAlbums,
 	}, nil
 }
+
 func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
+	return nil, nil
+}
+
+func (s *server) FindAlbum(ctx context.Context, request *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {
 	return nil, nil
 }

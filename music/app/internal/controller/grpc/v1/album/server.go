@@ -12,7 +12,7 @@ import (
 
 type AlbumPolicy interface {
 	All(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.Album, error)
-	CreateProduct(ctx context.Context, product model.Album) (model.Album, error)
+	CreateAlbum(ctx context.Context, product model.Album) (model.Album, error)
 }
 
 type server struct {
