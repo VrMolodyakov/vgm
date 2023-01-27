@@ -34,7 +34,7 @@ func (a *app) Run(ctx context.Context) {
 
 func (a *app) startGrpc(ctx context.Context) {
 	logger := logging.LoggerFromContext(ctx)
-	logger.Infow("grpc cfg ", "gprc ip : ", a.cfg.GRPC.IP, "gprc port : ", a.cfg.GRPC.Port)
+	logger.Infow("grpc cfg ", "gprc ip : ", a.cfg.GRPC.IP, "gprc port :", a.cfg.GRPC.Port)
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
 	if err != nil {
 		logger.Error(err.Error())
@@ -62,9 +62,9 @@ func (a *app) startGrpc(ctx context.Context) {
 
 	albumPb.RegisterAlbumServiceServer(a.grpcServer, albumServer)
 
-	//TODO: remove ?
 	reflection.Register(a.grpcServer)
-
+	logger.Info("start grpc serve")
 	a.grpcServer.Serve(listener)
+	logger.Info("end of gprc")
 
 }

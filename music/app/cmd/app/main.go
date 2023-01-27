@@ -23,6 +23,7 @@ func main() {
 		"Port", cfg.Postgres.Port,
 		"User", cfg.Postgres.User,
 	)
+
 	ctx := context.Background()
 	app := app.NewApp(cfg)
 	app.Run(ctx)

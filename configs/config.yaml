@@ -1,7 +1,7 @@
 
 http:
   ip: 0.0.0.0
-  port: 8080
+  port: 8082
   cors:
     allowed_methods: ["GET", "POST", "PATCH", "PUT", "OPTIONS", "DELETE"]
     allowed_origins:
@@ -23,3 +23,7 @@ http:
       - "Location"
       - "Authorization"
       - "Content-Disposition"
+
+grpc:
+  ip: 0.0.0.0
+  port: 30000
