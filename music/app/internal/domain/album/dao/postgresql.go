@@ -93,11 +93,13 @@ func (a *AlbumDAO) Create(ctx context.Context, m map[string]interface{}) (AlbumS
 	}
 
 	var album AlbumStorage
+	var releasedAt int64
+	var createdAt int64
 	if QueryRow := a.client.QueryRow(ctx, sql, args...).
 		Scan(&album.ID,
 			&album.Title,
-			&album.ReleasedAt,
-			&album.CreatedAt); QueryRow != nil {
+			&releasedAt,
+			&createdAt); QueryRow != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			QueryRow = db.ErrDoQuery(errors.New("album was not created. 0 rows were affected"))
 		} else {
@@ -106,6 +108,5 @@ func (a *AlbumDAO) Create(ctx context.Context, m map[string]interface{}) (AlbumS
 		logger.Error(QueryRow.Error())
 		return AlbumStorage{}, QueryRow
 	}
-
 	return album, nil
 }

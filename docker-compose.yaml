@@ -37,6 +37,8 @@ services:
         build: 
           context: ./music/app
           dockerfile: Dockerfile
+        ports:
+          - 30000:30000  
         env_file:
             - .env
         volumes:

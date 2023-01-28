@@ -30,7 +30,7 @@ func (a *albumService) All(ctx context.Context, filter filter.Filterable, sort s
 	}
 	var albums []model.Album
 	for _, album := range dbAlbums {
-		albums = append(albums, model.NewAlbum(album))
+		albums = append(albums, album.ToModel())
 	}
 	return albums, nil
 
@@ -47,5 +47,5 @@ func (s *albumService) Create(ctx context.Context, album model.Album) (model.Alb
 		return model.Album{}, errors.Wrap(err, "albumService.Create")
 	}
 
-	return model.NewAlbum(dbAlbum), nil
+	return dbAlbum.ToModel(), nil
 }
