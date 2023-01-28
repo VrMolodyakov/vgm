@@ -5,26 +5,14 @@ import (
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
-	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/google/uuid"
-	"github.com/mitchellh/mapstructure"
 )
 
 type Album struct {
-	ID         string `mapstructure:"album_id"`
-	Title      string `mapstructure:"title"`
-	ReleasedAt int64  `mapstructure:"released_at"`
-	CreatedAt  int64  `mapstructure:"created_at"`
-}
-
-func (a Album) ToMap() (map[string]interface{}, error) {
-	var updateAlbumMap map[string]interface{}
-	err := mapstructure.Decode(a, &updateAlbumMap)
-	if err != nil {
-		return updateAlbumMap, errors.Wrap(err, "mapstructure.Decode(product)")
-	}
-
-	return updateAlbumMap, nil
+	ID         string
+	Title      string
+	ReleasedAt int64
+	CreatedAt  int64
 }
 
 func (a Album) ToProto() *albumPb.Album {

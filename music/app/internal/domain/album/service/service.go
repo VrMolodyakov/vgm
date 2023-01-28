@@ -12,7 +12,7 @@ import (
 
 type albumDAO interface {
 	All(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]dao.AlbumStorage, error)
-	Create(ctx context.Context, m map[string]interface{}) (dao.AlbumStorage, error)
+	Create(ctx context.Context, album model.Album) (dao.AlbumStorage, error)
 }
 
 type albumService struct {
@@ -37,12 +37,7 @@ func (a *albumService) All(ctx context.Context, filter filter.Filterable, sort s
 }
 
 func (s *albumService) Create(ctx context.Context, album model.Album) (model.Album, error) {
-	albumStorageMap, err := album.ToMap()
-	if err != nil {
-		return model.Album{}, err
-	}
-
-	dbAlbum, err := s.albumDAO.Create(ctx, albumStorageMap)
+	dbAlbum, err := s.albumDAO.Create(ctx, album)
 	if err != nil {
 		return model.Album{}, errors.Wrap(err, "albumService.Create")
 	}

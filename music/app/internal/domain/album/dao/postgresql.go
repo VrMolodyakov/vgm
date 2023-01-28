@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	dbFIlter "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/filter"
 	dbSort "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/sort"
@@ -76,11 +77,15 @@ func (a *AlbumDAO) All(ctx context.Context, filtering filter.Filterable, sorting
 	return albums, nil
 }
 
-func (a *AlbumDAO) Create(ctx context.Context, m map[string]interface{}) (AlbumStorage, error) {
+func (a *AlbumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
+	albumStorageMap, err := ToStorageMap(album)
+	if err != nil {
+		return AlbumStorage{}, err
+	}
 	sql, args, err := a.queryBuilder.
 		Insert(table).
-		SetMap(m).
+		SetMap(albumStorageMap).
 		Suffix("RETURNING album_id ,title, released_at ,created_at").
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -92,14 +97,13 @@ func (a *AlbumDAO) Create(ctx context.Context, m map[string]interface{}) (AlbumS
 		return AlbumStorage{}, err
 	}
 
-	var album AlbumStorage
-	var releasedAt int64
-	var createdAt int64
+	var albumStorage AlbumStorage
+
 	if QueryRow := a.client.QueryRow(ctx, sql, args...).
-		Scan(&album.ID,
-			&album.Title,
-			&releasedAt,
-			&createdAt); QueryRow != nil {
+		Scan(&albumStorage.ID,
+			&albumStorage.Title,
+			&albumStorage.ReleasedAt,
+			&albumStorage.CreatedAt); QueryRow != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			QueryRow = db.ErrDoQuery(errors.New("album was not created. 0 rows were affected"))
 		} else {
@@ -108,5 +112,5 @@ func (a *AlbumDAO) Create(ctx context.Context, m map[string]interface{}) (AlbumS
 		logger.Error(QueryRow.Error())
 		return AlbumStorage{}, QueryRow
 	}
-	return album, nil
+	return albumStorage, nil
 }

@@ -32,6 +32,7 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
+	github.com/worldline-go/struct2 v1.2.2
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/net v0.5.0 // indirect
