@@ -13,6 +13,8 @@ import (
 type AlbumPolicy interface {
 	All(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.Album, error)
 	CreateAlbum(ctx context.Context, product model.Album) (model.Album, error)
+	Delete(ctx context.Context, id string) error
+	Update(ctx context.Context, album model.Album) error
 }
 
 type server struct {

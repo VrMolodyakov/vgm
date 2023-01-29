@@ -79,10 +79,7 @@ func (a *AlbumDAO) All(ctx context.Context, filtering filter.Filterable, sorting
 
 func (a *AlbumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
-	albumStorageMap, err := ToStorageMap(album)
-	if err != nil {
-		return AlbumStorage{}, err
-	}
+	albumStorageMap := ToStorageMap(album)
 	sql, args, err := a.queryBuilder.
 		Insert(table).
 		SetMap(albumStorageMap).
@@ -113,4 +110,64 @@ func (a *AlbumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage,
 		return AlbumStorage{}, QueryRow
 	}
 	return albumStorage, nil
+}
+
+func (a *AlbumDAO) Delete(ctx context.Context, id string) error {
+	logger := logging.LoggerFromContext(ctx)
+	sql, args, buildErr := a.queryBuilder.
+		Delete(table).
+		Where(sq.Eq{"album_id": id}).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := a.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Delete() {
+		execErr = db.ErrDoQuery(errors.New("album was not deleted. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
+
+}
+
+func (s *AlbumDAO) Update(ctx context.Context, album model.Album) error {
+	logger := logging.LoggerFromContext(ctx)
+	albumStorageMap := ToStorageMap(album)
+	sql, args, buildErr := s.queryBuilder.
+		Update(table).
+		SetMap(albumStorageMap).
+		Where(sq.Eq{"title": album.Title}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := s.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Update() {
+		execErr = db.ErrDoQuery(errors.New("album was not updated. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
 }

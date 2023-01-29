@@ -7,12 +7,15 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
 )
 
 type albumDAO interface {
 	All(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]dao.AlbumStorage, error)
 	Create(ctx context.Context, album model.Album) (dao.AlbumStorage, error)
+	Delete(ctx context.Context, id string) error
+	Update(ctx context.Context, album model.Album) error
 }
 
 type albumService struct {
@@ -43,4 +46,18 @@ func (s *albumService) Create(ctx context.Context, album model.Album) (model.Alb
 	}
 
 	return dbAlbum.ToModel(), nil
+}
+
+func (s *albumService) Delete(ctx context.Context, id string) error {
+	if id == "" {
+		err := errors.New("id must not be empty")
+		logging.LoggerFromContext(ctx).Error(err.Error())
+		return err
+
+	}
+	return s.albumDAO.Delete(ctx, id)
+}
+
+func (s *albumService) Update(ctx context.Context, album model.Album) error {
+	return s.albumDAO.Update(ctx, album)
 }

@@ -14,6 +14,8 @@ import "proto/filter/v1/filter.proto";
 service AlbumService {
     rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
     rpc FindAlbum(FindAlbumRequest) returns (FindAlbumResponse) {}
+    rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteAlbumResponse) {}
+    rpc UpdateAlbum(UpdateAlbumRequest) returns (UpdateAlbumResponse) {}
     rpc FindFullAlbum(FindFullAlbumRequest) returns (FindFullAlbumResponse) {}
     rpc FindAllAlbums(FindAllAlbumsRequest) returns (FindAllAlbumsResponse) {}
 }
@@ -60,5 +62,24 @@ message FindAllAlbumsRequest{
 }
 message FindAllAlbumsResponse{
     repeated Album albums = 1;
+} 
+
+message DeleteAlbumRequest{
+    string id = 1;
+} 
+
+
+message DeleteAlbumResponse{
+} 
+
+
+message UpdateAlbumRequest{
+    string id = 1;
+    optional string title = 2;
+    optional int64 created_at = 3;
+    optional int64 released_at = 4;
+} 
+
+message UpdateAlbumResponse{
 } 
 

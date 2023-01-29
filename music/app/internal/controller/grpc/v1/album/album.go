@@ -39,6 +39,23 @@ func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbu
 	}, nil
 }
 
+func (s *server) DeleteAlbum(ctx context.Context, request *albumPb.DeleteAlbumRequest) (*albumPb.DeleteAlbumResponse, error) {
+	err := s.albumPolicy.Delete(ctx, request.GetId())
+	if err != nil {
+		return nil, err
+	}
+	return &albumPb.DeleteAlbumResponse{}, nil
+}
+
+func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRequest) (*albumPb.UpdateAlbumResponse, error) {
+	album := model.UpdateModelFromPB(request)
+	err := s.albumPolicy.Update(ctx, album)
+	if err != nil {
+		return nil, err
+	}
+	return &albumPb.UpdateAlbumResponse{}, nil
+}
+
 func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
 	return nil, nil
 }

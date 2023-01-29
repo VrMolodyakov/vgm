@@ -34,3 +34,21 @@ func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) Album {
 		CreatedAt:  time.Now().UnixMilli(),
 	}
 }
+
+func UpdateModelFromPB(pb *albumPb.UpdateAlbumRequest) Album {
+	var album Album
+
+	if pb.Title != nil {
+		album.Title = pb.GetTitle()
+	}
+
+	if pb.CreatedAt != nil {
+		album.CreatedAt = pb.GetCreatedAt()
+	}
+
+	if pb.ReleasedAt != nil {
+		album.ReleasedAt = pb.GetReleasedAt()
+	}
+
+	return album
+}
