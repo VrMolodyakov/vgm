@@ -17,7 +17,7 @@ message CreateAlbumInfoRequest{
     optional string barcode = 4;
     uint32 release_date = 5;
     float price = 6;
-    string currency_symbol = 7;
+    string currency_code = 7;
     string media_format = 8;
     string classification = 9;
     string publisher = 10;

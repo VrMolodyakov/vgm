@@ -53,7 +53,7 @@ func (a *app) startGrpc(ctx context.Context) {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
-	storage := dao.NewProductStorage(pgClient)
+	storage := dao.NewAlbumStorage(pgClient)
 	service := service.NewAlbumService(storage)
 	policy := policy.NewAlbumPolicy(service)
 	albumServer := album.NewServer(policy, albumPb.UnimplementedAlbumServiceServer{})

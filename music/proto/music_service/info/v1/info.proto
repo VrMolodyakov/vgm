@@ -12,7 +12,7 @@ message Info {
     optional string barcode = 4;
     uint32 release_date = 5;
     float price = 6;
-    uint32 currency_id = 7;
+    uint32 currency_code = 7;
     string media_format = 8;
     string classification = 9;
     string publisher = 10;

@@ -56,7 +56,7 @@ message FindFullAlbumResponse{
 
 message FindAllAlbumsRequest{
     filter.v1.Pagination pagination = 1;
-    filter.v1.StringFieldFilter name = 2;
+    filter.v1.StringFieldFilter title = 2;
     filter.v1.IntFieldFilter released_at = 3;
     filter.v1.Sort sort = 4;
 }

@@ -2,14 +2,6 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE TABLE currency
-(
-    currency_id SERIAL PRIMARY KEY,
-    name   TEXT,
-    symbol TEXT
-);
-
-
 CREATE TABLE album
 (
     album_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -27,7 +19,7 @@ CREATE TABLE album_info
     image_srs TEXT,
     barcode TEXT,
     price NUMERIC(8,2) NOT NULL,
-    currency_id INT REFERENCES currency (currency_id),
+    currency_code TEXT,
     media_format TEXT,
     classification TEXT,
     publisher TEXT

@@ -7,14 +7,18 @@ import (
 	mapper "github.com/worldline-go/struct2"
 )
 
+const (
+	fields = 3
+)
+
 type AlbumStorage struct {
-	ID         string    `struct:"album_id,omitempty"`
-	Title      string    `struct:"title,omitempty"`
-	ReleasedAt time.Time `struct:"released_at,omitempty"`
-	CreatedAt  time.Time `struct:"created_at,omitempty"`
+	ID         string    `struct:"album_id"`
+	Title      string    `struct:"title"`
+	ReleasedAt time.Time `struct:"released_at"`
+	CreatedAt  time.Time `struct:"created_at"`
 }
 
-func NewAlbumStorage(album model.Album) AlbumStorage {
+func fromModel(album model.Album) AlbumStorage {
 	createdAt := time.UnixMilli(album.CreatedAt)
 	releasedAt := time.UnixMilli(album.ReleasedAt)
 	return AlbumStorage{
@@ -35,14 +39,25 @@ func (album AlbumStorage) ToModel() model.Album {
 }
 
 func ToStorageMap(album model.Album) map[string]interface{} {
-	storage := NewAlbumStorage(album)
+	storage := fromModel(album)
 	albumStorageMap := (&mapper.Decoder{}).Map(storage)
 	return albumStorageMap
 }
 
-// type AlbumStorage struct {
-// 	ID         string    `struct:"album_id"`
-// 	Title      string    `struct:title,omitempty`
-// 	ReleasedAt time.Time `struct:released_at,omitempty`
-// 	CreatedAt  time.Time `struct:created_at,omitempty`
-// }
+func ToUpdateStorageMap(album model.Album) map[string]interface{} {
+	m := make(map[string]interface{}, fields)
+
+	if album.Title != "" {
+		m["title"] = album.Title
+	}
+
+	if album.CreatedAt != 0 {
+		m["created_at"] = time.UnixMilli(album.CreatedAt)
+	}
+
+	if album.ReleasedAt != 0 {
+		m["released_at"] = time.UnixMilli(album.ReleasedAt)
+	}
+
+	return m
+}

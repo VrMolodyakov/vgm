@@ -4,4 +4,4 @@ DROP TABLE IF EXISTS album_info;
 DROP TABLE IF EXISTS musical_profession;
 DROP TABLE IF EXISTS person;
 DROP TABLE IF EXISTS credit;
-DROP TABLE IF EXISTS tracklist ;
+DROP TABLE IF EXISTS tracklist;

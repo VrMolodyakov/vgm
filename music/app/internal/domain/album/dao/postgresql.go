@@ -17,14 +17,14 @@ import (
 
 type AlbumDAO struct {
 	queryBuilder sq.StatementBuilderType
-	client       PostgreSQLClient
+	client       db.PostgreSQLClient
 }
 
 const (
 	table = "album"
 )
 
-func NewProductStorage(client PostgreSQLClient) *AlbumDAO {
+func NewAlbumStorage(client db.PostgreSQLClient) *AlbumDAO {
 	return &AlbumDAO{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		client:       client,
@@ -35,13 +35,12 @@ func (a *AlbumDAO) All(ctx context.Context, filtering filter.Filterable, sorting
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	sort := dbSort.NewSortOptions(sorting)
-
 	query := a.queryBuilder.
 		Select("album_id", "title", "released_at", "created_at").
 		From(table)
 
-	filter.Filter(query, "")
-	sort.Sort(query, "")
+	query = filter.Filter(query, "")
+	query = sort.Sort(query, "")
 
 	sql, args, err := query.ToSql()
 	logger.Infow(table, sql, args)
@@ -143,11 +142,13 @@ func (a *AlbumDAO) Delete(ctx context.Context, id string) error {
 
 func (s *AlbumDAO) Update(ctx context.Context, album model.Album) error {
 	logger := logging.LoggerFromContext(ctx)
-	albumStorageMap := ToStorageMap(album)
+	albumStorageMap := ToUpdateStorageMap(album)
+	logger.Info("STORAGE MAP")
+	logger.Sugar().Info(albumStorageMap)
 	sql, args, buildErr := s.queryBuilder.
 		Update(table).
 		SetMap(albumStorageMap).
-		Where(sq.Eq{"title": album.Title}).
+		Where(sq.Eq{"album_id": album.ID}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 

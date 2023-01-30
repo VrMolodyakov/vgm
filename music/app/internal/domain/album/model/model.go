@@ -50,5 +50,6 @@ func UpdateModelFromPB(pb *albumPb.UpdateAlbumRequest) Album {
 		album.ReleasedAt = pb.GetReleasedAt()
 	}
 
+	album.ID = pb.GetId()
 	return album
 }

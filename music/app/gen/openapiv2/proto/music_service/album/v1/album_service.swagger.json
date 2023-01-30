@@ -164,7 +164,7 @@
           "type": "number",
           "format": "float"
         },
-        "currencyId": {
+        "currencyCode": {
           "type": "integer",
           "format": "int64"
         },

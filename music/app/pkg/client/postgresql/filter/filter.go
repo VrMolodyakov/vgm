@@ -5,6 +5,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 )
 
 type Filterable interface {
@@ -45,7 +46,9 @@ func (f *filters) Filter(query sq.SelectBuilder, alias string) sq.SelectBuilder 
 	if len(f.fields) == 0 {
 		return query
 	}
-
+	logger := logging.GetLogger()
+	logger.Info("------INSIDE FILTER METHOD-----")
+	logger.Sugar().Info(f.fields)
 	and := sq.And{}
 	for _, where := range f.fields {
 		var e sq.Sqlizer
@@ -80,7 +83,7 @@ func (f *filters) Filter(query sq.SelectBuilder, alias string) sq.SelectBuilder 
 		}
 		and = append(and, e)
 	}
-
+	logger.Sugar().Info(and)
 	query = query.Where(and)
 	if f.limit == 0 {
 		return query
