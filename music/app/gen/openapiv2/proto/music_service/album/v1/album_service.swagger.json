@@ -147,6 +147,9 @@
         "albumInfoId": {
           "type": "string"
         },
+        "albumId": {
+          "type": "string"
+        },
         "catalogNumber": {
           "type": "string"
         },
@@ -156,17 +159,12 @@
         "barcode": {
           "type": "string"
         },
-        "releaseDate": {
-          "type": "integer",
-          "format": "int64"
-        },
         "price": {
           "type": "number",
-          "format": "float"
+          "format": "double"
         },
         "currencyCode": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "mediaFormat": {
           "type": "string"

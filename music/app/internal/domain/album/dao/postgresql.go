@@ -31,7 +31,7 @@ func NewAlbumStorage(client db.PostgreSQLClient) *AlbumDAO {
 	}
 }
 
-func (a *AlbumDAO) All(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]AlbumStorage, error) {
+func (a *AlbumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]AlbumStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	sort := dbSort.NewSortOptions(sorting)

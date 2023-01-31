@@ -27,7 +27,7 @@ func NewInfoStorage(client db.PostgreSQLClient) *InfoDAO {
 	}
 }
 
-func (a *InfoDAO) All(ctx context.Context) ([]InfoStorage, error) {
+func (a *InfoDAO) GetAll(ctx context.Context) ([]InfoStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	query := a.queryBuilder.
 		Select(
@@ -127,6 +127,54 @@ func (a *InfoDAO) Create(ctx context.Context, info model.Info) (InfoStorage, err
 		}
 		logger.Error(QueryRow.Error())
 		return InfoStorage{}, QueryRow
+	}
+	return infoStorage, nil
+}
+
+func (a *InfoDAO) GetOne(ctx context.Context, albumID string) (InfoStorage, error) {
+	logger := logging.LoggerFromContext(ctx)
+
+	query := a.queryBuilder.
+		Select(
+			"album_info_id",
+			"album_id",
+			"catalog_number",
+			"image_srs",
+			"barcode",
+			"price",
+			"currency_code",
+			"media_format",
+			"classification",
+			"publisher").
+		From(table).
+		Where(sq.Eq{"album_id": albumID})
+
+	sql, args, err := query.ToSql()
+
+	logger.Infow(table, sql, args)
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return InfoStorage{}, err
+	}
+
+	var infoStorage InfoStorage
+	err = a.client.QueryRow(ctx, sql, args...).
+		Scan(
+			&infoStorage.ID,
+			&infoStorage.AlbumID,
+			&infoStorage.CatalogNumber,
+			&infoStorage.ImageSrc,
+			&infoStorage.Barcode,
+			&infoStorage.Price,
+			&infoStorage.CurrencyCode,
+			&infoStorage.MediaFormat,
+			&infoStorage.Classification,
+			&infoStorage.Publisher)
+	if err != nil {
+		err = db.ErrDoQuery(err)
+		logger.Error(err.Error())
+		return InfoStorage{}, err
 	}
 	return infoStorage, nil
 }

@@ -10,7 +10,7 @@ import (
 func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
 	a := model.NewAlbumFromPB(request)
 
-	album, err := s.albumPolicy.CreateAlbum(ctx, a)
+	album, err := s.albumPolicy.Create(ctx, a)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbu
 	sort := model.AlbumSort(request)
 	filter := model.AlbumFilter(request)
 
-	all, err := s.albumPolicy.All(ctx, filter, sort)
+	all, err := s.albumPolicy.GetAll(ctx, filter, sort)
 	if err != nil {
 		return nil, err
 	}

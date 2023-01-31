@@ -22,3 +22,18 @@ func ToStorageMap(info model.Info) map[string]interface{} {
 	infoStorageMap := (&mapper.Decoder{}).Map(info)
 	return infoStorageMap
 }
+
+func (i *InfoStorage) ToModel() model.Info {
+	return model.Info{
+		ID:             i.ID,
+		AlbumID:        i.AlbumID,
+		CatalogNumber:  i.CatalogNumber,
+		ImageSrc:       i.ImageSrc,
+		Barcode:        i.Barcode,
+		CurrencyCode:   i.CurrencyCode,
+		MediaFormat:    i.MediaFormat,
+		Classification: i.Classification,
+		Publisher:      i.Publisher,
+		Price:          i.Price,
+	}
+}

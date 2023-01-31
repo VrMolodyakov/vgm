@@ -7,12 +7,20 @@ import (
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	infoPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/info/v1"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/config"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/album"
-	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/dao"
-	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/policy"
-	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/service"
+	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/info"
+
+	albumDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/dao"
+	AlbumPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/policy"
+	AlbumService "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/service"
+
+	infoDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/dao"
+	infoPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/policy"
+	infoService "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/service"
+
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"google.golang.org/grpc"
@@ -53,14 +61,20 @@ func (a *app) startGrpc(ctx context.Context) {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
-	storage := dao.NewAlbumStorage(pgClient)
-	service := service.NewAlbumService(storage)
-	policy := policy.NewAlbumPolicy(service)
-	albumServer := album.NewServer(policy, albumPb.UnimplementedAlbumServiceServer{})
+	albumDAO := albumDAO.NewAlbumStorage(pgClient)
+	albumService := AlbumService.NewAlbumService(albumDAO)
+	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService)
+	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
+
+	infoDAO := infoDAO.NewInfoStorage(pgClient)
+	infoService := infoService.NewInfoService(infoDAO)
+	infoPolicy := infoPolicy.NewInfoPolicy(infoService)
+	infoServer := info.NewServer(infoPolicy, infoPb.UnimplementedInfoServiceServer{})
 
 	a.grpcServer = grpc.NewServer(serverOptions...)
 
 	albumPb.RegisterAlbumServiceServer(a.grpcServer, albumServer)
+	infoPb.RegisterInfoServiceServer(a.grpcServer, infoServer)
 
 	reflection.Register(a.grpcServer)
 	logger.Info("start grpc serve")

@@ -52,10 +52,21 @@
         }
       }
     },
+    "v1FindAlbumInfoResponse": {
+      "type": "object",
+      "properties": {
+        "info": {
+          "$ref": "#/definitions/v1Info"
+        }
+      }
+    },
     "v1Info": {
       "type": "object",
       "properties": {
         "albumInfoId": {
+          "type": "string"
+        },
+        "albumId": {
           "type": "string"
         },
         "catalogNumber": {
@@ -67,17 +78,12 @@
         "barcode": {
           "type": "string"
         },
-        "releaseDate": {
-          "type": "integer",
-          "format": "int64"
-        },
         "price": {
           "type": "number",
-          "format": "float"
+          "format": "double"
         },
         "currencyCode": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "mediaFormat": {
           "type": "string"

@@ -7,14 +7,15 @@ option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_se
 
 message Info {
     string album_info_id = 1;
-    string catalog_number = 2;
-    optional string image_src = 3;
-    optional string barcode = 4;
-    uint32 release_date = 5;
-    float price = 6;
-    uint32 currency_code = 7;
+    string album_id = 2;
+    string catalog_number = 3;
+    optional string image_src = 4;
+    optional string barcode = 5;
+    double price = 6;
+    string currency_code = 7;
     string media_format = 8;
     string classification = 9;
     string publisher = 10;
+    
 }
 

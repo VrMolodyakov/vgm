@@ -1,0 +1,35 @@
+package info
+
+import (
+	"context"
+
+	infoPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/info/v1"
+	"github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
+)
+
+func (s *server) CreateAlbumInfo(ctx context.Context, request *infoPb.CreateAlbumInfoRequest) (*infoPb.CreateAlbumInfoResponse, error) {
+	infoModel := model.NewInfoFromPB(request)
+
+	info, err := s.infoPolicy.Create(ctx, infoModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return &infoPb.CreateAlbumInfoResponse{
+		Info: info.ToProto(),
+	}, nil
+}
+
+func (s *server) FindAlbumInfo(ctx context.Context, request *infoPb.FindAlbumInfoRequest) (*infoPb.FindAlbumInfoResponse, error) {
+	id := request.GetAlbumId()
+	info, err := s.infoPolicy.GetOne(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &infoPb.FindAlbumInfoResponse{
+		Info: info.ToProto(),
+	}, nil
+
+}
