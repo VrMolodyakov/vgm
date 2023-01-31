@@ -61,6 +61,7 @@ func (a *app) startGrpc(ctx context.Context) {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
+
 	albumDAO := albumDAO.NewAlbumStorage(pgClient)
 	albumService := AlbumService.NewAlbumService(albumDAO)
 	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService)
