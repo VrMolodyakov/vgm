@@ -11,16 +11,32 @@ type InfoStorage struct {
 	CatalogNumber  string  `struct:"catalog_number" `
 	ImageSrc       string  `struct:"image_srs" `
 	Barcode        string  `struct:"barcode" `
-	CurrencyCode   string  `struct:"currency_id" `
+	CurrencyCode   string  `struct:"currency_code" `
 	MediaFormat    string  `struct:"media_format" `
 	Classification string  `struct:"classification"`
 	Publisher      string  `struct:"publisher"`
 	Price          float64 `struct:"price" `
 }
 
-func ToStorageMap(info model.Info) map[string]interface{} {
-	infoStorageMap := (&mapper.Decoder{}).Map(info)
+func ToStorageMap(info *model.Info) map[string]interface{} {
+	storage := FromModel(info)
+	infoStorageMap := (&mapper.Decoder{}).Map(storage)
 	return infoStorageMap
+}
+
+func FromModel(m *model.Info) InfoStorage {
+	return InfoStorage{
+		ID:             m.ID,
+		AlbumID:        m.AlbumID,
+		CatalogNumber:  m.CatalogNumber,
+		ImageSrc:       m.ImageSrc,
+		Barcode:        m.Barcode,
+		CurrencyCode:   m.CurrencyCode,
+		MediaFormat:    m.MediaFormat,
+		Classification: m.Classification,
+		Publisher:      m.Publisher,
+		Price:          m.Price,
+	}
 }
 
 func (i *InfoStorage) ToModel() model.Info {

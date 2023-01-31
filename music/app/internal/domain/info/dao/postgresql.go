@@ -85,7 +85,7 @@ func (a *InfoDAO) GetAll(ctx context.Context) ([]InfoStorage, error) {
 
 func (a *InfoDAO) Create(ctx context.Context, info model.Info) (InfoStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
-	infoStorageMap := ToStorageMap(info)
+	infoStorageMap := ToStorageMap(&info)
 	sql, args, err := a.queryBuilder.
 		Insert(table).
 		SetMap(infoStorageMap).
