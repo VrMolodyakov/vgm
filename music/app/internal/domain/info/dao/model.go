@@ -1,8 +1,6 @@
 package dao
 
 import (
-	"reflect"
-
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
 	mapper "github.com/worldline-go/struct2"
 )
@@ -61,48 +59,33 @@ func (i *InfoStorage) ToModel() model.Info {
 }
 
 func toUpdateStorageMap(m *model.Info) map[string]interface{} {
-	storage := FromModel(m)
-	decoder := mapper.Decoder{
-		TagName: "db",
-		Hooks: []mapper.HookFunc{func(v reflect.Value) (interface{}, error) {
-			if v.Kind() == reflect.String && !v.IsZero() {
-				return v.Interface().(string), nil
-			}
-			if v.Kind() == reflect.Float64 && !v.IsZero() {
-				return v.Interface().(float64), nil
-			}
-			return nil, mapper.ErrContinueHook
-		}},
+
+	storageMap := make(map[string]interface{}, fields)
+
+	if m.CatalogNumber != "" {
+		storageMap["catalog_number"] = m.CatalogNumber
 	}
-	infoStorageMap := decoder.Map(storage)
-	return infoStorageMap
+	if m.ImageSrc != "" {
+		storageMap["image_srs"] = m.ImageSrc
+	}
+	if m.Barcode != "" {
+		storageMap["barcode"] = m.Barcode
+	}
+	if m.CurrencyCode != "" {
+		storageMap["currency_code"] = m.CurrencyCode
+	}
+	if m.MediaFormat != "" {
+		storageMap["media_format"] = m.MediaFormat
+	}
+	if m.Classification != "" {
+		storageMap["classification"] = m.Classification
+	}
+	if m.Publisher != "" {
+		storageMap["publisher"] = m.Publisher
+	}
+	if m.Price != 0 {
+		storageMap["price"] = m.Price
+	}
+
+	return storageMap
 }
-
-// storageMap := make(map[string]interface{}, fields)
-
-// if m.CatalogNumber != ""{
-// 	storageMap[] = m.
-// }
-// if m.ImageSrc != ""{
-// 	storageMap[] = m.
-// }
-// if m.Barcode != ""{
-// 	storageMap[] = m.
-// }
-// if m.CurrencyCode != ""{
-// 	storageMap[] = m.
-// }
-// if m.MediaFormat != ""{
-// 	storageMap[] = m.
-// }
-// if m.Classification != ""{
-// 	storageMap[] = m.
-// }
-// if m.Publisher != ""{
-// 	storageMap[] = m.
-// }
-// if m.Price != 0{
-// 	storageMap[] = m.
-// }
-
-// return m

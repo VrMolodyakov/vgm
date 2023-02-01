@@ -9,6 +9,9 @@ import "proto/music_service/info/v1/info.proto";
 service InfoService {
     rpc CreateAlbumInfo(CreateAlbumInfoRequest) returns (CreateAlbumInfoResponse) {}
     rpc FindAlbumInfo(FindAlbumInfoRequest) returns (FindAlbumInfoResponse) {}
+    rpc UpdateAlbumInfo(UpdateAlbumInfoRequest) returns (UpdateAlbumInfoResponse) {}
+    rpc DeleteAlbumInfo(DeleteAlbumInfoRequest) returns (DeleteAlbumInfoResponse) {}
+
 
 }
 
@@ -33,4 +36,27 @@ message FindAlbumInfoRequest{
 }
 message FindAlbumInfoResponse{
     Info info = 1;
+}
+
+message UpdateAlbumInfoRequest{
+    string album_info_id = 1;
+    optional string catalog_number = 3;
+    optional string image_src = 4;
+    optional string barcode = 5;
+    optional double price = 6;
+    optional string currency_code = 7;
+    optional string media_format = 8;
+    optional string classification = 9;
+    optional string publisher = 10;
+}
+message UpdateAlbumInfoResponse{
+}
+
+message DeleteAlbumInfoRequest{
+    oneof id {
+        string album_info_id = 1;
+        string album_id = 2;
+    }
+}
+message DeleteAlbumInfoResponse{
 }

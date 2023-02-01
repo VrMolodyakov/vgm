@@ -211,6 +211,7 @@ func (a *InfoDAO) Delete(ctx context.Context, id string) error {
 func (s *InfoDAO) Update(ctx context.Context, info model.Info) error {
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toUpdateStorageMap(&info)
+
 	sql, args, buildErr := s.queryBuilder.
 		Update(table).
 		SetMap(infoStorageMap).

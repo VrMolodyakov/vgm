@@ -24,6 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 type InfoServiceClient interface {
 	CreateAlbumInfo(ctx context.Context, in *CreateAlbumInfoRequest, opts ...grpc.CallOption) (*CreateAlbumInfoResponse, error)
 	FindAlbumInfo(ctx context.Context, in *FindAlbumInfoRequest, opts ...grpc.CallOption) (*FindAlbumInfoResponse, error)
+	UpdateAlbumInfo(ctx context.Context, in *UpdateAlbumInfoRequest, opts ...grpc.CallOption) (*UpdateAlbumInfoResponse, error)
+	DeleteAlbumInfo(ctx context.Context, in *DeleteAlbumInfoRequest, opts ...grpc.CallOption) (*DeleteAlbumInfoResponse, error)
 }
 
 type infoServiceClient struct {
@@ -52,12 +54,32 @@ func (c *infoServiceClient) FindAlbumInfo(ctx context.Context, in *FindAlbumInfo
 	return out, nil
 }
 
+func (c *infoServiceClient) UpdateAlbumInfo(ctx context.Context, in *UpdateAlbumInfoRequest, opts ...grpc.CallOption) (*UpdateAlbumInfoResponse, error) {
+	out := new(UpdateAlbumInfoResponse)
+	err := c.cc.Invoke(ctx, "/proto.music_service.info.v1.InfoService/UpdateAlbumInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *infoServiceClient) DeleteAlbumInfo(ctx context.Context, in *DeleteAlbumInfoRequest, opts ...grpc.CallOption) (*DeleteAlbumInfoResponse, error) {
+	out := new(DeleteAlbumInfoResponse)
+	err := c.cc.Invoke(ctx, "/proto.music_service.info.v1.InfoService/DeleteAlbumInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InfoServiceServer is the server API for InfoService service.
 // All implementations must embed UnimplementedInfoServiceServer
 // for forward compatibility
 type InfoServiceServer interface {
 	CreateAlbumInfo(context.Context, *CreateAlbumInfoRequest) (*CreateAlbumInfoResponse, error)
 	FindAlbumInfo(context.Context, *FindAlbumInfoRequest) (*FindAlbumInfoResponse, error)
+	UpdateAlbumInfo(context.Context, *UpdateAlbumInfoRequest) (*UpdateAlbumInfoResponse, error)
+	DeleteAlbumInfo(context.Context, *DeleteAlbumInfoRequest) (*DeleteAlbumInfoResponse, error)
 	mustEmbedUnimplementedInfoServiceServer()
 }
 
@@ -70,6 +92,12 @@ func (UnimplementedInfoServiceServer) CreateAlbumInfo(context.Context, *CreateAl
 }
 func (UnimplementedInfoServiceServer) FindAlbumInfo(context.Context, *FindAlbumInfoRequest) (*FindAlbumInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAlbumInfo not implemented")
+}
+func (UnimplementedInfoServiceServer) UpdateAlbumInfo(context.Context, *UpdateAlbumInfoRequest) (*UpdateAlbumInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAlbumInfo not implemented")
+}
+func (UnimplementedInfoServiceServer) DeleteAlbumInfo(context.Context, *DeleteAlbumInfoRequest) (*DeleteAlbumInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAlbumInfo not implemented")
 }
 func (UnimplementedInfoServiceServer) mustEmbedUnimplementedInfoServiceServer() {}
 
@@ -120,6 +148,42 @@ func _InfoService_FindAlbumInfo_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InfoService_UpdateAlbumInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAlbumInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InfoServiceServer).UpdateAlbumInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.music_service.info.v1.InfoService/UpdateAlbumInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InfoServiceServer).UpdateAlbumInfo(ctx, req.(*UpdateAlbumInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InfoService_DeleteAlbumInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAlbumInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InfoServiceServer).DeleteAlbumInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.music_service.info.v1.InfoService/DeleteAlbumInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InfoServiceServer).DeleteAlbumInfo(ctx, req.(*DeleteAlbumInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InfoService_ServiceDesc is the grpc.ServiceDesc for InfoService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +198,14 @@ var InfoService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindAlbumInfo",
 			Handler:    _InfoService_FindAlbumInfo_Handler,
+		},
+		{
+			MethodName: "UpdateAlbumInfo",
+			Handler:    _InfoService_UpdateAlbumInfo_Handler,
+		},
+		{
+			MethodName: "DeleteAlbumInfo",
+			Handler:    _InfoService_DeleteAlbumInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

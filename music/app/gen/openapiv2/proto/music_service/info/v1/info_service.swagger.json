@@ -52,6 +52,9 @@
         }
       }
     },
+    "v1DeleteAlbumInfoResponse": {
+      "type": "object"
+    },
     "v1FindAlbumInfoResponse": {
       "type": "object",
       "properties": {
@@ -95,6 +98,9 @@
           "type": "string"
         }
       }
+    },
+    "v1UpdateAlbumInfoResponse": {
+      "type": "object"
     }
   }
 }

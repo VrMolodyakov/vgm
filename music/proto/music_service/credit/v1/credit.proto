@@ -9,5 +9,6 @@ message Credit {
     string profession = 1;
     string person_first_name = 2;
     string person_last_name = 3;
-    string album_title = 4;
+    string album_id = 4;
 }
+

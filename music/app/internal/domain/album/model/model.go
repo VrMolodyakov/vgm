@@ -1,10 +1,15 @@
 package model
 
 import (
+	"errors"
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrValidation = errors.New("Title must not be empty")
 )
 
 type Album struct {
@@ -49,4 +54,8 @@ func UpdateModelFromPB(pb *albumPb.UpdateAlbumRequest) Album {
 
 	album.ID = pb.GetId()
 	return album
+}
+
+func (a *Album) IsEmpty() bool {
+	return a.Title == ""
 }

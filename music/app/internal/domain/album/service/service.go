@@ -40,6 +40,9 @@ func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sor
 }
 
 func (s *albumService) Create(ctx context.Context, album model.Album) (model.Album, error) {
+	if album.IsEmpty() {
+		return model.Album{}, model.ErrValidation
+	}
 	dbAlbum, err := s.albumDAO.Create(ctx, album)
 	if err != nil {
 		return model.Album{}, errors.Wrap(err, "albumService.Create")
@@ -59,5 +62,8 @@ func (s *albumService) Delete(ctx context.Context, id string) error {
 }
 
 func (s *albumService) Update(ctx context.Context, album model.Album) error {
+	if album.IsEmpty() {
+		return model.ErrValidation
+	}
 	return s.albumDAO.Update(ctx, album)
 }

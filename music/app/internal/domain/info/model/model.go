@@ -1,8 +1,14 @@
 package model
 
 import (
+	"errors"
+
 	infoPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/info/v1"
 	"github.com/google/uuid"
+)
+
+var (
+	ErrValidation = errors.New("album id must not be empty")
 )
 
 type Info struct {
@@ -46,4 +52,41 @@ func (i *Info) ToProto() *infoPb.Info {
 		Classification: i.Classification,
 		Publisher:      i.Publisher,
 	}
+}
+
+func UpdateModelFromPB(pb *infoPb.UpdateAlbumInfoRequest) Info {
+	var info Info
+
+	info.ID = pb.GetAlbumInfoId()
+
+	if pb.CatalogNumber != nil {
+		info.CatalogNumber = pb.GetCatalogNumber()
+	}
+	if pb.ImageSrc != nil {
+		info.ImageSrc = pb.GetImageSrc()
+	}
+	if pb.Barcode != nil {
+		info.Barcode = pb.GetBarcode()
+	}
+	if pb.Price != nil {
+		info.Price = pb.GetPrice()
+	}
+	if pb.CurrencyCode != nil {
+		info.CurrencyCode = pb.GetCurrencyCode()
+	}
+	if pb.MediaFormat != nil {
+		info.MediaFormat = pb.GetMediaFormat()
+	}
+	if pb.Classification != nil {
+		info.Classification = pb.GetClassification()
+	}
+	if pb.Publisher != nil {
+		info.Publisher = pb.GetPublisher()
+	}
+
+	return info
+}
+
+func (i *Info) IsEmpty() bool {
+	return i.ID == ""
 }

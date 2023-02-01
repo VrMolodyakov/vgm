@@ -33,3 +33,26 @@ func (s *server) FindAlbumInfo(ctx context.Context, request *infoPb.FindAlbumInf
 	}, nil
 
 }
+
+func (s *server) UpdateAlbumInfo(ctx context.Context, request *infoPb.UpdateAlbumInfoRequest) (*infoPb.UpdateAlbumInfoResponse, error) {
+	info := model.UpdateModelFromPB(request)
+	err := s.infoPolicy.Update(ctx, info)
+	if err != nil {
+		return nil, err
+	}
+
+	return &infoPb.UpdateAlbumInfoResponse{}, nil
+}
+
+func (s *server) DeleteAlbumInfo(ctx context.Context, request *infoPb.DeleteAlbumInfoRequest) (*infoPb.DeleteAlbumInfoResponse, error) {
+	id := request.GetAlbumId()
+	if id == "" {
+		id = request.GetAlbumInfoId()
+	}
+	err := s.infoPolicy.Delete(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &infoPb.DeleteAlbumInfoResponse{}, nil
+}

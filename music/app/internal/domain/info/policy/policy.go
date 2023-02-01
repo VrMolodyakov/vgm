@@ -11,6 +11,8 @@ type InfoService interface {
 	GetAll(ctx context.Context) ([]*model.Info, error)
 	Create(ctx context.Context, album model.Info) (model.Info, error)
 	GetOne(ctx context.Context, albumID string) (model.Info, error)
+	Update(ctx context.Context, info model.Info) error
+	Delete(ctx context.Context, id string) error
 }
 
 type infoPolicy struct {
@@ -36,4 +38,11 @@ func (p *infoPolicy) Create(ctx context.Context, info model.Info) (model.Info, e
 
 func (p *infoPolicy) GetOne(ctx context.Context, albumID string) (model.Info, error) {
 	return p.infoService.GetOne(ctx, albumID)
+}
+
+func (p *infoPolicy) Update(ctx context.Context, info model.Info) error {
+	return p.infoService.Update(ctx, info)
+}
+func (p *infoPolicy) Delete(ctx context.Context, id string) error {
+	return p.infoService.Delete(ctx, id)
 }

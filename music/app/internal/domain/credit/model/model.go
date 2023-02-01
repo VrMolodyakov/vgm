@@ -6,9 +6,9 @@ import (
 )
 
 type Credit struct {
-	PersonID     int64  `mapstructure:"person_id"`
-	AlbumID      string `mapstructure:"album_id"`
-	ProfessionID int64  `mapstructure:"profession_id"`
+	PersonID     int64
+	AlbumID      string
+	ProfessionID int64
 }
 
 func ToMap(a *Credit) (map[string]interface{}, error) {
@@ -20,3 +20,7 @@ func ToMap(a *Credit) (map[string]interface{}, error) {
 
 	return updateCreditMap, nil
 }
+
+// `struct:"person_id"`
+// `struct:"album_id"`
+// `struct:"profession_id"`

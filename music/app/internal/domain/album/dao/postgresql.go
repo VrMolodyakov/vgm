@@ -78,7 +78,7 @@ func (a *AlbumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sort
 
 func (a *AlbumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
-	albumStorageMap := ToStorageMap(album)
+	albumStorageMap := toStorageMap(album)
 	sql, args, err := a.queryBuilder.
 		Insert(table).
 		SetMap(albumStorageMap).
