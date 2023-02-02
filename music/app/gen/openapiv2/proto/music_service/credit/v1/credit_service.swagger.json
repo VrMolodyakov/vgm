@@ -64,7 +64,7 @@
         "personLastName": {
           "type": "string"
         },
-        "albumTitle": {
+        "albumId": {
           "type": "string"
         }
       }

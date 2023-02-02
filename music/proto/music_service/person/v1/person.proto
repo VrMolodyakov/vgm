@@ -8,4 +8,5 @@ message Person {
     uint32 person_id  = 1;
     string first_name = 2;
     string last_name = 3;
+    int64 birth_date = 4;
 }

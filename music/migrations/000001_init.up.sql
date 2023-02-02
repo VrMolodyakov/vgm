@@ -36,7 +36,8 @@ CREATE TABLE person
 (
     person_id SERIAL PRIMARY KEY,
     first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL
+    last_name TEXT NOT NULL,
+    birth_date DATE
 );
 
 create table credit(

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package proto.music_service.person.v1;
+
+option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1;pb_music_album";
+
+import "proto/music_service/person/v1/person.proto";
+import "proto/filter/v1/filter.proto";
+
+service PersonService {
+    rpc FindAllPersons(FindAllPersonsRequest) returns (FindAllPersonsResponse) {}
+}
+  
+message FindAllPersonsRequest{
+    filter.v1.StringFieldFilter full_name = 1;
+}
+message FindAllPersonsResponse{
+    repeated Person person = 1;
+}
