@@ -14,7 +14,7 @@ import (
 	"github.com/jackc/pgx"
 )
 
-type PersonDAO struct {
+type personDAO struct {
 	queryBuilder sq.StatementBuilderType
 	client       db.PostgreSQLClient
 }
@@ -23,14 +23,14 @@ const (
 	table = "person"
 )
 
-func NewPersonStorage(client db.PostgreSQLClient) *PersonDAO {
-	return &PersonDAO{
+func NewPersonStorage(client db.PostgreSQLClient) *personDAO {
+	return &personDAO{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		client:       client,
 	}
 }
 
-func (a *PersonDAO) Create(ctx context.Context, person model.Person) (PersonStorage, error) {
+func (a *personDAO) Create(ctx context.Context, person model.Person) (PersonStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	personStorageMap := toStorageMap(person)
 	sql, args, err := a.queryBuilder.
@@ -67,7 +67,7 @@ func (a *PersonDAO) Create(ctx context.Context, person model.Person) (PersonStor
 	return personStorage, nil
 }
 
-func (a *PersonDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]PersonStorage, error) {
+func (a *personDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]PersonStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	query := a.queryBuilder.

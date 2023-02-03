@@ -6,8 +6,8 @@ import (
 )
 
 type Profession struct {
-	ID    int64  `mapstructure:"profession_id"`
-	Title string `mapstructure:"professional_title"`
+	ID    int64
+	Title string
 }
 
 func ToMap(p *Profession) (map[string]interface{}, error) {

@@ -15,7 +15,7 @@ import (
 	"github.com/jackc/pgx"
 )
 
-type AlbumDAO struct {
+type albumDAO struct {
 	queryBuilder sq.StatementBuilderType
 	client       db.PostgreSQLClient
 }
@@ -24,14 +24,14 @@ const (
 	table = "album"
 )
 
-func NewAlbumStorage(client db.PostgreSQLClient) *AlbumDAO {
-	return &AlbumDAO{
+func NewAlbumStorage(client db.PostgreSQLClient) *albumDAO {
+	return &albumDAO{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		client:       client,
 	}
 }
 
-func (a *AlbumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]AlbumStorage, error) {
+func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]AlbumStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	sort := dbSort.NewSortOptions(sorting)
@@ -76,7 +76,7 @@ func (a *AlbumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sort
 	return albums, nil
 }
 
-func (a *AlbumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage, error) {
+func (a *albumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := toStorageMap(album)
 	sql, args, err := a.queryBuilder.
@@ -111,7 +111,7 @@ func (a *AlbumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage,
 	return albumStorage, nil
 }
 
-func (a *AlbumDAO) Delete(ctx context.Context, id string) error {
+func (a *albumDAO) Delete(ctx context.Context, id string) error {
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := a.queryBuilder.
 		Delete(table).
@@ -140,7 +140,7 @@ func (a *AlbumDAO) Delete(ctx context.Context, id string) error {
 
 }
 
-func (s *AlbumDAO) Update(ctx context.Context, album model.Album) error {
+func (s *albumDAO) Update(ctx context.Context, album model.Album) error {
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := ToUpdateStorageMap(album)
 	logger.Info("STORAGE MAP")

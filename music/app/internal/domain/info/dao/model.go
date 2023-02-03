@@ -22,7 +22,7 @@ type InfoStorage struct {
 	Price          float64 `struct:"price" `
 }
 
-func ToStorageMap(info *model.Info) map[string]interface{} {
+func toStorageMap(info *model.Info) map[string]interface{} {
 	storage := FromModel(info)
 	infoStorageMap := (&mapper.Decoder{}).Map(storage)
 	return infoStorageMap

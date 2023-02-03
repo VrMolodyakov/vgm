@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx"
 )
 
-type InfoDAO struct {
+type infoDAO struct {
 	queryBuilder sq.StatementBuilderType
 	client       db.PostgreSQLClient
 }
@@ -20,14 +20,14 @@ const (
 	table = "album_info"
 )
 
-func NewInfoStorage(client db.PostgreSQLClient) *InfoDAO {
-	return &InfoDAO{
+func NewInfoStorage(client db.PostgreSQLClient) *infoDAO {
+	return &infoDAO{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		client:       client,
 	}
 }
 
-func (a *InfoDAO) GetAll(ctx context.Context) ([]InfoStorage, error) {
+func (a *infoDAO) GetAll(ctx context.Context) ([]InfoStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	query := a.queryBuilder.
 		Select(
@@ -83,9 +83,9 @@ func (a *InfoDAO) GetAll(ctx context.Context) ([]InfoStorage, error) {
 	return albums, nil
 }
 
-func (a *InfoDAO) Create(ctx context.Context, info model.Info) (InfoStorage, error) {
+func (a *infoDAO) Create(ctx context.Context, info model.Info) (InfoStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
-	infoStorageMap := ToStorageMap(&info)
+	infoStorageMap := toStorageMap(&info)
 	sql, args, err := a.queryBuilder.
 		Insert(table).
 		SetMap(infoStorageMap).
@@ -131,7 +131,7 @@ func (a *InfoDAO) Create(ctx context.Context, info model.Info) (InfoStorage, err
 	return infoStorage, nil
 }
 
-func (a *InfoDAO) GetOne(ctx context.Context, albumID string) (InfoStorage, error) {
+func (a *infoDAO) GetOne(ctx context.Context, albumID string) (InfoStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := a.queryBuilder.
@@ -179,7 +179,7 @@ func (a *InfoDAO) GetOne(ctx context.Context, albumID string) (InfoStorage, erro
 	return infoStorage, nil
 }
 
-func (a *InfoDAO) Delete(ctx context.Context, id string) error {
+func (a *infoDAO) Delete(ctx context.Context, id string) error {
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := a.queryBuilder.
 		Delete(table).
@@ -208,7 +208,7 @@ func (a *InfoDAO) Delete(ctx context.Context, id string) error {
 
 }
 
-func (s *InfoDAO) Update(ctx context.Context, info model.Info) error {
+func (s *infoDAO) Update(ctx context.Context, info model.Info) error {
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toUpdateStorageMap(&info)
 

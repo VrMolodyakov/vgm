@@ -29,7 +29,7 @@ CREATE TABLE album_info
 CREATE TABLE musical_profession
 (
     profession_id SERIAL PRIMARY KEY,
-    professional_title TEXT
+    profession_title TEXT
 );
 
 CREATE TABLE person
