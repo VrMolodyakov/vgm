@@ -5,7 +5,7 @@ package proto.music_service.person.v1;
 option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1;pb_music_album";
 
 message Person {
-    uint32 person_id  = 1;
+    int64 person_id  = 1;
     string first_name = 2;
     string last_name = 3;
     int64 birth_date = 4;

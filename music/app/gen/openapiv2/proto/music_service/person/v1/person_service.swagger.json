@@ -44,6 +44,14 @@
         }
       }
     },
+    "v1CreatePersonResponse": {
+      "type": "object",
+      "properties": {
+        "person": {
+          "$ref": "#/definitions/v1Person"
+        }
+      }
+    },
     "v1FindAllPersonsResponse": {
       "type": "object",
       "properties": {
@@ -55,11 +63,24 @@
         }
       }
     },
+    "v1Pagination": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "v1Person": {
       "type": "object",
       "properties": {
         "personId": {
-          "type": "integer",
+          "type": "string",
           "format": "int64"
         },
         "firstName": {

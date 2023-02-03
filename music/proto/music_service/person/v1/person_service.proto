@@ -9,11 +9,22 @@ import "proto/filter/v1/filter.proto";
 
 service PersonService {
     rpc FindAllPersons(FindAllPersonsRequest) returns (FindAllPersonsResponse) {}
+    rpc CreatePerson(CreatePersonRequest) returns (CreatePersonResponse) {}
 }
   
 message FindAllPersonsRequest{
-    filter.v1.StringFieldFilter full_name = 1;
+    filter.v1.Pagination pagination = 1;
+    filter.v1.StringFieldFilter full_name = 2;
 }
 message FindAllPersonsResponse{
     repeated Person person = 1;
+}
+
+message CreatePersonRequest{
+    string first_name = 1;
+    string last_name = 2;
+    int64 birth_date = 3;
+}
+message CreatePersonResponse{
+    Person person = 1;
 }

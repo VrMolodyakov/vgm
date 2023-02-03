@@ -15,7 +15,7 @@ const (
 	releaseFilterType = filter.DataTypeDate
 	personFilterType  = filter.DataTypeStr
 
-	nameFilter    = "title"
+	titleFilter   = "title"
 	releaseFilter = "released_at"
 )
 
@@ -34,7 +34,7 @@ func AlbumFilter(req *albumPb.FindAllAlbumsRequest) filter.Filterable {
 	name := req.GetTitle()
 	if name != nil {
 		operator := types.StringOperatorFromPB(req.GetTitle().GetOp())
-		addFilterField(nameFilter, name.GetVal(), operator, nameFilterType, options)
+		addFilterField(titleFilter, name.GetVal(), operator, nameFilterType, options)
 	}
 
 	released := req.GetReleasedAt()
@@ -42,8 +42,6 @@ func AlbumFilter(req *albumPb.FindAllAlbumsRequest) filter.Filterable {
 		operator := types.IntOperatorFromPB(req.GetReleasedAt().GetOp())
 		addFilterField(releaseFilter, released.GetVal(), operator, releaseFilterType, options)
 	}
-	logging.GetLogger().Info("----INSIDE ALBUM FILTER------")
-	logging.GetLogger().Sugar().Info(options)
 	return options
 }
 
