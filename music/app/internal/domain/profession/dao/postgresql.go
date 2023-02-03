@@ -62,7 +62,7 @@ func (p *professionDAO) Create(ctx context.Context, profession model.Profession)
 	return pS, nil
 }
 
-func (p *professionDAO) GetOne(ctx context.Context, albumID string) (ProfessionStorage, error) {
+func (p *professionDAO) GetOne(ctx context.Context, profID string) (ProfessionStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := p.queryBuilder.
@@ -70,7 +70,7 @@ func (p *professionDAO) GetOne(ctx context.Context, albumID string) (ProfessionS
 			"profession_id",
 			"profession_title").
 		From(table).
-		Where(sq.Eq{"album_id": albumID})
+		Where(sq.Eq{"profession_id": profID})
 
 	sql, args, err := query.ToSql()
 

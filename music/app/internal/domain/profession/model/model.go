@@ -1,8 +1,9 @@
 package model
 
-import (
-	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
-	"github.com/mitchellh/mapstructure"
+import "errors"
+
+var (
+	ErrValidation = errors.New("title must not be empty")
 )
 
 type Profession struct {
@@ -10,12 +11,6 @@ type Profession struct {
 	Title string
 }
 
-func ToMap(p *Profession) (map[string]interface{}, error) {
-	var updateProfMap map[string]interface{}
-	err := mapstructure.Decode(p, &updateProfMap)
-	if err != nil {
-		return updateProfMap, errors.Wrap(err, "mapstructure.Decode(product)")
-	}
-
-	return updateProfMap, nil
+func (p *Profession) IsEmpty() bool {
+	return p.Title == ""
 }

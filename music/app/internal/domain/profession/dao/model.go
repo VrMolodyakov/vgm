@@ -12,13 +12,20 @@ type ProfessionStorage struct {
 
 func toStorageMap(proff model.Profession) map[string]interface{} {
 	storage := FromModel(proff)
-	ProfessionStorageMap := (&mapper.Decoder{}).Map(storage)
-	return ProfessionStorageMap
+	professionStorageMap := (&mapper.Decoder{}).Map(storage)
+	return professionStorageMap
 }
 
 func FromModel(m model.Profession) ProfessionStorage {
 	return ProfessionStorage{
 		ID:    m.ID,
 		Title: m.Title,
+	}
+}
+
+func (p ProfessionStorage) ToModel() model.Profession {
+	return model.Profession{
+		ID:    p.ID,
+		Title: p.Title,
 	}
 }

@@ -30,6 +30,6 @@ func (p PersonStorage) ToModel() model.Person {
 
 func toStorageMap(person model.Person) map[string]interface{} {
 	storage := fromModel(person)
-	albumStorageMap := (&mapper.Decoder{}).Map(storage)
-	return albumStorageMap
+	personStorageMap := (&mapper.Decoder{}).Map(storage)
+	return personStorageMap
 }
