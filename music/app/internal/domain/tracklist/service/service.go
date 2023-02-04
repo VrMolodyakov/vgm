@@ -6,11 +6,12 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/dao"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 )
 
 type TrackDAO interface {
 	Create(ctx context.Context, tracklist []model.Track) error
-	GetOne(ctx context.Context, albumID string) (dao.TrackStorage, error)
+	GetOne(ctx context.Context, trackID string) (dao.TrackStorage, error)
 }
 
 type trackService struct {
@@ -36,15 +37,15 @@ func (t *trackService) Create(ctx context.Context, tracklist []model.Track) erro
 
 }
 
-// func (s *trackService) GetOne(ctx context.Context, infoID string) (model.Track, error) {
-// 	if infoID == "" TrackDAO
-// 		err := errors.New("id must not be empty")
-// 		logging.LoggerFromContext(ctx).Error(err.Error())
-// 		return model.Track{}, err
-// 	}
-// 	dbInfo, err := s.infoDAO.GetOne(ctx, infoID)
-// 	if err != nil {
-// 		return model.Track{}, errors.Wrap(err, "trackService.Create")
-// 	}
-// TrackDAO dbInfo.ToModel(), nil
-// }
+func (t *trackService) GetOne(ctx context.Context, trackID string) (model.Track, error) {
+	if trackID == "" {
+		err := errors.New("id must not be empty")
+		logging.LoggerFromContext(ctx).Error(err.Error())
+		return model.Track{}, err
+	}
+	track, err := t.trackDAO.GetOne(ctx, trackID)
+	if err != nil {
+		return model.Track{}, errors.Wrap(err, "trackService.Create")
+	}
+	return track.ToModel(), nil
+}

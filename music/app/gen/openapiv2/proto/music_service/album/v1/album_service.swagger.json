@@ -17,6 +17,31 @@
   ],
   "paths": {},
   "definitions": {
+    "music_servicealbumv1Track": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "string"
+        }
+      }
+    },
+    "music_servicetrackv1Track": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "string"
+        },
+        "albumId": {
+          "type": "string"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -68,6 +93,29 @@
       "properties": {
         "album": {
           "$ref": "#/definitions/v1Album"
+        }
+      }
+    },
+    "v1CreateFullAlbumResponse": {
+      "type": "object",
+      "properties": {
+        "album": {
+          "$ref": "#/definitions/v1Album"
+        },
+        "info": {
+          "$ref": "#/definitions/v1Info"
+        },
+        "credits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Credit"
+          }
+        },
+        "tracklist": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/music_servicetrackv1Track"
+          }
         }
       }
     },
@@ -136,7 +184,7 @@
         "tracklist": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Track"
+            "$ref": "#/definitions/music_servicetrackv1Track"
           }
         }
       }
@@ -244,20 +292,6 @@
         "OPERATOR_LIKE"
       ],
       "default": "OPERATOR_UNSPECIFIED"
-    },
-    "v1Track": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "duration": {
-          "type": "string"
-        },
-        "albumTitle": {
-          "type": "string"
-        }
-      }
     },
     "v1UpdateAlbumResponse": {
       "type": "object"

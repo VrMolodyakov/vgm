@@ -52,7 +52,8 @@ create table track
 (
     track_id SERIAL PRIMARY KEY,
     album_id UUID  REFERENCES album (album_id),
-    title TEXT NOT NULL
+    title TEXT NOT NULL,
+    duration TEXT NOT NULL
 ); 
 
 COMMIT;

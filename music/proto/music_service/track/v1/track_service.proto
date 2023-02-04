@@ -16,5 +16,4 @@ message CreateTracklistRequest{
 }
 
 message CreateTracklistResponse{
-    string title = 1;
 }

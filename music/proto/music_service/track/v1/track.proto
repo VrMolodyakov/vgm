@@ -9,5 +9,5 @@ option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_se
 message Track {
     string title = 1;
     string duration = 2;
-    string album_title = 3;
+    string album_id = 3;
 }

@@ -45,12 +45,7 @@
       }
     },
     "v1CreateTracklistResponse": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     },
     "v1Track": {
       "type": "object",
@@ -61,7 +56,7 @@
         "duration": {
           "type": "string"
         },
-        "albumTitle": {
+        "albumId": {
           "type": "string"
         }
       }

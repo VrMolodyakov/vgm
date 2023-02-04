@@ -13,6 +13,7 @@ import "proto/filter/v1/filter.proto";
 
 service AlbumService {
     rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
+    rpc CreateFullAlbum(CreateFullAlbumRequest) returns (CreateFullAlbumResponse) {}
     rpc FindAlbum(FindAlbumRequest) returns (FindAlbumResponse) {}
     rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteAlbumResponse) {}
     rpc UpdateAlbum(UpdateAlbumRequest) returns (UpdateAlbumResponse) {}
@@ -29,6 +30,33 @@ message CreateAlbumRequest {
 message CreateAlbumResponse{
     Album album = 1;
 }
+
+message CreateFullAlbumRequest{
+    string title = 1;
+    int64  released_at = 2;
+    string catalog_number = 3;
+    optional string image_src = 4;
+    optional string barcode = 5;
+    double price = 6;
+    string currency_code = 7;
+    string media_format = 8;
+    string classification = 9;
+    string publisher = 10;
+    repeated Track tracklist = 11;
+}
+
+message CreateFullAlbumResponse{
+    Album album = 1;
+    proto.music_service.info.v1.Info info = 4;
+    repeated proto.music_service.credit.v1.Credit credits = 2;
+    repeated proto.music_service.track.v1.Track tracklist = 3;
+}
+
+message Track{
+    string title = 1;
+    string duration = 2;    
+}
+
 
 
 message FindAlbumRequest {

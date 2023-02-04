@@ -28,9 +28,9 @@ func NewTracklistStorage(client db.PostgreSQLClient) *tracklistDAO {
 
 func (t *tracklistDAO) Create(ctx context.Context, tracklist []model.Track) error {
 	logger := logging.LoggerFromContext(ctx)
-	insertState := t.queryBuilder.Insert(table).Columns("album_id", "title")
+	insertState := t.queryBuilder.Insert(table).Columns("album_id", "title", "duration")
 	for _, track := range tracklist {
-		insertState = insertState.Values(track.AlbumID, track.Title)
+		insertState = insertState.Values(track.AlbumID, track.Title, track.Duration)
 	}
 	sql, args, err := insertState.ToSql()
 	logger.Infow(table, sql, args)
@@ -52,16 +52,17 @@ func (t *tracklistDAO) Create(ctx context.Context, tracklist []model.Track) erro
 	return nil
 }
 
-func (t *tracklistDAO) GetOne(ctx context.Context, albumID string) (TrackStorage, error) {
+func (t *tracklistDAO) GetOne(ctx context.Context, trackID string) (TrackStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := t.queryBuilder.
 		Select(
 			"track_id",
 			"album_id",
-			"title").
+			"title",
+			"duration").
 		From(table).
-		Where(sq.Eq{"album_id": albumID})
+		Where(sq.Eq{"album_id": trackID})
 
 	sql, args, err := query.ToSql()
 
@@ -77,7 +78,8 @@ func (t *tracklistDAO) GetOne(ctx context.Context, albumID string) (TrackStorage
 		Scan(
 			&tS.ID,
 			&tS.AlbumID,
-			&tS.Title)
+			&tS.Title,
+			&tS.Duration)
 	if err != nil {
 		err = db.ErrDoQuery(err)
 		logger.Error(err.Error())

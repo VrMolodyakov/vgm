@@ -6,9 +6,10 @@ import (
 )
 
 type TrackStorage struct {
-	ID      int64  `struct:"track_id "`
-	AlbumID string `struct:"album_id"`
-	Title   string `struct:"title"`
+	ID       int64  `struct:"track_id "`
+	AlbumID  string `struct:"album_id"`
+	Title    string `struct:"title"`
+	Duration string `struct:"duration"`
 }
 
 func toStorageMap(tracklist []model.Track) map[string]interface{} {
@@ -25,5 +26,13 @@ func fromModel(track model.Track) TrackStorage {
 		ID:      track.ID,
 		AlbumID: track.AlbumID,
 		Title:   track.Title,
+	}
+}
+
+func (t *TrackStorage) ToModel() model.Track {
+	return model.Track{
+		ID:      t.ID,
+		AlbumID: t.AlbumID,
+		Title:   t.Title,
 	}
 }
