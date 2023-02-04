@@ -1,22 +1,17 @@
 package model
 
-import (
-	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
-	"github.com/mitchellh/mapstructure"
+import "errors"
+
+var (
+	ErrValidation = errors.New("title must not be empty")
 )
 
-type Tracklist struct {
-	ID      int64  `mapstructure:"track_id "`
-	AlbumID string `mapstructure:"album_id"`
-	Title   string `mapstructure:"title"`
+type Track struct {
+	ID      int64
+	AlbumID string
+	Title   string
 }
 
-func ToMap(t *Tracklist) (map[string]interface{}, error) {
-	var updateTrackMap map[string]interface{}
-	err := mapstructure.Decode(t, &updateTrackMap)
-	if err != nil {
-		return updateTrackMap, errors.Wrap(err, "mapstructure.Decode(product)")
-	}
-
-	return updateTrackMap, nil
+func (t *Track) IsEmpty() bool {
+	return t.Title == ""
 }

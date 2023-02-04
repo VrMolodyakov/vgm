@@ -48,7 +48,7 @@ create table credit(
 
 ); 
 
-create table tracklist 
+create table track
 (
     track_id SERIAL PRIMARY KEY,
     album_id UUID  REFERENCES album (album_id),

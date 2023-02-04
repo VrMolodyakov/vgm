@@ -30,10 +30,10 @@ func NewPersonStorage(client db.PostgreSQLClient) *personDAO {
 	}
 }
 
-func (a *personDAO) Create(ctx context.Context, person model.Person) (PersonStorage, error) {
+func (p *personDAO) Create(ctx context.Context, person model.Person) (PersonStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	personStorageMap := toStorageMap(person)
-	sql, args, err := a.queryBuilder.
+	sql, args, err := p.queryBuilder.
 		Insert(table).
 		SetMap(personStorageMap).
 		Suffix(`
@@ -50,7 +50,7 @@ func (a *personDAO) Create(ctx context.Context, person model.Person) (PersonStor
 	}
 
 	var personStorage PersonStorage
-	if QueryRow := a.client.QueryRow(ctx, sql, args...).
+	if QueryRow := p.client.QueryRow(ctx, sql, args...).
 		Scan(
 			&personStorage.ID,
 			&personStorage.FirstName,
@@ -67,10 +67,10 @@ func (a *personDAO) Create(ctx context.Context, person model.Person) (PersonStor
 	return personStorage, nil
 }
 
-func (a *personDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]PersonStorage, error) {
+func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]PersonStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
-	query := a.queryBuilder.
+	query := p.queryBuilder.
 		Select("person_id", "first_name", "last_name", "birth_date").
 		From(table)
 
@@ -83,7 +83,7 @@ func (a *personDAO) GetAll(ctx context.Context, filtering filter.Filterable, sor
 		logger.Error(err.Error())
 		return nil, err
 	}
-	rows, queryErr := a.client.Query(ctx, sql, args...)
+	rows, queryErr := p.client.Query(ctx, sql, args...)
 	if queryErr != nil {
 		err := db.ErrDoQuery(queryErr)
 		logger.Error(err.Error())
@@ -108,4 +108,40 @@ func (a *personDAO) GetAll(ctx context.Context, filtering filter.Filterable, sor
 	}
 
 	return persons, nil
+}
+
+func (p *personDAO) GetOne(ctx context.Context, personID string) (PersonStorage, error) {
+	logger := logging.LoggerFromContext(ctx)
+
+	query := p.queryBuilder.
+		Select(
+			"person_id",
+			"first_name",
+			"last_name",
+			"birth_date").
+		From(table).
+		Where(sq.Eq{"person_id": personID})
+
+	sql, args, err := query.ToSql()
+
+	logger.Infow(table, sql, args)
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return PersonStorage{}, err
+	}
+
+	var pS PersonStorage
+	err = p.client.QueryRow(ctx, sql, args...).
+		Scan(
+			&pS.ID,
+			&pS.FirstName,
+			&pS.LastName,
+			&pS.BirthDate)
+	if err != nil {
+		err = db.ErrDoQuery(err)
+		logger.Error(err.Error())
+		return PersonStorage{}, err
+	}
+	return pS, nil
 }

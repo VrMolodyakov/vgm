@@ -17,7 +17,7 @@ type creditDAO struct {
 }
 
 const (
-	table = "Credit"
+	table = "credit"
 )
 
 func NewCreditStorage(client db.PostgreSQLClient) *creditDAO {
@@ -34,7 +34,7 @@ func (c *creditDAO) Create(ctx context.Context, Credit model.Credit) (CreditStor
 		Insert(table).
 		SetMap(CreditStorageMap).
 		Suffix(`
-				RETURNING Credit_id,Credit_title
+				RETURNING album_id,profession_id,person_id
 		`).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -53,7 +53,7 @@ func (c *creditDAO) Create(ctx context.Context, Credit model.Credit) (CreditStor
 			&cS.ProfessionID,
 			&cS.PersonID); QueryRow != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			QueryRow = db.ErrDoQuery(errors.New("Credit was not created. 0 rows were affected"))
+			QueryRow = db.ErrDoQuery(errors.New("credit was not created. 0 rows were affected"))
 		} else {
 			QueryRow = db.ErrDoQuery(QueryRow)
 		}
@@ -63,15 +63,16 @@ func (c *creditDAO) Create(ctx context.Context, Credit model.Credit) (CreditStor
 	return cS, nil
 }
 
-func (p *creditDAO) GetOne(ctx context.Context, profID string) (CreditStorage, error) {
+func (c *creditDAO) GetOne(ctx context.Context, albumID string) (CreditStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 
-	query := p.queryBuilder.
+	query := c.queryBuilder.
 		Select(
-			"Credit_id",
-			"Credit_title").
+			"album_id",
+			"profession_id",
+			"person_id").
 		From(table).
-		Where(sq.Eq{"Credit_id": profID})
+		Where(sq.Eq{"album_id": albumID})
 
 	sql, args, err := query.ToSql()
 
@@ -83,7 +84,7 @@ func (p *creditDAO) GetOne(ctx context.Context, profID string) (CreditStorage, e
 	}
 
 	var cS CreditStorage
-	err = p.client.QueryRow(ctx, sql, args...).
+	err = c.client.QueryRow(ctx, sql, args...).
 		Scan(
 			&cS.AlbumID,
 			&cS.ProfessionID,
