@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 
+	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	trackPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/track/v1"
 )
 
@@ -26,5 +27,20 @@ func NewTrackFromPB(pb *trackPb.Track) Track {
 		AlbumID:  pb.AlbumId,
 		Title:    pb.Title,
 		Duration: pb.Duration,
+	}
+}
+
+func NewTrackFromPBN(pb *albumPb.Track) Track {
+	return Track{
+		Title:    pb.Title,
+		Duration: pb.Duration,
+	}
+}
+
+func (t *Track) ToProto() *trackPb.Track {
+	return &trackPb.Track{
+		Title:    t.Title,
+		Duration: t.Duration,
+		AlbumId:  t.AlbumID,
 	}
 }

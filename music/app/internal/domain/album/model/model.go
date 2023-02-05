@@ -37,6 +37,15 @@ func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) Album {
 	}
 }
 
+func NewAlbumFromPBN(pb *albumPb.CreateFullAlbumRequest) Album {
+	return Album{
+		ID:         uuid.New().String(),
+		Title:      pb.GetTitle(),
+		ReleasedAt: pb.GetReleasedAt(),
+		CreatedAt:  time.Now().UnixMilli(),
+	}
+}
+
 func UpdateModelFromPB(pb *albumPb.UpdateAlbumRequest) Album {
 	var album Album
 

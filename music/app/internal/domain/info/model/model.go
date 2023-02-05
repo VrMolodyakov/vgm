@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 
+	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	infoPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/info/v1"
 	"github.com/google/uuid"
 )
@@ -28,6 +29,20 @@ func NewInfoFromPB(pb *infoPb.CreateAlbumInfoRequest) Info {
 	return Info{
 		ID:             uuid.New().String(),
 		AlbumID:        pb.GetAlbumId(),
+		CatalogNumber:  pb.GetCatalogNumber(),
+		ImageSrc:       pb.GetImageSrc(),
+		Barcode:        pb.GetBarcode(),
+		CurrencyCode:   pb.GetCurrencyCode(),
+		MediaFormat:    pb.GetMediaFormat(),
+		Classification: pb.GetClassification(),
+		Publisher:      pb.GetPublisher(),
+		Price:          pb.GetPrice(),
+	}
+}
+
+func NewInfoFromPBN(pb *albumPb.CreateFullAlbumRequest) Info {
+	return Info{
+		ID:             uuid.New().String(),
 		CatalogNumber:  pb.GetCatalogNumber(),
 		ImageSrc:       pb.GetImageSrc(),
 		Barcode:        pb.GetBarcode(),

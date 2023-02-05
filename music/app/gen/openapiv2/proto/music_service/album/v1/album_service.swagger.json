@@ -105,12 +105,6 @@
         "info": {
           "$ref": "#/definitions/v1Info"
         },
-        "credits": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Credit"
-          }
-        },
         "tracklist": {
           "type": "array",
           "items": {
