@@ -28,16 +28,16 @@ func (a Album) ToProto() *albumPb.Album {
 	}
 }
 
-func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) Album {
-	return Album{
-		ID:         uuid.New().String(),
-		Title:      pb.GetTitle(),
-		ReleasedAt: pb.GetReleaseAt(),
-		CreatedAt:  time.Now().UnixMilli(),
-	}
-}
+// func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) Album {
+// 	return Album{
+// 		ID:         uuid.New().String(),
+// 		Title:      pb.GetTitle(),
+// 		ReleasedAt: pb.GetReleaseAt(),
+// 		CreatedAt:  time.Now().UnixMilli(),
+// 	}
+// }
 
-func NewAlbumFromPBN(pb *albumPb.CreateFullAlbumRequest) Album {
+func NewAlbumFromPB(pb *albumPb.CreateFullAlbumRequest) Album {
 	return Album{
 		ID:         uuid.New().String(),
 		Title:      pb.GetTitle(),

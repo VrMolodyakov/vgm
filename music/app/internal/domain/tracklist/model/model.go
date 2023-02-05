@@ -22,15 +22,7 @@ func (t *Track) IsEmpty() bool {
 	return t.Title == ""
 }
 
-func NewTrackFromPB(pb *trackPb.Track) Track {
-	return Track{
-		AlbumID:  pb.AlbumId,
-		Title:    pb.Title,
-		Duration: pb.Duration,
-	}
-}
-
-func NewTrackFromPBN(pb *albumPb.Track) Track {
+func NewTrackFromPB(pb *albumPb.Track) Track {
 	return Track{
 		Title:    pb.Title,
 		Duration: pb.Duration,

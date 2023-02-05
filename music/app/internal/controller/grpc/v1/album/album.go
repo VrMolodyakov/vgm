@@ -10,18 +10,18 @@ import (
 	trackModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
 )
 
-func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
-	a := albumModel.NewAlbumFromPB(request)
+// func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
+// 	a := albumModel.NewAlbumFromPB(request)
 
-	album, err := s.albumPolicy.Create(ctx, a)
-	if err != nil {
-		return nil, err
-	}
+// 	album, err := s.albumPolicy.Create(ctx, a)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &albumPb.CreateAlbumResponse{
-		Album: album.ToProto(),
-	}, nil
-}
+// 	return &albumPb.CreateAlbumResponse{
+// 		Album: album.ToProto(),
+// 	}, nil
+// }
 
 func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
 	sort := albumModel.AlbumSort(request)
@@ -60,8 +60,8 @@ func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRe
 }
 
 func (s *server) CreateFullAlbum(ctx context.Context, request *albumPb.CreateFullAlbumRequest) (*albumPb.CreateFullAlbumResponse, error) {
-	albumModel := albumModel.NewAlbumFromPBN(request)
-	infoModel := infoModel.NewInfoFromPBN(request)
+	albumModel := albumModel.NewAlbumFromPB(request)
+	infoModel := infoModel.NewInfoFromPB(request)
 
 	album, err := s.albumPolicy.Create(ctx, albumModel)
 
@@ -77,7 +77,7 @@ func (s *server) CreateFullAlbum(ctx context.Context, request *albumPb.CreateFul
 	tracklistPb := request.GetTracklist()
 	tracklist := make([]trackModel.Track, len(tracklistPb))
 	for i := 0; i < len(tracklistPb); i++ {
-		tracklist[i] = trackModel.NewTrackFromPBN(tracklistPb[i])
+		tracklist[i] = trackModel.NewTrackFromPB(tracklistPb[i])
 	}
 	err = s.trackPolicy.Create(ctx, tracklist)
 	if err != nil {

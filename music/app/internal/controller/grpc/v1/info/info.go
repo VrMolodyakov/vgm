@@ -7,18 +7,18 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
 )
 
-func (s *server) CreateAlbumInfo(ctx context.Context, request *infoPb.CreateAlbumInfoRequest) (*infoPb.CreateAlbumInfoResponse, error) {
-	infoModel := model.NewInfoFromPB(request)
+// func (s *server) CreateAlbumInfo(ctx context.Context, request *infoPb.CreateAlbumInfoRequest) (*infoPb.CreateAlbumInfoResponse, error) {
+// 	infoModel := model.NewInfoFromPB(request)
 
-	info, err := s.infoPolicy.Create(ctx, infoModel)
-	if err != nil {
-		return nil, err
-	}
+// 	info, err := s.infoPolicy.Create(ctx, infoModel)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &infoPb.CreateAlbumInfoResponse{
-		Info: info.ToProto(),
-	}, nil
-}
+// 	return &infoPb.CreateAlbumInfoResponse{
+// 		Info: info.ToProto(),
+// 	}, nil
+// }
 
 func (s *server) FindAlbumInfo(ctx context.Context, request *infoPb.FindAlbumInfoRequest) (*infoPb.FindAlbumInfoResponse, error) {
 	id := request.GetAlbumId()
