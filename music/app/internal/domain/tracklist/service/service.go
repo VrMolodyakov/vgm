@@ -11,7 +11,7 @@ import (
 
 type TrackDAO interface {
 	Create(ctx context.Context, tracklist []model.Track) error
-	GetOne(ctx context.Context, trackID string) (dao.TrackStorage, error)
+	GetAll(ctx context.Context, albumID string) ([]dao.TrackStorage, error)
 }
 
 type trackService struct {
@@ -37,15 +37,19 @@ func (t *trackService) Create(ctx context.Context, tracklist []model.Track) erro
 
 }
 
-func (t *trackService) GetOne(ctx context.Context, trackID string) (model.Track, error) {
-	if trackID == "" {
+func (t *trackService) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
+	if albumID == "" {
 		err := errors.New("id must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())
-		return model.Track{}, err
+		return nil, err
 	}
-	track, err := t.trackDAO.GetOne(ctx, trackID)
+	storageList, err := t.trackDAO.GetAll(ctx, albumID)
 	if err != nil {
-		return model.Track{}, errors.Wrap(err, "trackService.Create")
+		return nil, errors.Wrap(err, "trackService.Create")
 	}
-	return track.ToModel(), nil
+	trakclist := make([]model.Track, len(storageList))
+	for i := 0; i < len(storageList); i++ {
+		trakclist[i] = storageList[i].ToModel()
+	}
+	return trakclist, nil
 }

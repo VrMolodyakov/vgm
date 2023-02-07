@@ -11,6 +11,12 @@ type CreditStorage struct {
 	ProfessionID int64  `struct:"profession_id"`
 }
 
+type CreditInfoStorage struct {
+	Profession string
+	FirstName  string
+	LastName   string
+}
+
 func fromModel(person model.Credit) CreditStorage {
 	return CreditStorage{
 		PersonID:     person.PersonID,
@@ -24,6 +30,14 @@ func (c CreditStorage) ToModel() model.Credit {
 		PersonID:     c.PersonID,
 		AlbumID:      c.AlbumID,
 		ProfessionID: c.ProfessionID,
+	}
+}
+
+func (c CreditInfoStorage) ToModel() model.CreditInfo {
+	return model.CreditInfo{
+		Profession: c.Profession,
+		LastName:   c.LastName,
+		FirstName:  c.FirstName,
 	}
 }
 

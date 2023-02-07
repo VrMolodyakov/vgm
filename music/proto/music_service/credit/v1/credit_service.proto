@@ -12,10 +12,11 @@ service CreditService {
 }
 
 message CreateCreditRequest{
-    repeated Credit credits = 1;
+    string album_id = 1;
+    int64 person_id = 2;
+    string profession = 3;
 }
 
 message CreateCreditResponse{
-    string title = 1;
 }
 

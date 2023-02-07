@@ -45,29 +45,7 @@
       }
     },
     "v1CreateCreditResponse": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
-        }
-      }
-    },
-    "v1Credit": {
-      "type": "object",
-      "properties": {
-        "profession": {
-          "type": "string"
-        },
-        "personFirstName": {
-          "type": "string"
-        },
-        "personLastName": {
-          "type": "string"
-        },
-        "albumId": {
-          "type": "string"
-        }
-      }
+      "type": "object"
     }
   }
 }

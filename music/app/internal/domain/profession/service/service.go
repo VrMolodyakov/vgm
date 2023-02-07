@@ -9,7 +9,7 @@ import (
 )
 
 type ProfessionDAO interface {
-	Create(ctx context.Context, profession model.Profession) (dao.ProfessionStorage, error)
+	Create(ctx context.Context, profession string) (dao.ProfessionStorage, error)
 	GetOne(ctx context.Context, profID string) (dao.ProfessionStorage, error)
 }
 
@@ -21,9 +21,9 @@ func NewProfessionService(dao ProfessionDAO) *professionService {
 	return &professionService{professionDAO: dao}
 }
 
-func (s *professionService) Create(ctx context.Context, profession model.Profession) (model.Profession, error) {
-	if profession.IsEmpty() {
-		return model.Profession{}, model.ErrValidation
+func (s *professionService) Create(ctx context.Context, profession string) (model.Profession, error) {
+	if profession == "" {
+		return model.Profession{}, errors.New("profession id must not be null")
 	}
 	dbProfession, err := s.professionDAO.Create(ctx, profession)
 	if err != nil {

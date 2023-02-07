@@ -27,9 +27,9 @@ func NewCreditStorage(client db.PostgreSQLClient) *creditDAO {
 	}
 }
 
-func (c *creditDAO) Create(ctx context.Context, Credit model.Credit) (CreditStorage, error) {
+func (c *creditDAO) Create(ctx context.Context, credit model.Credit) (CreditStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
-	CreditStorageMap := toStorageMap(Credit)
+	CreditStorageMap := toStorageMap(credit)
 	sql, args, err := c.queryBuilder.
 		Insert(table).
 		SetMap(CreditStorageMap).
@@ -63,15 +63,18 @@ func (c *creditDAO) Create(ctx context.Context, Credit model.Credit) (CreditStor
 	return cS, nil
 }
 
-func (c *creditDAO) GetOne(ctx context.Context, albumID string) (CreditStorage, error) {
+func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]CreditInfoStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := c.queryBuilder.
 		Select(
-			"album_id",
-			"profession_id",
-			"person_id").
+			"profession_title",
+			"first_name",
+			"last_name").
 		From(table).
+		Join("person using (person_id)").
+		Join("musical_profession using (profession_id)").
+		Join("album using (album_id)").
 		Where(sq.Eq{"album_id": albumID})
 
 	sql, args, err := query.ToSql()
@@ -80,19 +83,27 @@ func (c *creditDAO) GetOne(ctx context.Context, albumID string) (CreditStorage, 
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return CreditStorage{}, err
+		return nil, err
 	}
 
-	var cS CreditStorage
-	err = c.client.QueryRow(ctx, sql, args...).
-		Scan(
-			&cS.AlbumID,
-			&cS.ProfessionID,
-			&cS.PersonID)
-	if err != nil {
-		err = db.ErrDoQuery(err)
-		logger.Error(err.Error())
-		return CreditStorage{}, err
+	rows, queryErr := c.client.Query(ctx, sql, args...)
+	if queryErr != nil {
+		queryErr = db.ErrDoQuery(queryErr)
+		logger.Error(queryErr.Error())
+		return nil, queryErr
 	}
-	return cS, nil
+	creditInfo := make([]CreditInfoStorage, 0)
+	for rows.Next() {
+		info := CreditInfoStorage{}
+		if queryErr = rows.Scan(
+			&info.Profession,
+			&info.FirstName,
+			&info.LastName,
+		); queryErr != nil {
+			queryErr = db.ErrScan(queryErr)
+			logger.Error(queryErr.Error())
+			return nil, queryErr
+		}
+	}
+	return creditInfo, nil
 }

@@ -14,3 +14,11 @@ type Profession struct {
 func (p *Profession) IsEmpty() bool {
 	return p.Title == ""
 }
+
+// func NewProfFromPB(pb *personPb.CreatePersonRequest) Person {
+// 	return Person{
+// 		FirstName: pb.GetFirstName(),
+// 		LastName:  pb.GetLastName(),
+// 		BirthDate: pb.GetBirthDate(),
+// 	}
+// }

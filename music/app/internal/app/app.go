@@ -21,6 +21,10 @@ import (
 	infoPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/policy"
 	infoService "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/service"
 
+	tracklistDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/dao"
+	tracklistPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/policy"
+	tracklistService "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/service"
+
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"google.golang.org/grpc"
@@ -65,12 +69,17 @@ func (a *app) startGrpc(ctx context.Context) {
 	albumDAO := albumDAO.NewAlbumStorage(pgClient)
 	albumService := AlbumService.NewAlbumService(albumDAO)
 	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService)
-	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
 
 	infoDAO := infoDAO.NewInfoStorage(pgClient)
 	infoService := infoService.NewInfoService(infoDAO)
 	infoPolicy := infoPolicy.NewInfoPolicy(infoService)
 	infoServer := info.NewServer(infoPolicy, infoPb.UnimplementedInfoServiceServer{})
+
+	tracklistDAO := tracklistDAO.NewTracklistStorage(pgClient)
+	tracklistService := tracklistService.NewTrackService(tracklistDAO)
+	tracklistPolicy := tracklistPolicy.NewTrackPolicy(tracklistService)
+
+	albumServer := album.NewServer(albumPolicy, infoPolicy, tracklistPolicy, albumPb.UnimplementedAlbumServiceServer{})
 
 	a.grpcServer = grpc.NewServer(serverOptions...)
 

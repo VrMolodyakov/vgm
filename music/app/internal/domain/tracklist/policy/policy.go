@@ -8,7 +8,7 @@ import (
 
 type TrackService interface {
 	Create(ctx context.Context, tracklist []model.Track) error
-	GetOne(ctx context.Context, trackID string) (model.Track, error)
+	GetAll(ctx context.Context, albumID string) ([]model.Track, error)
 }
 
 type trackPolicy struct {
@@ -23,6 +23,6 @@ func (p *trackPolicy) Create(ctx context.Context, tracklist []model.Track) error
 	return p.trackService.Create(ctx, tracklist)
 }
 
-func (p *trackPolicy) GetOne(ctx context.Context, trackID string) (model.Track, error) {
-	return p.trackService.GetOne(ctx, trackID)
+func (p *trackPolicy) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
+	return p.trackService.GetAll(ctx, albumID)
 }

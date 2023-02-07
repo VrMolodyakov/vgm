@@ -34,9 +34,16 @@ type server struct {
 	albumPb.UnimplementedAlbumServiceServer
 }
 
-func NewServer(policy AlbumPolicy, s albumPb.UnimplementedAlbumServiceServer) *server {
+func NewServer(
+	albumPolicy AlbumPolicy,
+	infoPolicy InfoPolicy,
+	tracklistPolicy TracklistPolicy,
+	s albumPb.UnimplementedAlbumServiceServer) *server {
+
 	return &server{
-		albumPolicy:                     policy,
+		albumPolicy:                     albumPolicy,
+		infoPolicy:                      infoPolicy,
+		trackPolicy:                     tracklistPolicy,
 		UnimplementedAlbumServiceServer: s,
 	}
 }

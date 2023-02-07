@@ -7,8 +7,8 @@ import (
 )
 
 type ProfessionService interface {
-	Create(ctx context.Context, profession model.Profession) (model.Profession, error)
-	GetOne(ctx context.Context, profID string) (model.Profession, error)
+	Create(ctx context.Context, profession string) (model.Profession, error)
+	GetOne(ctx context.Context, profession string) (model.Profession, error)
 }
 
 type professionPolicy struct {
@@ -19,11 +19,11 @@ func NewProfessionPolicy(service ProfessionService) *professionPolicy {
 	return &professionPolicy{professionService: service}
 }
 
-func (p *professionPolicy) GetOne(ctx context.Context, profID string) (model.Profession, error) {
-	return p.professionService.GetOne(ctx, profID)
+func (p *professionPolicy) GetOne(ctx context.Context, prof string) (model.Profession, error) {
+	return p.professionService.GetOne(ctx, prof)
 
 }
 
-func (p *professionPolicy) Create(ctx context.Context, Profession model.Profession) (model.Profession, error) {
-	return p.professionService.Create(ctx, Profession)
+func (p *professionPolicy) Create(ctx context.Context, profession string) (model.Profession, error) {
+	return p.professionService.Create(ctx, profession)
 }

@@ -16,7 +16,7 @@ type tracklistDAO struct {
 }
 
 const (
-	table = "tracklist"
+	table = "track"
 )
 
 func NewTracklistStorage(client db.PostgreSQLClient) *tracklistDAO {
@@ -52,7 +52,7 @@ func (t *tracklistDAO) Create(ctx context.Context, tracklist []model.Track) erro
 	return nil
 }
 
-func (t *tracklistDAO) GetOne(ctx context.Context, trackID string) (TrackStorage, error) {
+func (t *tracklistDAO) GetAll(ctx context.Context, albumID string) ([]TrackStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := t.queryBuilder.
@@ -62,7 +62,7 @@ func (t *tracklistDAO) GetOne(ctx context.Context, trackID string) (TrackStorage
 			"title",
 			"duration").
 		From(table).
-		Where(sq.Eq{"album_id": trackID})
+		Where(sq.Eq{"album_id": albumID})
 
 	sql, args, err := query.ToSql()
 
@@ -70,20 +70,30 @@ func (t *tracklistDAO) GetOne(ctx context.Context, trackID string) (TrackStorage
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return TrackStorage{}, err
+		return nil, err
 	}
 
-	var tS TrackStorage
-	err = t.client.QueryRow(ctx, sql, args...).
-		Scan(
-			&tS.ID,
-			&tS.AlbumID,
-			&tS.Title,
-			&tS.Duration)
-	if err != nil {
-		err = db.ErrDoQuery(err)
-		logger.Error(err.Error())
-		return TrackStorage{}, err
+	rows, queryErr := t.client.Query(ctx, sql, args...)
+	if queryErr != nil {
+		queryErr = db.ErrDoQuery(queryErr)
+		logger.Error(queryErr.Error())
+		return nil, queryErr
 	}
-	return tS, nil
+	tracklist := make([]TrackStorage, 0)
+	for rows.Next() {
+		track := TrackStorage{}
+		if queryErr = rows.Scan(
+			&track.ID,
+			&track.AlbumID,
+			&track.Title,
+			&track.Duration,
+		); queryErr != nil {
+			queryErr = db.ErrScan(queryErr)
+			logger.Error(queryErr.Error())
+			return nil, queryErr
+		}
+		tracklist = append(tracklist, track)
+
+	}
+	return tracklist, nil
 }

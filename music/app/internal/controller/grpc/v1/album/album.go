@@ -64,11 +64,10 @@ func (s *server) CreateFullAlbum(ctx context.Context, request *albumPb.CreateFul
 	infoModel := infoModel.NewInfoFromPB(request)
 
 	album, err := s.albumPolicy.Create(ctx, albumModel)
-
 	if err != nil {
 		return nil, err
 	}
-
+	infoModel.AlbumID = album.ID
 	info, err := s.infoPolicy.Create(ctx, infoModel)
 
 	if err != nil {
@@ -78,6 +77,7 @@ func (s *server) CreateFullAlbum(ctx context.Context, request *albumPb.CreateFul
 	tracklist := make([]trackModel.Track, len(tracklistPb))
 	for i := 0; i < len(tracklistPb); i++ {
 		tracklist[i] = trackModel.NewTrackFromPB(tracklistPb[i])
+		tracklist[i].AlbumID = album.ID
 	}
 	err = s.trackPolicy.Create(ctx, tracklist)
 	if err != nil {
