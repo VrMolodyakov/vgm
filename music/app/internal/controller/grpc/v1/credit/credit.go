@@ -23,3 +23,15 @@ func (s *server) CreateCredit(ctx context.Context, request *creditPb.CreateCredi
 	}
 	return &creditPb.CreateCreditResponse{}, nil
 }
+
+func (s *server) FindCredits(ctx context.Context, request *creditPb.FindCreditsRequest) (*creditPb.FindCreditsResponse, error) {
+	creditsModel, err := s.creditPolicy.GetAll(ctx, request.GetAlbumId())
+	if err != nil {
+		return nil, err
+	}
+	credits := make([]*creditPb.Credit, len(creditsModel))
+	for i := 0; i < len(creditsModel); i++ {
+		credits[i] = creditsModel[i].ToProto()
+	}
+	return &creditPb.FindCreditsResponse{Credits: credits}, nil
+}

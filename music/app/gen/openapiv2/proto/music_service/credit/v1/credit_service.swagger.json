@@ -46,6 +46,31 @@
     },
     "v1CreateCreditResponse": {
       "type": "object"
+    },
+    "v1Credit": {
+      "type": "object",
+      "properties": {
+        "profession": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
+    "v1FindCreditsResponse": {
+      "type": "object",
+      "properties": {
+        "credits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Credit"
+          }
+        }
+      }
     }
   }
 }

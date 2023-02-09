@@ -119,13 +119,10 @@
         "profession": {
           "type": "string"
         },
-        "personFirstName": {
+        "firstName": {
           "type": "string"
         },
-        "personLastName": {
-          "type": "string"
-        },
-        "albumId": {
+        "lastName": {
           "type": "string"
         }
       }

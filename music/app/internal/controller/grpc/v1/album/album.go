@@ -10,19 +10,6 @@ import (
 	trackModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
 )
 
-// func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
-// 	a := albumModel.NewAlbumFromPB(request)
-
-// 	album, err := s.albumPolicy.Create(ctx, a)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &albumPb.CreateAlbumResponse{
-// 		Album: album.ToProto(),
-// 	}, nil
-// }
-
 func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
 	sort := albumModel.AlbumSort(request)
 	filter := albumModel.AlbumFilter(request)

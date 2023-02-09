@@ -32,3 +32,11 @@ func NewCreditFromPB(pb *creditPb.CreateCreditRequest) Credit {
 		AlbumID:  pb.GetAlbumId(),
 	}
 }
+
+func (c *CreditInfo) ToProto() *creditPb.Credit {
+	return &creditPb.Credit{
+		Profession: c.Profession,
+		FirstName:  c.FirstName,
+		LastName:   c.LastName,
+	}
+}

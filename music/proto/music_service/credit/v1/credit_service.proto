@@ -9,6 +9,7 @@ import "proto/music_service/credit/v1/credit.proto";
 
 service CreditService {
     rpc CreateCredit(CreateCreditRequest) returns (CreateCreditResponse) {} 
+    rpc FindCredits(FindCreditsRequest) returns (FindCreditsResponse) {} 
 }
 
 message CreateCreditRequest{
@@ -20,3 +21,9 @@ message CreateCreditRequest{
 message CreateCreditResponse{
 }
 
+message FindCreditsRequest{
+    string album_id = 1;
+}
+message FindCreditsResponse{
+    repeated proto.music_service.credit.v1.Credit credits = 1;
+}

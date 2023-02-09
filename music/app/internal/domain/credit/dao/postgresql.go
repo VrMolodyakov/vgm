@@ -107,3 +107,32 @@ func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]CreditInfoSto
 	}
 	return creditInfo, nil
 }
+
+func (c *creditDAO) Delete(ctx context.Context, albumID string) error {
+	logger := logging.LoggerFromContext(ctx)
+	sql, args, buildErr := c.queryBuilder.
+		Delete(table).
+		Where(sq.Eq{"album_info_id": albumID}).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := c.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Delete() {
+		execErr = db.ErrDoQuery(errors.New("album was not deleted. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
+
+}

@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CreditServiceClient interface {
 	CreateCredit(ctx context.Context, in *CreateCreditRequest, opts ...grpc.CallOption) (*CreateCreditResponse, error)
+	FindCredits(ctx context.Context, in *FindCreditsRequest, opts ...grpc.CallOption) (*FindCreditsResponse, error)
 }
 
 type creditServiceClient struct {
@@ -42,11 +43,21 @@ func (c *creditServiceClient) CreateCredit(ctx context.Context, in *CreateCredit
 	return out, nil
 }
 
+func (c *creditServiceClient) FindCredits(ctx context.Context, in *FindCreditsRequest, opts ...grpc.CallOption) (*FindCreditsResponse, error) {
+	out := new(FindCreditsResponse)
+	err := c.cc.Invoke(ctx, "/proto.music_service.credit.v1.CreditService/FindCredits", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CreditServiceServer is the server API for CreditService service.
 // All implementations must embed UnimplementedCreditServiceServer
 // for forward compatibility
 type CreditServiceServer interface {
 	CreateCredit(context.Context, *CreateCreditRequest) (*CreateCreditResponse, error)
+	FindCredits(context.Context, *FindCreditsRequest) (*FindCreditsResponse, error)
 	mustEmbedUnimplementedCreditServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedCreditServiceServer struct {
 
 func (UnimplementedCreditServiceServer) CreateCredit(context.Context, *CreateCreditRequest) (*CreateCreditResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCredit not implemented")
+}
+func (UnimplementedCreditServiceServer) FindCredits(context.Context, *FindCreditsRequest) (*FindCreditsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindCredits not implemented")
 }
 func (UnimplementedCreditServiceServer) mustEmbedUnimplementedCreditServiceServer() {}
 
@@ -88,6 +102,24 @@ func _CreditService_CreateCredit_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CreditService_FindCredits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindCreditsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreditServiceServer).FindCredits(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.music_service.credit.v1.CreditService/FindCredits",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreditServiceServer).FindCredits(ctx, req.(*FindCreditsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CreditService_ServiceDesc is the grpc.ServiceDesc for CreditService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var CreditService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateCredit",
 			Handler:    _CreditService_CreateCredit_Handler,
+		},
+		{
+			MethodName: "FindCredits",
+			Handler:    _CreditService_FindCredits_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

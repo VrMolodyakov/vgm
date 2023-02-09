@@ -9,6 +9,7 @@ import (
 type CreditService interface {
 	Create(ctx context.Context, credit model.Credit) (model.Credit, error)
 	GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error)
+	Delete(ctx context.Context, albumID string) error
 }
 
 type CreditPolicy struct {
@@ -25,4 +26,8 @@ func (p *CreditPolicy) Create(ctx context.Context, credit model.Credit) (model.C
 
 func (p *CreditPolicy) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
 	return p.creditService.GetAll(ctx, albumID)
+}
+
+func (p *CreditPolicy) Delete(ctx context.Context, albumID string) error {
+	return p.creditService.Delete(ctx, albumID)
 }

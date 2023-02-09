@@ -7,11 +7,10 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/person/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
-	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
 )
 
 type PersonDAO interface {
-	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]dao.PersonStorage, error)
+	GetAll(ctx context.Context, filtering filter.Filterable) ([]dao.PersonStorage, error)
 	Create(ctx context.Context, person model.Person) (dao.PersonStorage, error)
 }
 
@@ -19,12 +18,12 @@ type personService struct {
 	personDAO PersonDAO
 }
 
-func NewpersonService(dao PersonDAO) *personService {
+func NewPersonService(dao PersonDAO) *personService {
 	return &personService{personDAO: dao}
 }
 
-func (a *personService) GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.Person, error) {
-	dbpersons, err := a.personDAO.GetAll(ctx, filter, sort)
+func (p *personService) GetAll(ctx context.Context, filter filter.Filterable) ([]model.Person, error) {
+	dbpersons, err := p.personDAO.GetAll(ctx, filter)
 	if err != nil {
 		return nil, errors.Wrap(err, "personService.All")
 	}
@@ -36,11 +35,11 @@ func (a *personService) GetAll(ctx context.Context, filter filter.Filterable, so
 
 }
 
-func (s *personService) Create(ctx context.Context, person model.Person) (model.Person, error) {
+func (p *personService) Create(ctx context.Context, person model.Person) (model.Person, error) {
 	if person.IsEmpty() {
 		return model.Person{}, model.ErrValidation
 	}
-	dbperson, err := s.personDAO.Create(ctx, person)
+	dbperson, err := p.personDAO.Create(ctx, person)
 	if err != nil {
 		return model.Person{}, errors.Wrap(err, "personService.Create")
 	}

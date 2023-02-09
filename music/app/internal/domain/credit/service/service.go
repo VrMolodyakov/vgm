@@ -12,6 +12,7 @@ import (
 type CreditDAO interface {
 	Create(ctx context.Context, credit model.Credit) (dao.CreditStorage, error)
 	GetAll(ctx context.Context, albumID string) ([]dao.CreditInfoStorage, error)
+	Delete(ctx context.Context, albumID string) error
 }
 
 type creditService struct {
@@ -49,4 +50,13 @@ func (c *creditService) GetAll(ctx context.Context, albumID string) ([]model.Cre
 		informations[i] = storageList[i].ToModel()
 	}
 	return informations, nil
+}
+
+func (c *creditService) Delete(ctx context.Context, albumID string) error {
+	if albumID == "" {
+		err := errors.New("id must not be empty")
+		logging.LoggerFromContext(ctx).Error(err.Error())
+		return err
+	}
+	return c.creditDAO.Delete(ctx, albumID)
 }

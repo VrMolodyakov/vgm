@@ -25,21 +25,6 @@ type Info struct {
 	Price          float64
 }
 
-// func NewInfoFromPB(pb *infoPb.CreateAlbumInfoRequest) Info {
-// 	return Info{
-// 		ID:             uuid.New().String(),
-// 		AlbumID:        pb.GetAlbumId(),
-// 		CatalogNumber:  pb.GetCatalogNumber(),
-// 		ImageSrc:       pb.GetImageSrc(),
-// 		Barcode:        pb.GetBarcode(),
-// 		CurrencyCode:   pb.GetCurrencyCode(),
-// 		MediaFormat:    pb.GetMediaFormat(),
-// 		Classification: pb.GetClassification(),
-// 		Publisher:      pb.GetPublisher(),
-// 		Price:          pb.GetPrice(),
-// 	}
-// }
-
 func NewInfoFromPB(pb *albumPb.CreateFullAlbumRequest) Info {
 	return Info{
 		ID:             uuid.New().String(),

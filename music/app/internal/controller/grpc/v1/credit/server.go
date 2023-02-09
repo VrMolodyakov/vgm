@@ -11,6 +11,7 @@ import (
 type CreditPolicy interface {
 	Create(ctx context.Context, credit creditModel.Credit) (creditModel.Credit, error)
 	GetAll(ctx context.Context, albumID string) ([]creditModel.CreditInfo, error)
+	Delete(ctx context.Context, albumID string) error
 }
 
 type ProfessionPolicy interface {
@@ -24,9 +25,10 @@ type server struct {
 	creditPb.UnimplementedCreditServiceServer
 }
 
-func NewServer(policy CreditPolicy, s creditPb.UnimplementedCreditServiceServer) *server {
+func NewServer(credit CreditPolicy, profession ProfessionPolicy, s creditPb.UnimplementedCreditServiceServer) *server {
 	return &server{
-		creditPolicy:                     policy,
+		creditPolicy:                     credit,
+		profPolicy:                       profession,
 		UnimplementedCreditServiceServer: s,
 	}
 }

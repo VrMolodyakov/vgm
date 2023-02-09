@@ -10,7 +10,6 @@ import (
 	dbFIlter "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
-	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
 	"github.com/jackc/pgx"
 )
 
@@ -67,7 +66,7 @@ func (p *personDAO) Create(ctx context.Context, person model.Person) (PersonStor
 	return personStorage, nil
 }
 
-func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]PersonStorage, error) {
+func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable) ([]PersonStorage, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	query := p.queryBuilder.
