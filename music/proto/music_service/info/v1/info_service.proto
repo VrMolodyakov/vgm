@@ -7,28 +7,11 @@ option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_se
 import "proto/music_service/info/v1/info.proto";
 
 service InfoService {
-    rpc CreateAlbumInfo(CreateAlbumInfoRequest) returns (CreateAlbumInfoResponse) {}
     rpc FindAlbumInfo(FindAlbumInfoRequest) returns (FindAlbumInfoResponse) {}
     rpc UpdateAlbumInfo(UpdateAlbumInfoRequest) returns (UpdateAlbumInfoResponse) {}
     rpc DeleteAlbumInfo(DeleteAlbumInfoRequest) returns (DeleteAlbumInfoResponse) {}
 
 
-}
-
-message CreateAlbumInfoRequest{
-    string album_id = 1;
-    string catalog_number = 2;
-    optional string image_src = 3;
-    optional string barcode = 4;
-    double price = 5;
-    string currency_code = 6;
-    string media_format = 7;
-    string classification = 8;
-    string publisher = 9;
-}
-
-message CreateAlbumInfoResponse{
-    Info info = 1;
 }
 
 message FindAlbumInfoRequest{

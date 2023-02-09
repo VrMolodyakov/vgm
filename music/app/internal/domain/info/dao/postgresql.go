@@ -27,63 +27,7 @@ func NewInfoStorage(client db.PostgreSQLClient) *infoDAO {
 	}
 }
 
-func (a *infoDAO) GetAll(ctx context.Context) ([]InfoStorage, error) {
-	logger := logging.LoggerFromContext(ctx)
-	query := a.queryBuilder.
-		Select(
-			"album_info_id",
-			"album_id",
-			"catalog_number",
-			"image_srs",
-			"barcode",
-			"price",
-			"currency_code",
-			"media_format",
-			"classification",
-			"publisher").
-		From(table)
-
-	sql, args, err := query.ToSql()
-	logger.Infow(table, sql, args)
-	if err != nil {
-		err = db.ErrCreateQuery(err)
-		logger.Error(err.Error())
-		return nil, err
-	}
-	rows, queryErr := a.client.Query(ctx, sql, args...)
-	if queryErr != nil {
-		err := db.ErrDoQuery(queryErr)
-		logger.Error(err.Error())
-		return nil, err
-	}
-
-	albums := make([]InfoStorage, 0)
-	for rows.Next() {
-		as := InfoStorage{}
-		if queryErr = rows.Scan(
-			&as.ID,
-			&as.AlbumID,
-			&as.CatalogNumber,
-			&as.ImageSrc,
-			&as.Barcode,
-			&as.Price,
-			&as.CurrencyCode,
-			&as.MediaFormat,
-			&as.Classification,
-			&as.Publisher,
-		); queryErr != nil {
-			queryErr = db.ErrScan(queryErr)
-			logger.Error(queryErr.Error())
-			return nil, queryErr
-		}
-
-		albums = append(albums, as)
-	}
-
-	return albums, nil
-}
-
-func (a *infoDAO) Create(ctx context.Context, info model.Info) (InfoStorage, error) {
+func (a *infoDAO) Create(ctx context.Context, info model.Info) (model.Info, error) {
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toStorageMap(&info)
 	sql, args, err := a.queryBuilder.
@@ -104,7 +48,7 @@ func (a *infoDAO) Create(ctx context.Context, info model.Info) (InfoStorage, err
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return InfoStorage{}, err
+		return model.Info{}, err
 	}
 
 	var infoStorage InfoStorage
@@ -126,12 +70,12 @@ func (a *infoDAO) Create(ctx context.Context, info model.Info) (InfoStorage, err
 			QueryRow = db.ErrDoQuery(QueryRow)
 		}
 		logger.Error(QueryRow.Error())
-		return InfoStorage{}, QueryRow
+		return model.Info{}, QueryRow
 	}
-	return infoStorage, nil
+	return infoStorage.toModel(), nil
 }
 
-func (a *infoDAO) GetOne(ctx context.Context, albumID string) (InfoStorage, error) {
+func (a *infoDAO) GetOne(ctx context.Context, albumID string) (model.Info, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := a.queryBuilder.
@@ -155,7 +99,7 @@ func (a *infoDAO) GetOne(ctx context.Context, albumID string) (InfoStorage, erro
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return InfoStorage{}, err
+		return model.Info{}, err
 	}
 
 	var infoStorage InfoStorage
@@ -174,9 +118,9 @@ func (a *infoDAO) GetOne(ctx context.Context, albumID string) (InfoStorage, erro
 	if err != nil {
 		err = db.ErrDoQuery(err)
 		logger.Error(err.Error())
-		return InfoStorage{}, err
+		return model.Info{}, err
 	}
-	return infoStorage, nil
+	return infoStorage.toModel(), nil
 }
 
 func (a *infoDAO) Delete(ctx context.Context, id string) error {

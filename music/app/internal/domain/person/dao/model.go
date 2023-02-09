@@ -7,39 +7,29 @@ import (
 	mapper "github.com/worldline-go/struct2"
 )
 
-type PersonStorage struct {
+type personStorage struct {
 	ID        int64
 	FirstName string
 	LastName  string
 	BirthDate time.Time
 }
 
-type storage struct {
+type queryStorage struct {
 	FirstName string    `struct:"first_name"`
 	LastName  string    `struct:"last_name"`
 	BirthDate time.Time `struct:"birth_date"`
 }
 
-func toStorage(person model.Person) storage {
+func toStorage(person model.Person) queryStorage {
 	birthDate := time.UnixMilli(person.BirthDate)
-	return storage{
+	return queryStorage{
 		FirstName: person.FirstName,
 		LastName:  person.LastName,
 		BirthDate: birthDate,
 	}
 }
 
-// func fromModel(person model.Person) PersonStorage {
-// 	birthDate := time.UnixMilli(person.BirthDate)
-// 	return PersonStorage{
-// 		ID:        person.ID,
-// 		FirstName: person.FirstName,
-// 		LastName:  person.LastName,
-// 		BirthDate: birthDate,
-// 	}
-// }
-
-func (p PersonStorage) ToModel() model.Person {
+func (p personStorage) toModel() model.Person {
 	return model.Person{
 		ID:        p.ID,
 		FirstName: p.FirstName,

@@ -27,7 +27,7 @@ func NewCreditStorage(client db.PostgreSQLClient) *creditDAO {
 	}
 }
 
-func (c *creditDAO) Create(ctx context.Context, credit model.Credit) (CreditStorage, error) {
+func (c *creditDAO) Create(ctx context.Context, credit model.Credit) (model.Credit, error) {
 	logger := logging.LoggerFromContext(ctx)
 	CreditStorageMap := toStorageMap(credit)
 	sql, args, err := c.queryBuilder.
@@ -43,27 +43,27 @@ func (c *creditDAO) Create(ctx context.Context, credit model.Credit) (CreditStor
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return CreditStorage{}, err
+		return model.Credit{}, err
 	}
 
-	var cS CreditStorage
+	var storage CreditStorage
 	if QueryRow := c.client.QueryRow(ctx, sql, args...).
 		Scan(
-			&cS.AlbumID,
-			&cS.ProfessionID,
-			&cS.PersonID); QueryRow != nil {
+			&storage.AlbumID,
+			&storage.ProfessionID,
+			&storage.PersonID); QueryRow != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			QueryRow = db.ErrDoQuery(errors.New("credit was not created. 0 rows were affected"))
 		} else {
 			QueryRow = db.ErrDoQuery(QueryRow)
 		}
 		logger.Error(QueryRow.Error())
-		return CreditStorage{}, QueryRow
+		return model.Credit{}, QueryRow
 	}
-	return cS, nil
+	return storage.toModel(), nil
 }
 
-func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]CreditInfoStorage, error) {
+func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := c.queryBuilder.
@@ -73,7 +73,7 @@ func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]CreditInfoSto
 			"last_name").
 		From(table).
 		Join("person using (person_id)").
-		Join("musical_profession using (profession_id)").
+		Join("profession using (profession_id)").
 		Join("album using (album_id)").
 		Where(sq.Eq{"album_id": albumID})
 
@@ -92,18 +92,20 @@ func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]CreditInfoSto
 		logger.Error(queryErr.Error())
 		return nil, queryErr
 	}
-	creditInfo := make([]CreditInfoStorage, 0)
+	creditInfo := make([]model.CreditInfo, 0)
 	for rows.Next() {
-		info := CreditInfoStorage{}
+		storage := CreditInfoStorage{}
 		if queryErr = rows.Scan(
-			&info.Profession,
-			&info.FirstName,
-			&info.LastName,
+			&storage.Profession,
+			&storage.FirstName,
+			&storage.LastName,
 		); queryErr != nil {
 			queryErr = db.ErrScan(queryErr)
 			logger.Error(queryErr.Error())
 			return nil, queryErr
 		}
+		creditInfo = append(creditInfo, storage.toModel())
+
 	}
 	return creditInfo, nil
 }

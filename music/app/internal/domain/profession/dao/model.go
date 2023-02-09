@@ -5,25 +5,25 @@ import (
 	mapper "github.com/worldline-go/struct2"
 )
 
-type ProfessionStorage struct {
+type professionStorage struct {
 	ID    int64  `struct:"profession_id"`
 	Title string `struct:"profession_title"`
 }
 
 func toStorageMap(proff model.Profession) map[string]interface{} {
-	storage := FromModel(proff)
+	storage := fromModel(proff)
 	professionStorageMap := (&mapper.Decoder{}).Map(storage)
 	return professionStorageMap
 }
 
-func FromModel(m model.Profession) ProfessionStorage {
-	return ProfessionStorage{
+func fromModel(m model.Profession) professionStorage {
+	return professionStorage{
 		ID:    m.ID,
 		Title: m.Title,
 	}
 }
 
-func (p ProfessionStorage) ToModel() model.Profession {
+func (p professionStorage) toModel() model.Profession {
 	return model.Profession{
 		ID:    p.ID,
 		Title: p.Title,

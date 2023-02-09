@@ -4,12 +4,10 @@ import (
 	"context"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
-	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 )
 
 type InfoService interface {
-	GetAll(ctx context.Context) ([]*model.Info, error)
-	Create(ctx context.Context, album model.Info) (model.Info, error)
+	Create(ctx context.Context, Info model.Info) (model.Info, error)
 	GetOne(ctx context.Context, albumID string) (model.Info, error)
 	Update(ctx context.Context, info model.Info) error
 	Delete(ctx context.Context, id string) error
@@ -21,15 +19,6 @@ type infoPolicy struct {
 
 func NewInfoPolicy(service InfoService) *infoPolicy {
 	return &infoPolicy{infoService: service}
-}
-
-func (p *infoPolicy) GetAll(ctx context.Context) ([]*model.Info, error) {
-	products, err := p.infoService.GetAll(ctx)
-	if err != nil {
-		return nil, errors.Wrap(err, "infoService.All")
-	}
-
-	return products, nil
 }
 
 func (p *infoPolicy) Create(ctx context.Context, info model.Info) (model.Info, error) {

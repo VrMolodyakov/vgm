@@ -29,7 +29,7 @@ func NewPersonStorage(client db.PostgreSQLClient) *personDAO {
 	}
 }
 
-func (p *personDAO) Create(ctx context.Context, person model.Person) (PersonStorage, error) {
+func (p *personDAO) Create(ctx context.Context, person model.Person) (model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 	personStorageMap := toStorageMap(person)
 	sql, args, err := p.queryBuilder.
@@ -45,28 +45,28 @@ func (p *personDAO) Create(ctx context.Context, person model.Person) (PersonStor
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return PersonStorage{}, err
+		return model.Person{}, err
 	}
 
-	var personStorage PersonStorage
+	var storage personStorage
 	if QueryRow := p.client.QueryRow(ctx, sql, args...).
 		Scan(
-			&personStorage.ID,
-			&personStorage.FirstName,
-			&personStorage.LastName,
-			&personStorage.BirthDate); QueryRow != nil {
+			&storage.ID,
+			&storage.FirstName,
+			&storage.LastName,
+			&storage.BirthDate); QueryRow != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			QueryRow = db.ErrDoQuery(errors.New("person was not created. 0 rows were affected"))
 		} else {
 			QueryRow = db.ErrDoQuery(QueryRow)
 		}
 		logger.Error(QueryRow.Error())
-		return PersonStorage{}, QueryRow
+		return model.Person{}, QueryRow
 	}
-	return personStorage, nil
+	return storage.toModel(), nil
 }
 
-func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable) ([]PersonStorage, error) {
+func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable) ([]model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	query := p.queryBuilder.
@@ -89,9 +89,9 @@ func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable) ([]
 		return nil, err
 	}
 
-	persons := make([]PersonStorage, 0)
+	persons := make([]model.Person, 0)
 	for rows.Next() {
-		p := PersonStorage{}
+		p := personStorage{}
 		if queryErr = rows.Scan(
 			&p.ID,
 			&p.FirstName,
@@ -103,13 +103,13 @@ func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable) ([]
 			return nil, queryErr
 		}
 
-		persons = append(persons, p)
+		persons = append(persons, p.toModel())
 	}
 
 	return persons, nil
 }
 
-func (p *personDAO) GetOne(ctx context.Context, personID string) (PersonStorage, error) {
+func (p *personDAO) GetOne(ctx context.Context, personID string) (model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := p.queryBuilder.
@@ -127,20 +127,20 @@ func (p *personDAO) GetOne(ctx context.Context, personID string) (PersonStorage,
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return PersonStorage{}, err
+		return model.Person{}, err
 	}
 
-	var pS PersonStorage
+	var storage personStorage
 	err = p.client.QueryRow(ctx, sql, args...).
 		Scan(
-			&pS.ID,
-			&pS.FirstName,
-			&pS.LastName,
-			&pS.BirthDate)
+			&storage.ID,
+			&storage.FirstName,
+			&storage.LastName,
+			&storage.BirthDate)
 	if err != nil {
 		err = db.ErrDoQuery(err)
 		logger.Error(err.Error())
-		return PersonStorage{}, err
+		return model.Person{}, err
 	}
-	return pS, nil
+	return storage.toModel(), nil
 }

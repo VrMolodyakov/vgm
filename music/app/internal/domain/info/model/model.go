@@ -25,7 +25,7 @@ type Info struct {
 	Price          float64
 }
 
-func NewInfoFromPB(pb *albumPb.CreateFullAlbumRequest) Info {
+func NewInfoFromPB(pb *albumPb.CreateAlbumRequest) Info {
 	return Info{
 		ID:             uuid.New().String(),
 		CatalogNumber:  pb.GetCatalogNumber(),

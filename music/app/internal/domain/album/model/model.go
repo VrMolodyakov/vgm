@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrValidation = errors.New("Title must not be empty")
+	ErrValidation = errors.New("title must not be empty")
 )
 
 type Album struct {
@@ -28,7 +28,7 @@ func (a Album) ToProto() *albumPb.Album {
 	}
 }
 
-func NewAlbumFromPB(pb *albumPb.CreateFullAlbumRequest) Album {
+func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) Album {
 	return Album{
 		ID:         uuid.New().String(),
 		Title:      pb.GetTitle(),

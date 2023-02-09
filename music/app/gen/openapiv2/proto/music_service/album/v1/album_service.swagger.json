@@ -93,14 +93,6 @@
       "properties": {
         "album": {
           "$ref": "#/definitions/v1Album"
-        }
-      }
-    },
-    "v1CreateFullAlbumResponse": {
-      "type": "object",
-      "properties": {
-        "album": {
-          "$ref": "#/definitions/v1Album"
         },
         "info": {
           "$ref": "#/definitions/v1Info"

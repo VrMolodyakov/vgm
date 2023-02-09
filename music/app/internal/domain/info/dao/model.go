@@ -23,12 +23,12 @@ type InfoStorage struct {
 }
 
 func toStorageMap(info *model.Info) map[string]interface{} {
-	storage := FromModel(info)
+	storage := fromModel(info)
 	infoStorageMap := (&mapper.Decoder{}).Map(storage)
 	return infoStorageMap
 }
 
-func FromModel(m *model.Info) InfoStorage {
+func fromModel(m *model.Info) InfoStorage {
 	return InfoStorage{
 		ID:             m.ID,
 		AlbumID:        m.AlbumID,
@@ -43,7 +43,7 @@ func FromModel(m *model.Info) InfoStorage {
 	}
 }
 
-func (i *InfoStorage) ToModel() model.Info {
+func (i *InfoStorage) toModel() model.Info {
 	return model.Info{
 		ID:             i.ID,
 		AlbumID:        i.AlbumID,

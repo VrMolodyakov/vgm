@@ -46,20 +46,20 @@ func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRe
 	return &albumPb.UpdateAlbumResponse{}, nil
 }
 
-func (s *server) CreateFullAlbum(ctx context.Context, request *albumPb.CreateFullAlbumRequest) (*albumPb.CreateFullAlbumResponse, error) {
+func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
 	albumModel := albumModel.NewAlbumFromPB(request)
-	infoModel := infoModel.NewInfoFromPB(request)
-
 	album, err := s.albumPolicy.Create(ctx, albumModel)
 	if err != nil {
 		return nil, err
 	}
+
+	infoModel := infoModel.NewInfoFromPB(request)
 	infoModel.AlbumID = album.ID
 	info, err := s.infoPolicy.Create(ctx, infoModel)
-
 	if err != nil {
 		return nil, err
 	}
+
 	tracklistPb := request.GetTracklist()
 	tracklist := make([]trackModel.Track, len(tracklistPb))
 	for i := 0; i < len(tracklistPb); i++ {
@@ -78,7 +78,7 @@ func (s *server) CreateFullAlbum(ctx context.Context, request *albumPb.CreateFul
 		protoTracklist[i] = tracklist[i].ToProto()
 	}
 
-	return &albumPb.CreateFullAlbumResponse{
+	return &albumPb.CreateAlbumResponse{
 		Album:     protoAlbum,
 		Info:      protoInfo,
 		Tracklist: protoTracklist,

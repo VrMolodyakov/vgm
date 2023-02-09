@@ -29,7 +29,7 @@ func fromModel(track model.Track) TrackStorage {
 	}
 }
 
-func (t *TrackStorage) ToModel() model.Track {
+func (t *TrackStorage) toModel() model.Track {
 	return model.Track{
 		ID:      t.ID,
 		AlbumID: t.AlbumID,

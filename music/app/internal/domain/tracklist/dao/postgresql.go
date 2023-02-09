@@ -52,7 +52,7 @@ func (t *tracklistDAO) Create(ctx context.Context, tracklist []model.Track) erro
 	return nil
 }
 
-func (t *tracklistDAO) GetAll(ctx context.Context, albumID string) ([]TrackStorage, error) {
+func (t *tracklistDAO) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := t.queryBuilder.
@@ -79,20 +79,20 @@ func (t *tracklistDAO) GetAll(ctx context.Context, albumID string) ([]TrackStora
 		logger.Error(queryErr.Error())
 		return nil, queryErr
 	}
-	tracklist := make([]TrackStorage, 0)
+	tracklist := make([]model.Track, 0)
 	for rows.Next() {
-		track := TrackStorage{}
+		storage := TrackStorage{}
 		if queryErr = rows.Scan(
-			&track.ID,
-			&track.AlbumID,
-			&track.Title,
-			&track.Duration,
+			&storage.ID,
+			&storage.AlbumID,
+			&storage.Title,
+			&storage.Duration,
 		); queryErr != nil {
 			queryErr = db.ErrScan(queryErr)
 			logger.Error(queryErr.Error())
 			return nil, queryErr
 		}
-		tracklist = append(tracklist, track)
+		tracklist = append(tracklist, storage.toModel())
 
 	}
 	return tracklist, nil

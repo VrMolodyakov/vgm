@@ -29,7 +29,7 @@ func fromModel(album model.Album) AlbumStorage {
 	}
 }
 
-func (album AlbumStorage) ToModel() model.Album {
+func (album AlbumStorage) toModel() model.Album {
 	return model.Album{
 		ID:         album.ID,
 		Title:      album.Title,

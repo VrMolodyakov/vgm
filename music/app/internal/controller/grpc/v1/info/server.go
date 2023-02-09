@@ -9,8 +9,7 @@ import (
 )
 
 type InfoPolicy interface {
-	GetAll(ctx context.Context) ([]*model.Info, error)
-	Create(ctx context.Context, info model.Info) (model.Info, error)
+	Create(ctx context.Context, Info model.Info) (model.Info, error)
 	GetOne(ctx context.Context, albumID string) (model.Info, error)
 	Update(ctx context.Context, info model.Info) error
 	Delete(ctx context.Context, id string) error

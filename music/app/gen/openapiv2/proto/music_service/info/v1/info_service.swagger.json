@@ -44,14 +44,6 @@
         }
       }
     },
-    "v1CreateAlbumInfoResponse": {
-      "type": "object",
-      "properties": {
-        "info": {
-          "$ref": "#/definitions/v1Info"
-        }
-      }
-    },
     "v1DeleteAlbumInfoResponse": {
       "type": "object"
     },

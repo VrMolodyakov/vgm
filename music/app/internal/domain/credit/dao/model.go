@@ -25,7 +25,7 @@ func fromModel(person model.Credit) CreditStorage {
 	}
 }
 
-func (c CreditStorage) ToModel() model.Credit {
+func (c CreditStorage) toModel() model.Credit {
 	return model.Credit{
 		PersonID:     c.PersonID,
 		AlbumID:      c.AlbumID,
@@ -33,7 +33,7 @@ func (c CreditStorage) ToModel() model.Credit {
 	}
 }
 
-func (c CreditInfoStorage) ToModel() model.CreditInfo {
+func (c CreditInfoStorage) toModel() model.CreditInfo {
 	return model.CreditInfo{
 		Profession: c.Profession,
 		LastName:   c.LastName,

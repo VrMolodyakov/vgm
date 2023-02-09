@@ -26,7 +26,7 @@ CREATE TABLE album_info
 
 );
 
-CREATE TABLE musical_profession
+CREATE TABLE profession
 (
     profession_id SERIAL PRIMARY KEY,
     profession_title TEXT
@@ -43,7 +43,7 @@ CREATE TABLE person
 create table credit(
     person_id INT REFERENCES person (person_id),
     album_id UUID  REFERENCES album (album_id),
-    profession_id INT REFERENCES musical_profession (profession_id),
+    profession_id INT REFERENCES profession (profession_id),
     PRIMARY KEY(person_id,album_id,profession_id)
 
 ); 

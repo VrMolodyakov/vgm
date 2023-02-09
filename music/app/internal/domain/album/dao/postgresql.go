@@ -31,7 +31,7 @@ func NewAlbumStorage(client db.PostgreSQLClient) *albumDAO {
 	}
 }
 
-func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]AlbumStorage, error) {
+func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.Album, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	sort := dbSort.NewSortOptions(sorting)
@@ -56,7 +56,7 @@ func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sort
 		return nil, err
 	}
 
-	albums := make([]AlbumStorage, 0)
+	albums := make([]model.Album, 0)
 	for rows.Next() {
 		as := AlbumStorage{}
 		if queryErr = rows.Scan(
@@ -69,14 +69,13 @@ func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sort
 			logger.Error(queryErr.Error())
 			return nil, queryErr
 		}
-
-		albums = append(albums, as)
+		albums = append(albums, as.toModel())
 	}
 
 	return albums, nil
 }
 
-func (a *albumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage, error) {
+func (a *albumDAO) Create(ctx context.Context, album model.Album) (model.Album, error) {
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := toStorageMap(album)
 	sql, args, err := a.queryBuilder.
@@ -90,7 +89,7 @@ func (a *albumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage,
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return AlbumStorage{}, err
+		return model.Album{}, err
 	}
 
 	var albumStorage AlbumStorage
@@ -106,9 +105,9 @@ func (a *albumDAO) Create(ctx context.Context, album model.Album) (AlbumStorage,
 			QueryRow = db.ErrDoQuery(QueryRow)
 		}
 		logger.Error(QueryRow.Error())
-		return AlbumStorage{}, QueryRow
+		return model.Album{}, QueryRow
 	}
-	return albumStorage, nil
+	return albumStorage.toModel(), nil
 }
 
 func (a *albumDAO) Delete(ctx context.Context, id string) error {
@@ -143,8 +142,6 @@ func (a *albumDAO) Delete(ctx context.Context, id string) error {
 func (s *albumDAO) Update(ctx context.Context, album model.Album) error {
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := ToUpdateStorageMap(album)
-	logger.Info("STORAGE MAP")
-	logger.Sugar().Info(albumStorageMap)
 	sql, args, buildErr := s.queryBuilder.
 		Update(table).
 		SetMap(albumStorageMap).

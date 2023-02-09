@@ -23,7 +23,6 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AlbumServiceClient interface {
 	CreateAlbum(ctx context.Context, in *CreateAlbumRequest, opts ...grpc.CallOption) (*CreateAlbumResponse, error)
-	CreateFullAlbum(ctx context.Context, in *CreateFullAlbumRequest, opts ...grpc.CallOption) (*CreateFullAlbumResponse, error)
 	FindAlbum(ctx context.Context, in *FindAlbumRequest, opts ...grpc.CallOption) (*FindAlbumResponse, error)
 	DeleteAlbum(ctx context.Context, in *DeleteAlbumRequest, opts ...grpc.CallOption) (*DeleteAlbumResponse, error)
 	UpdateAlbum(ctx context.Context, in *UpdateAlbumRequest, opts ...grpc.CallOption) (*UpdateAlbumResponse, error)
@@ -42,15 +41,6 @@ func NewAlbumServiceClient(cc grpc.ClientConnInterface) AlbumServiceClient {
 func (c *albumServiceClient) CreateAlbum(ctx context.Context, in *CreateAlbumRequest, opts ...grpc.CallOption) (*CreateAlbumResponse, error) {
 	out := new(CreateAlbumResponse)
 	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.AlbumService/CreateAlbum", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *albumServiceClient) CreateFullAlbum(ctx context.Context, in *CreateFullAlbumRequest, opts ...grpc.CallOption) (*CreateFullAlbumResponse, error) {
-	out := new(CreateFullAlbumResponse)
-	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.AlbumService/CreateFullAlbum", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +97,6 @@ func (c *albumServiceClient) FindAllAlbums(ctx context.Context, in *FindAllAlbum
 // for forward compatibility
 type AlbumServiceServer interface {
 	CreateAlbum(context.Context, *CreateAlbumRequest) (*CreateAlbumResponse, error)
-	CreateFullAlbum(context.Context, *CreateFullAlbumRequest) (*CreateFullAlbumResponse, error)
 	FindAlbum(context.Context, *FindAlbumRequest) (*FindAlbumResponse, error)
 	DeleteAlbum(context.Context, *DeleteAlbumRequest) (*DeleteAlbumResponse, error)
 	UpdateAlbum(context.Context, *UpdateAlbumRequest) (*UpdateAlbumResponse, error)
@@ -122,9 +111,6 @@ type UnimplementedAlbumServiceServer struct {
 
 func (UnimplementedAlbumServiceServer) CreateAlbum(context.Context, *CreateAlbumRequest) (*CreateAlbumResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAlbum not implemented")
-}
-func (UnimplementedAlbumServiceServer) CreateFullAlbum(context.Context, *CreateFullAlbumRequest) (*CreateFullAlbumResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateFullAlbum not implemented")
 }
 func (UnimplementedAlbumServiceServer) FindAlbum(context.Context, *FindAlbumRequest) (*FindAlbumResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAlbum not implemented")
@@ -168,24 +154,6 @@ func _AlbumService_CreateAlbum_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AlbumServiceServer).CreateAlbum(ctx, req.(*CreateAlbumRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AlbumService_CreateFullAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateFullAlbumRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AlbumServiceServer).CreateFullAlbum(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.music_service.album.v1.AlbumService/CreateFullAlbum",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlbumServiceServer).CreateFullAlbum(ctx, req.(*CreateFullAlbumRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -290,10 +258,6 @@ var AlbumService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateAlbum",
 			Handler:    _AlbumService_CreateAlbum_Handler,
-		},
-		{
-			MethodName: "CreateFullAlbum",
-			Handler:    _AlbumService_CreateFullAlbum_Handler,
 		},
 		{
 			MethodName: "FindAlbum",

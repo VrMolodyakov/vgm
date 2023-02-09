@@ -22,7 +22,6 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InfoServiceClient interface {
-	CreateAlbumInfo(ctx context.Context, in *CreateAlbumInfoRequest, opts ...grpc.CallOption) (*CreateAlbumInfoResponse, error)
 	FindAlbumInfo(ctx context.Context, in *FindAlbumInfoRequest, opts ...grpc.CallOption) (*FindAlbumInfoResponse, error)
 	UpdateAlbumInfo(ctx context.Context, in *UpdateAlbumInfoRequest, opts ...grpc.CallOption) (*UpdateAlbumInfoResponse, error)
 	DeleteAlbumInfo(ctx context.Context, in *DeleteAlbumInfoRequest, opts ...grpc.CallOption) (*DeleteAlbumInfoResponse, error)
@@ -34,15 +33,6 @@ type infoServiceClient struct {
 
 func NewInfoServiceClient(cc grpc.ClientConnInterface) InfoServiceClient {
 	return &infoServiceClient{cc}
-}
-
-func (c *infoServiceClient) CreateAlbumInfo(ctx context.Context, in *CreateAlbumInfoRequest, opts ...grpc.CallOption) (*CreateAlbumInfoResponse, error) {
-	out := new(CreateAlbumInfoResponse)
-	err := c.cc.Invoke(ctx, "/proto.music_service.info.v1.InfoService/CreateAlbumInfo", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *infoServiceClient) FindAlbumInfo(ctx context.Context, in *FindAlbumInfoRequest, opts ...grpc.CallOption) (*FindAlbumInfoResponse, error) {
@@ -76,7 +66,6 @@ func (c *infoServiceClient) DeleteAlbumInfo(ctx context.Context, in *DeleteAlbum
 // All implementations must embed UnimplementedInfoServiceServer
 // for forward compatibility
 type InfoServiceServer interface {
-	CreateAlbumInfo(context.Context, *CreateAlbumInfoRequest) (*CreateAlbumInfoResponse, error)
 	FindAlbumInfo(context.Context, *FindAlbumInfoRequest) (*FindAlbumInfoResponse, error)
 	UpdateAlbumInfo(context.Context, *UpdateAlbumInfoRequest) (*UpdateAlbumInfoResponse, error)
 	DeleteAlbumInfo(context.Context, *DeleteAlbumInfoRequest) (*DeleteAlbumInfoResponse, error)
@@ -87,9 +76,6 @@ type InfoServiceServer interface {
 type UnimplementedInfoServiceServer struct {
 }
 
-func (UnimplementedInfoServiceServer) CreateAlbumInfo(context.Context, *CreateAlbumInfoRequest) (*CreateAlbumInfoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateAlbumInfo not implemented")
-}
 func (UnimplementedInfoServiceServer) FindAlbumInfo(context.Context, *FindAlbumInfoRequest) (*FindAlbumInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAlbumInfo not implemented")
 }
@@ -110,24 +96,6 @@ type UnsafeInfoServiceServer interface {
 
 func RegisterInfoServiceServer(s grpc.ServiceRegistrar, srv InfoServiceServer) {
 	s.RegisterService(&InfoService_ServiceDesc, srv)
-}
-
-func _InfoService_CreateAlbumInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateAlbumInfoRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InfoServiceServer).CreateAlbumInfo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.music_service.info.v1.InfoService/CreateAlbumInfo",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InfoServiceServer).CreateAlbumInfo(ctx, req.(*CreateAlbumInfoRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _InfoService_FindAlbumInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -191,10 +159,6 @@ var InfoService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.music_service.info.v1.InfoService",
 	HandlerType: (*InfoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateAlbumInfo",
-			Handler:    _InfoService_CreateAlbumInfo_Handler,
-		},
 		{
 			MethodName: "FindAlbumInfo",
 			Handler:    _InfoService_FindAlbumInfo_Handler,
