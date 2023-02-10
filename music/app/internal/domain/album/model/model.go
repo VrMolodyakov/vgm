@@ -5,6 +5,9 @@ import (
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	creditModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/model"
+	infoModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
+	trackModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
 	"github.com/google/uuid"
 )
 
@@ -19,6 +22,13 @@ type Album struct {
 	CreatedAt  int64
 }
 
+type FullAlbum struct {
+	Album     Album
+	Info      infoModel.Info
+	Tracklist []trackModel.Track
+	Credits   []creditModel.Credit
+}
+
 func (a Album) ToProto() *albumPb.Album {
 	return &albumPb.Album{
 		AlbumId:    a.ID,
@@ -28,12 +38,31 @@ func (a Album) ToProto() *albumPb.Album {
 	}
 }
 
-func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) Album {
-	return Album{
-		ID:         uuid.New().String(),
-		Title:      pb.GetTitle(),
-		ReleasedAt: pb.GetReleasedAt(),
-		CreatedAt:  time.Now().UnixMilli(),
+func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *FullAlbum {
+	protoList := pb.GetTracklist()
+	tracklist := make([]trackModel.Track, len(protoList))
+
+	protoCredits := pb.GetCredits()
+	credits := make([]creditModel.Credit, len(protoCredits))
+
+	for i := 0; i < len(protoList); i++ {
+		tracklist[i] = trackModel.NewTrackFromPB(protoList[i])
+	}
+
+	for i := 0; i < len(protoCredits); i++ {
+		credits[i] = creditModel.NewCreditFromPB(protoCredits[i])
+	}
+
+	return &FullAlbum{
+		Album: Album{
+			ID:         uuid.New().String(),
+			Title:      pb.GetTitle(),
+			ReleasedAt: pb.GetReleasedAt(),
+			CreatedAt:  time.Now().UnixMilli(),
+		},
+		Info:      infoModel.NewInfoFromPB(pb),
+		Tracklist: tracklist,
+		Credits:   credits,
 	}
 }
 

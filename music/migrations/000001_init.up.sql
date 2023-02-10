@@ -26,12 +26,6 @@ CREATE TABLE album_info
 
 );
 
-CREATE TABLE profession
-(
-    profession_id SERIAL PRIMARY KEY,
-    profession_title TEXT
-);
-
 CREATE TABLE person
 (
     person_id SERIAL PRIMARY KEY,
@@ -41,11 +35,10 @@ CREATE TABLE person
 );
 
 create table credit(
+    credit_id SERIAL PRIMARY KEY,
     person_id INT REFERENCES person (person_id),
     album_id UUID  REFERENCES album (album_id),
-    profession_id INT REFERENCES profession (profession_id),
-    PRIMARY KEY(person_id,album_id,profession_id)
-
+    credit_role TEXT, 
 ); 
 
 create table track

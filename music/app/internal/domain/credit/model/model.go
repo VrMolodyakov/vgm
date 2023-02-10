@@ -11,9 +11,9 @@ var (
 )
 
 type Credit struct {
-	PersonID     int64
-	AlbumID      string
-	ProfessionID int64
+	PersonID   int64
+	AlbumID    string
+	Profession string
 }
 
 type CreditInfo struct {
@@ -23,20 +23,20 @@ type CreditInfo struct {
 }
 
 func (c *Credit) IsEmpty() bool {
-	return c.AlbumID == "" || c.PersonID == 0 || c.ProfessionID == 0
+	return c.AlbumID == "" || c.PersonID == 0 || c.Profession == ""
 }
 
-func NewCreditFromPB(pb *creditPb.CreateCreditRequest) Credit {
+func NewCreditFromPB(pb *creditPb.Credit) Credit {
 	return Credit{
-		PersonID: pb.GetPersonId(),
-		AlbumID:  pb.GetAlbumId(),
+		PersonID:   pb.GetPersonId(),
+		Profession: pb.GetProfession(),
 	}
 }
 
-func (c *CreditInfo) ToProto() *creditPb.Credit {
-	return &creditPb.Credit{
-		Profession: c.Profession,
-		FirstName:  c.FirstName,
-		LastName:   c.LastName,
-	}
-}
+// func (c *CreditInfo) ToProto() *creditPb.Credit {
+// 	return &creditPb.Credit{
+// 		Profession: c.Profession,
+// 		FirstName:  c.FirstName,
+// 		LastName:   c.LastName,
+// 	}
+// }

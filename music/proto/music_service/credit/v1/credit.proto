@@ -7,7 +7,6 @@ option go_package = "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_se
 
 message Credit {
     string profession = 1;
-    string first_name = 2;
-    string last_name = 3;
+    int64 person_id = 2;
 }
 

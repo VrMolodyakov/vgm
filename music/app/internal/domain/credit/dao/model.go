@@ -6,9 +6,9 @@ import (
 )
 
 type CreditStorage struct {
-	PersonID     int64  `struct:"person_id"`
-	AlbumID      string `struct:"album_id"`
-	ProfessionID int64  `struct:"profession_id"`
+	PersonID int64  `struct:"person_id"`
+	AlbumID  string `struct:"album_id"`
+	Role     string `struct:"credit_role"`
 }
 
 type CreditInfoStorage struct {
@@ -19,17 +19,15 @@ type CreditInfoStorage struct {
 
 func fromModel(person model.Credit) CreditStorage {
 	return CreditStorage{
-		PersonID:     person.PersonID,
-		AlbumID:      person.AlbumID,
-		ProfessionID: person.ProfessionID,
+		PersonID: person.PersonID,
+		AlbumID:  person.AlbumID,
 	}
 }
 
 func (c CreditStorage) toModel() model.Credit {
 	return model.Credit{
-		PersonID:     c.PersonID,
-		AlbumID:      c.AlbumID,
-		ProfessionID: c.ProfessionID,
+		PersonID: c.PersonID,
+		AlbumID:  c.AlbumID,
 	}
 }
 

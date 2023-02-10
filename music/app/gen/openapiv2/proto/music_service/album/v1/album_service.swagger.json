@@ -111,11 +111,9 @@
         "profession": {
           "type": "string"
         },
-        "firstName": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string"
+        "personId": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

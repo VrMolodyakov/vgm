@@ -32,6 +32,7 @@ message CreateAlbumRequest{
     string classification = 9;
     string publisher = 10;
     repeated Track tracklist = 11;
+    repeated proto.music_service.credit.v1.Credit credits = 12;
 }
 
 message CreateAlbumResponse{
