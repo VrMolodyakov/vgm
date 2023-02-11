@@ -20,23 +20,12 @@ import (
 	albumDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/dao"
 	AlbumPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/policy"
 	AlbumService "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/service"
-
-	infoDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/dao"
-	infoPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/policy"
-	infoService "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/service"
-
-	tracklistDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/dao"
-	tracklistPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/policy"
-	tracklistService "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/service"
-
 	creditDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/dao"
 	creditPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/policy"
 	creditService "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/service"
-
-	profDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/profession/dao"
-	profPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/profession/policy"
-	profService "github.com/VrMolodyakov/vgm/music/app/internal/domain/profession/service"
-
+	infoDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/dao"
+	infoPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/policy"
+	infoService "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/service"
 	personDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/dao"
 	personPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/policy"
 	personService "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/service"
@@ -91,21 +80,13 @@ func (a *app) startGrpc(ctx context.Context) {
 	infoPolicy := infoPolicy.NewInfoPolicy(infoService)
 	infoServer := info.NewServer(infoPolicy, infoPb.UnimplementedInfoServiceServer{})
 
-	tracklistDAO := tracklistDAO.NewTracklistStorage(pgClient)
-	tracklistService := tracklistService.NewTrackService(tracklistDAO)
-	tracklistPolicy := tracklistPolicy.NewTrackPolicy(tracklistService)
-
-	albumServer := album.NewServer(albumPolicy, infoPolicy, tracklistPolicy, albumPb.UnimplementedAlbumServiceServer{})
+	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
 
 	creditDAO := creditDAO.NewCreditStorage(pgClient)
 	creditService := creditService.NewCreditService(creditDAO)
 	creditPolicy := creditPolicy.NewCreditPolicy(creditService)
 
-	profDAO := profDAO.NewProfessionStorage(pgClient)
-	profService := profService.NewProfessionService(profDAO)
-	profPolicy := profPolicy.NewProfessionPolicy(profService)
-
-	creditServer := credit.NewServer(creditPolicy, profPolicy, creditPb.UnimplementedCreditServiceServer{})
+	creditServer := credit.NewServer(creditPolicy, creditPb.UnimplementedCreditServiceServer{})
 
 	personDAO := personDAO.NewPersonStorage(pgClient)
 	personService := personService.NewPersonService(personDAO)

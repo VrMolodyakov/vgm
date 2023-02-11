@@ -7,7 +7,7 @@ import (
 )
 
 type CreditService interface {
-	Create(ctx context.Context, credit model.Credit) (model.Credit, error)
+	Create(ctx context.Context, credits []model.Credit) error
 	GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error)
 	Delete(ctx context.Context, albumID string) error
 }
@@ -20,8 +20,8 @@ func NewCreditPolicy(service CreditService) *CreditPolicy {
 	return &CreditPolicy{creditService: service}
 }
 
-func (p *CreditPolicy) Create(ctx context.Context, credit model.Credit) (model.Credit, error) {
-	return p.creditService.Create(ctx, credit)
+func (p *CreditPolicy) Create(ctx context.Context, credits []model.Credit) error {
+	return p.creditService.Create(ctx, credits)
 }
 
 func (p *CreditPolicy) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {

@@ -4,10 +4,7 @@ import (
 	"context"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
-	trackPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/track/v1"
 	albumModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
-	infoModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
-	trackModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
 )
 
 func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
@@ -47,42 +44,13 @@ func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRe
 }
 
 func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
-	albumModel := albumModel.NewAlbumFromPB(request)
-	album, err := s.albumPolicy.Create(ctx, albumModel)
+	album := albumModel.NewAlbumFromPB(request)
+	err := s.albumPolicy.Create(ctx, *album)
 	if err != nil {
 		return nil, err
 	}
+	return &albumPb.CreateAlbumResponse{}, nil
 
-	infoModel := infoModel.NewInfoFromPB(request)
-	infoModel.AlbumID = album.ID
-	info, err := s.infoPolicy.Create(ctx, infoModel)
-	if err != nil {
-		return nil, err
-	}
-
-	tracklistPb := request.GetTracklist()
-	tracklist := make([]trackModel.Track, len(tracklistPb))
-	for i := 0; i < len(tracklistPb); i++ {
-		tracklist[i] = trackModel.NewTrackFromPB(tracklistPb[i])
-		tracklist[i].AlbumID = album.ID
-	}
-	err = s.trackPolicy.Create(ctx, tracklist)
-	if err != nil {
-		return nil, err
-	}
-
-	protoAlbum := album.ToProto()
-	protoInfo := info.ToProto()
-	protoTracklist := make([]*trackPb.Track, len(tracklist))
-	for i := 0; i < len(tracklist); i++ {
-		protoTracklist[i] = tracklist[i].ToProto()
-	}
-
-	return &albumPb.CreateAlbumResponse{
-		Album:     protoAlbum,
-		Info:      protoInfo,
-		Tracklist: protoTracklist,
-	}, nil
 }
 
 func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {

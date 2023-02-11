@@ -7,7 +7,7 @@ import (
 )
 
 type InfoService interface {
-	Create(ctx context.Context, Info model.Info) (model.Info, error)
+	Create(ctx context.Context, info model.Info) error
 	GetOne(ctx context.Context, albumID string) (model.Info, error)
 	Update(ctx context.Context, info model.Info) error
 	Delete(ctx context.Context, id string) error
@@ -21,7 +21,7 @@ func NewInfoPolicy(service InfoService) *infoPolicy {
 	return &infoPolicy{infoService: service}
 }
 
-func (p *infoPolicy) Create(ctx context.Context, info model.Info) (model.Info, error) {
+func (p *infoPolicy) Create(ctx context.Context, info model.Info) error {
 	return p.infoService.Create(ctx, info)
 }
 

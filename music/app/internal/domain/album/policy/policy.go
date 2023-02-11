@@ -14,13 +14,13 @@ import (
 
 type AlbumService interface {
 	GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.Album, error)
-	Create(ctx context.Context, album model.Album) (model.Album, error)
+	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.Album) error
 }
 
 type InfoService interface {
-	Create(ctx context.Context, Info infoModel.Info) (infoModel.Info, error)
+	Create(ctx context.Context, info infoModel.Info) error
 }
 
 type TrackService interface {
@@ -28,7 +28,7 @@ type TrackService interface {
 }
 
 type CreditService interface {
-	Create(ctx context.Context, credit creditModel.Credit) (creditModel.Credit, error)
+	Create(ctx context.Context, credits []creditModel.Credit) error
 }
 
 type albumPolicy struct {
@@ -51,10 +51,6 @@ func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, s
 	return products, nil
 }
 
-func (p *albumPolicy) Create(ctx context.Context, album model.Album) (model.Album, error) {
-	return p.albumService.Create(ctx, album)
-}
-
 func (p *albumPolicy) Delete(ctx context.Context, id string) error {
 	return p.albumService.Delete(ctx, id)
 }
@@ -63,22 +59,26 @@ func (p *albumPolicy) Update(ctx context.Context, album model.Album) error {
 	return p.albumService.Update(ctx, album)
 }
 
-func (p *albumPolicy) Create2(ctx context.Context, album model.FullAlbum) (*model.FullAlbum, error) {
-	albumModel, err := p.albumService.Create(ctx, album.Album)
+func (p *albumPolicy) Create(ctx context.Context, album model.FullAlbum) error {
+	err := p.albumService.Create(ctx, album.Album)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	infoModel, err := p.infoService.Create(ctx, album.Info)
+	err = p.infoService.Create(ctx, album.Info)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = p.trackService.Create(ctx, album.Tracklist)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	p.creditService.Create(ctx, album.Credits)
 
-	return &model.FullAlbum{}, nil
+	err = p.creditService.Create(ctx, album.Credits)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

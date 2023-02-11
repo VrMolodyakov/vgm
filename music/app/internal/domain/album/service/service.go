@@ -12,7 +12,7 @@ import (
 
 type AlbumDAO interface {
 	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.Album, error)
-	Create(ctx context.Context, album model.Album) (model.Album, error)
+	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.Album) error
 }
@@ -34,16 +34,11 @@ func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sor
 
 }
 
-func (s *albumService) Create(ctx context.Context, album model.Album) (model.Album, error) {
+func (s *albumService) Create(ctx context.Context, album model.Album) error {
 	if album.IsEmpty() {
-		return model.Album{}, model.ErrValidation
+		return model.ErrValidation
 	}
-	album, err := s.albumDAO.Create(ctx, album)
-	if err != nil {
-		return model.Album{}, errors.Wrap(err, "albumService.Create")
-	}
-
-	return album, nil
+	return s.albumDAO.Create(ctx, album)
 }
 
 func (s *albumService) Delete(ctx context.Context, id string) error {

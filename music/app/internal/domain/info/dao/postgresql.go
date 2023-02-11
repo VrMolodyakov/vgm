@@ -8,7 +8,6 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
-	"github.com/jackc/pgx"
 )
 
 type infoDAO struct {
@@ -27,20 +26,12 @@ func NewInfoStorage(client db.PostgreSQLClient) *infoDAO {
 	}
 }
 
-func (a *infoDAO) Create(ctx context.Context, info model.Info) (model.Info, error) {
+func (i *infoDAO) Create(ctx context.Context, info model.Info) error {
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toStorageMap(&info)
-	sql, args, err := a.queryBuilder.
+	sql, args, err := i.queryBuilder.
 		Insert(table).
 		SetMap(infoStorageMap).
-		Suffix(`
-				RETURNING album_info_id,album_id,catalog_number,image_srs,
-				barcode,
-				price,
-				currency_code,
-				media_format,
-				classification,
-				publisher`).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 
@@ -48,37 +39,25 @@ func (a *infoDAO) Create(ctx context.Context, info model.Info) (model.Info, erro
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return model.Info{}, err
+		return err
+	}
+	if exec, execErr := i.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Insert() {
+		execErr = db.ErrDoQuery(errors.New("album was not created. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
 	}
 
-	var infoStorage InfoStorage
-	if QueryRow := a.client.QueryRow(ctx, sql, args...).
-		Scan(
-			&infoStorage.ID,
-			&infoStorage.AlbumID,
-			&infoStorage.CatalogNumber,
-			&infoStorage.ImageSrc,
-			&infoStorage.Barcode,
-			&infoStorage.Price,
-			&infoStorage.CurrencyCode,
-			&infoStorage.MediaFormat,
-			&infoStorage.Classification,
-			&infoStorage.Publisher); QueryRow != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			QueryRow = db.ErrDoQuery(errors.New("album info was not created. 0 rows were affected"))
-		} else {
-			QueryRow = db.ErrDoQuery(QueryRow)
-		}
-		logger.Error(QueryRow.Error())
-		return model.Info{}, QueryRow
-	}
-	return infoStorage.toModel(), nil
+	return nil
 }
 
-func (a *infoDAO) GetOne(ctx context.Context, albumID string) (model.Info, error) {
+func (i *infoDAO) GetOne(ctx context.Context, albumID string) (model.Info, error) {
 	logger := logging.LoggerFromContext(ctx)
 
-	query := a.queryBuilder.
+	query := i.queryBuilder.
 		Select(
 			"album_info_id",
 			"album_id",
@@ -103,7 +82,7 @@ func (a *infoDAO) GetOne(ctx context.Context, albumID string) (model.Info, error
 	}
 
 	var infoStorage InfoStorage
-	err = a.client.QueryRow(ctx, sql, args...).
+	err = i.client.QueryRow(ctx, sql, args...).
 		Scan(
 			&infoStorage.ID,
 			&infoStorage.AlbumID,
@@ -123,9 +102,9 @@ func (a *infoDAO) GetOne(ctx context.Context, albumID string) (model.Info, error
 	return infoStorage.toModel(), nil
 }
 
-func (a *infoDAO) Delete(ctx context.Context, id string) error {
+func (i *infoDAO) Delete(ctx context.Context, id string) error {
 	logger := logging.LoggerFromContext(ctx)
-	sql, args, buildErr := a.queryBuilder.
+	sql, args, buildErr := i.queryBuilder.
 		Delete(table).
 		Where(sq.Eq{"album_info_id": id}).
 		ToSql()
@@ -138,7 +117,7 @@ func (a *infoDAO) Delete(ctx context.Context, id string) error {
 		return buildErr
 	}
 
-	if exec, execErr := a.client.Exec(ctx, sql, args...); execErr != nil {
+	if exec, execErr := i.client.Exec(ctx, sql, args...); execErr != nil {
 		execErr = db.ErrDoQuery(execErr)
 		logger.Error(execErr.Error())
 		return execErr
@@ -152,11 +131,11 @@ func (a *infoDAO) Delete(ctx context.Context, id string) error {
 
 }
 
-func (s *infoDAO) Update(ctx context.Context, info model.Info) error {
+func (i *infoDAO) Update(ctx context.Context, info model.Info) error {
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toUpdateStorageMap(&info)
 
-	sql, args, buildErr := s.queryBuilder.
+	sql, args, buildErr := i.queryBuilder.
 		Update(table).
 		SetMap(infoStorageMap).
 		Where(sq.Eq{"album_info_id": info.ID}).
@@ -171,7 +150,7 @@ func (s *infoDAO) Update(ctx context.Context, info model.Info) error {
 		return buildErr
 	}
 
-	if exec, execErr := s.client.Exec(ctx, sql, args...); execErr != nil {
+	if exec, execErr := i.client.Exec(ctx, sql, args...); execErr != nil {
 		execErr = db.ErrDoQuery(execErr)
 		logger.Error(execErr.Error())
 		return execErr

@@ -29,8 +29,8 @@ func NewCreditStorage(client db.PostgreSQLClient) *creditDAO {
 func (c *creditDAO) Create(ctx context.Context, credits []model.Credit) error {
 	logger := logging.LoggerFromContext(ctx)
 	insertState := c.queryBuilder.Insert(table).Columns("album_id", "person_id", "credit_role")
-	for _, track := range credits {
-		insertState = insertState.Values(track.AlbumID, track.Title, track.Duration)
+	for _, credit := range credits {
+		insertState = insertState.Values(credit.AlbumID, credit.PersonID, credit.Profession)
 	}
 	sql, args, err := insertState.ToSql()
 	logger.Infow(table, sql, args)
@@ -39,12 +39,12 @@ func (c *creditDAO) Create(ctx context.Context, credits []model.Credit) error {
 		logger.Error(err.Error())
 		return err
 	}
-	if exec, execErr := t.client.Exec(ctx, sql, args...); execErr != nil {
+	if exec, execErr := c.client.Exec(ctx, sql, args...); execErr != nil {
 		execErr = db.ErrDoQuery(execErr)
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Insert() {
-		execErr = db.ErrDoQuery(errors.New("tracklist was not created. 0 rows were affected"))
+		execErr = db.ErrDoQuery(errors.New("credits was not created. 0 rows were affected"))
 		logger.Error(execErr.Error())
 		return execErr
 	}
@@ -57,13 +57,11 @@ func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]model.CreditI
 
 	query := c.queryBuilder.
 		Select(
-			"profession_title",
+			"credit_role",
 			"first_name",
 			"last_name").
 		From(table).
 		Join("person using (person_id)").
-		Join("profession using (profession_id)").
-		Join("album using (album_id)").
 		Where(sq.Eq{"album_id": albumID})
 
 	sql, args, err := query.ToSql()
@@ -103,7 +101,7 @@ func (c *creditDAO) Delete(ctx context.Context, albumID string) error {
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := c.queryBuilder.
 		Delete(table).
-		Where(sq.Eq{"album_info_id": albumID}).
+		Where(sq.Eq{"album_id": albumID}).
 		ToSql()
 
 	logger.Infow(table, sql, args)

@@ -9,7 +9,7 @@ import (
 )
 
 type CreditDAO interface {
-	Create(ctx context.Context, credit model.Credit) (model.Credit, error)
+	Create(ctx context.Context, credits []model.Credit) error
 	GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error)
 	Delete(ctx context.Context, albumID string) error
 }
@@ -22,16 +22,11 @@ func NewCreditService(dao CreditDAO) *creditService {
 	return &creditService{creditDAO: dao}
 }
 
-func (c *creditService) Create(ctx context.Context, credit model.Credit) (model.Credit, error) {
-	if credit.IsEmpty() {
-		return model.Credit{}, model.ErrValidation
+func (c *creditService) Create(ctx context.Context, credits []model.Credit) error {
+	if len(credits) == 0 {
+		return errors.New("empty credits")
 	}
-	info, err := c.creditDAO.Create(ctx, credit)
-	if err != nil {
-		return model.Credit{}, err
-	}
-	return info, nil
-
+	return c.creditDAO.Create(ctx, credits)
 }
 
 func (c *creditService) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {

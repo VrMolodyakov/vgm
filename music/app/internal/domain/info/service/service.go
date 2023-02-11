@@ -9,7 +9,7 @@ import (
 )
 
 type InfoDAO interface {
-	Create(ctx context.Context, Info model.Info) (model.Info, error)
+	Create(ctx context.Context, info model.Info) error
 	GetOne(ctx context.Context, albumID string) (model.Info, error)
 	Update(ctx context.Context, info model.Info) error
 	Delete(ctx context.Context, id string) error
@@ -23,16 +23,11 @@ func NewInfoService(dao InfoDAO) *infoService {
 	return &infoService{infoDAO: dao}
 }
 
-func (s *infoService) Create(ctx context.Context, info model.Info) (model.Info, error) {
+func (s *infoService) Create(ctx context.Context, info model.Info) error {
 	if info.IsEmpty() {
-		return model.Info{}, model.ErrValidation
+		return model.ErrValidation
 	}
-	info, err := s.infoDAO.Create(ctx, info)
-	if err != nil {
-		return model.Info{}, errors.Wrap(err, "infoService.Create")
-	}
-
-	return info, nil
+	return s.infoDAO.Create(ctx, info)
 }
 
 func (s *infoService) GetOne(ctx context.Context, infoID string) (model.Info, error) {

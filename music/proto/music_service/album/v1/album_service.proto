@@ -36,9 +36,6 @@ message CreateAlbumRequest{
 }
 
 message CreateAlbumResponse{
-    Album album = 1;
-    proto.music_service.info.v1.Info info = 2;
-    repeated proto.music_service.track.v1.Track tracklist = 3;
 }
 
 message Track{
