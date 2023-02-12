@@ -11,10 +11,11 @@ import (
 )
 
 type AlbumDAO interface {
-	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.Album, error)
-	Create(ctx context.Context, album model.Album) error
+	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
+	GetOne(ctx context.Context, albumID string) (model.AlbumView, error)
+	Create(ctx context.Context, album model.AlbumView) error
 	Delete(ctx context.Context, id string) error
-	Update(ctx context.Context, album model.Album) error
+	Update(ctx context.Context, album model.AlbumView) error
 }
 
 type albumService struct {
@@ -25,7 +26,7 @@ func NewAlbumService(dao AlbumDAO) *albumService {
 	return &albumService{albumDAO: dao}
 }
 
-func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.Album, error) {
+func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.AlbumView, error) {
 	albums, err := a.albumDAO.GetAll(ctx, filter, sort)
 	if err != nil {
 		return nil, errors.Wrap(err, "albumService.All")
@@ -34,7 +35,7 @@ func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sor
 
 }
 
-func (s *albumService) Create(ctx context.Context, album model.Album) error {
+func (s *albumService) Create(ctx context.Context, album model.AlbumView) error {
 	if album.IsEmpty() {
 		return model.ErrValidation
 	}
@@ -51,9 +52,17 @@ func (s *albumService) Delete(ctx context.Context, id string) error {
 	return s.albumDAO.Delete(ctx, id)
 }
 
-func (s *albumService) Update(ctx context.Context, album model.Album) error {
+func (s *albumService) Update(ctx context.Context, album model.AlbumView) error {
 	if album.IsEmpty() {
 		return model.ErrValidation
 	}
 	return s.albumDAO.Update(ctx, album)
+}
+
+func (s *albumService) GetOne(ctx context.Context, albumID string) (model.AlbumView, error) {
+	if albumID == "" {
+		return model.AlbumView{}, errors.New("album id is empty")
+	}
+	return s.albumDAO.GetOne(ctx, albumID)
+
 }

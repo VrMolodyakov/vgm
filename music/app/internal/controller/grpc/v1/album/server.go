@@ -11,10 +11,11 @@ import (
 )
 
 type AlbumPolicy interface {
-	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.Album, error)
-	Create(ctx context.Context, album model.FullAlbum) error
+	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
+	GetOne(ctx context.Context, albumID string) (model.FullAlbum, error)
+	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
-	Update(ctx context.Context, album model.Album) error
+	Update(ctx context.Context, album model.AlbumView) error
 }
 
 type server struct {

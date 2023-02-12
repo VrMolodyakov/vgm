@@ -13,22 +13,26 @@ import (
 )
 
 type AlbumService interface {
-	GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.Album, error)
-	Create(ctx context.Context, album model.Album) error
+	GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.AlbumView, error)
+	GetOne(ctx context.Context, albumID string) (model.AlbumView, error)
+	Create(ctx context.Context, album model.AlbumView) error
 	Delete(ctx context.Context, id string) error
-	Update(ctx context.Context, album model.Album) error
+	Update(ctx context.Context, album model.AlbumView) error
 }
 
 type InfoService interface {
 	Create(ctx context.Context, info infoModel.Info) error
+	GetOne(ctx context.Context, albumID string) (infoModel.Info, error)
 }
 
 type TrackService interface {
 	Create(ctx context.Context, tracklist []trackModel.Track) error
+	GetAll(ctx context.Context, albumID string) ([]trackModel.Track, error)
 }
 
 type CreditService interface {
 	Create(ctx context.Context, credits []creditModel.Credit) error
+	GetAll(ctx context.Context, albumID string) ([]creditModel.CreditInfo, error)
 }
 
 type albumPolicy struct {
@@ -42,7 +46,7 @@ func NewAlbumPolicy(service AlbumService) *albumPolicy {
 	return &albumPolicy{albumService: service}
 }
 
-func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.Album, error) {
+func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
 	products, err := p.albumService.GetAll(ctx, filtering, sorting)
 	if err != nil {
 		return nil, errors.Wrap(err, "albumService.All")
@@ -55,11 +59,11 @@ func (p *albumPolicy) Delete(ctx context.Context, id string) error {
 	return p.albumService.Delete(ctx, id)
 }
 
-func (p *albumPolicy) Update(ctx context.Context, album model.Album) error {
+func (p *albumPolicy) Update(ctx context.Context, album model.AlbumView) error {
 	return p.albumService.Update(ctx, album)
 }
 
-func (p *albumPolicy) Create(ctx context.Context, album model.FullAlbum) error {
+func (p *albumPolicy) Create(ctx context.Context, album model.Album) error {
 	err := p.albumService.Create(ctx, album.Album)
 	if err != nil {
 		return err
@@ -81,4 +85,29 @@ func (p *albumPolicy) Create(ctx context.Context, album model.FullAlbum) error {
 	}
 
 	return nil
+}
+
+func (p *albumPolicy) GetOne(ctx context.Context, albumID string) (model.FullAlbum, error) {
+	album, err := p.albumService.GetOne(ctx, albumID)
+	if err != nil {
+		return model.FullAlbum{}, err
+	}
+	info, err := p.infoService.GetOne(ctx, albumID)
+	if err != nil {
+		return model.FullAlbum{}, err
+	}
+	credits, err := p.creditService.GetAll(ctx, albumID)
+	if err != nil {
+		return model.FullAlbum{}, err
+	}
+	tracklist, err := p.trackService.GetAll(ctx, albumID)
+	if err != nil {
+		return model.FullAlbum{}, err
+	}
+	return model.FullAlbum{
+		Album:     album,
+		Info:      info,
+		Credits:   credits,
+		Tracklist: tracklist,
+	}, nil
 }

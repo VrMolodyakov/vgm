@@ -15,21 +15,28 @@ var (
 	ErrValidation = errors.New("title must not be empty")
 )
 
-type Album struct {
+type AlbumView struct {
 	ID         string
 	Title      string
 	ReleasedAt int64
 	CreatedAt  int64
 }
 
-type FullAlbum struct {
-	Album     Album
+type Album struct {
+	Album     AlbumView
 	Info      infoModel.Info
 	Tracklist []trackModel.Track
 	Credits   []creditModel.Credit
 }
 
-func (a Album) ToProto() *albumPb.Album {
+type FullAlbum struct {
+	Album     AlbumView
+	Info      infoModel.Info
+	Tracklist []trackModel.Track
+	Credits   []creditModel.CreditInfo
+}
+
+func (a AlbumView) ToProto() *albumPb.Album {
 	return &albumPb.Album{
 		AlbumId:    a.ID,
 		Title:      a.Title,
@@ -38,7 +45,7 @@ func (a Album) ToProto() *albumPb.Album {
 	}
 }
 
-func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *FullAlbum {
+func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *Album {
 	protoList := pb.GetTracklist()
 	tracklist := make([]trackModel.Track, len(protoList))
 
@@ -53,8 +60,8 @@ func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *FullAlbum {
 		credits[i] = creditModel.NewCreditFromPB(protoCredits[i])
 	}
 
-	return &FullAlbum{
-		Album: Album{
+	return &Album{
+		Album: AlbumView{
 			ID:         uuid.New().String(),
 			Title:      pb.GetTitle(),
 			ReleasedAt: pb.GetReleasedAt(),
@@ -66,8 +73,8 @@ func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *FullAlbum {
 	}
 }
 
-func UpdateModelFromPB(pb *albumPb.UpdateAlbumRequest) Album {
-	var album Album
+func UpdateModelFromPB(pb *albumPb.UpdateAlbumRequest) AlbumView {
+	var album AlbumView
 
 	if pb.Title != nil {
 		album.Title = pb.GetTitle()
@@ -85,6 +92,6 @@ func UpdateModelFromPB(pb *albumPb.UpdateAlbumRequest) Album {
 	return album
 }
 
-func (a *Album) IsEmpty() bool {
+func (a *AlbumView) IsEmpty() bool {
 	return a.Title == ""
 }

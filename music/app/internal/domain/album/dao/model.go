@@ -18,7 +18,7 @@ type AlbumStorage struct {
 	CreatedAt  time.Time `struct:"created_at"`
 }
 
-func fromModel(album model.Album) AlbumStorage {
+func fromModel(album model.AlbumView) AlbumStorage {
 	createdAt := time.UnixMilli(album.CreatedAt)
 	releasedAt := time.UnixMilli(album.ReleasedAt)
 	return AlbumStorage{
@@ -29,8 +29,8 @@ func fromModel(album model.Album) AlbumStorage {
 	}
 }
 
-func (album AlbumStorage) toModel() model.Album {
-	return model.Album{
+func (album AlbumStorage) toModel() model.AlbumView {
+	return model.AlbumView{
 		ID:         album.ID,
 		Title:      album.Title,
 		CreatedAt:  album.CreatedAt.UnixMilli(),
@@ -38,13 +38,13 @@ func (album AlbumStorage) toModel() model.Album {
 	}
 }
 
-func toStorageMap(album model.Album) map[string]interface{} {
+func toStorageMap(album model.AlbumView) map[string]interface{} {
 	storage := fromModel(album)
 	albumStorageMap := (&mapper.Decoder{}).Map(storage)
 	return albumStorageMap
 }
 
-func ToUpdateStorageMap(album model.Album) map[string]interface{} {
+func ToUpdateStorageMap(album model.AlbumView) map[string]interface{} {
 	m := make(map[string]interface{}, fields)
 
 	if album.Title != "" {

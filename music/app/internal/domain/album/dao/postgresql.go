@@ -30,7 +30,7 @@ func NewAlbumStorage(client db.PostgreSQLClient) *albumDAO {
 	}
 }
 
-func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.Album, error) {
+func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	sort := dbSort.NewSortOptions(sorting)
@@ -55,7 +55,7 @@ func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sort
 		return nil, err
 	}
 
-	albums := make([]model.Album, 0)
+	albums := make([]model.AlbumView, 0)
 	for rows.Next() {
 		as := AlbumStorage{}
 		if queryErr = rows.Scan(
@@ -74,7 +74,7 @@ func (a *albumDAO) GetAll(ctx context.Context, filtering filter.Filterable, sort
 	return albums, nil
 }
 
-func (a *albumDAO) Create(ctx context.Context, album model.Album) error {
+func (a *albumDAO) Create(ctx context.Context, album model.AlbumView) error {
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := toStorageMap(album)
 	sql, args, err := a.queryBuilder.
@@ -132,7 +132,7 @@ func (a *albumDAO) Delete(ctx context.Context, id string) error {
 
 }
 
-func (s *albumDAO) Update(ctx context.Context, album model.Album) error {
+func (s *albumDAO) Update(ctx context.Context, album model.AlbumView) error {
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := ToUpdateStorageMap(album)
 	sql, args, buildErr := s.queryBuilder.
@@ -163,18 +163,19 @@ func (s *albumDAO) Update(ctx context.Context, album model.Album) error {
 	return nil
 }
 
-func (a *albumDAO) GetOne(ctx context.Context, albumID string) (model.Album, error) {
+func (a *albumDAO) GetOne(ctx context.Context, albumID string) (model.AlbumView, error) {
 	logger := logging.LoggerFromContext(ctx)
 	query := a.queryBuilder.
 		Select("album_id", "title", "released_at", "created_at").
-		From(table)
+		From(table).
+		Where(sq.Eq{"album_id": albumID})
 
 	sql, args, err := query.ToSql()
 	logger.Infow(table, sql, args)
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return model.Album{}, err
+		return model.AlbumView{}, err
 	}
 
 	var storage AlbumStorage
@@ -187,7 +188,7 @@ func (a *albumDAO) GetOne(ctx context.Context, albumID string) (model.Album, err
 	if err != nil {
 		err = db.ErrDoQuery(err)
 		logger.Error(err.Error())
-		return model.Album{}, err
+		return model.AlbumView{}, err
 	}
 	return storage.toModel(), nil
 }
