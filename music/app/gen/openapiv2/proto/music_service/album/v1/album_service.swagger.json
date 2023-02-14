@@ -103,6 +103,20 @@
         }
       }
     },
+    "v1CreditInfo": {
+      "type": "object",
+      "properties": {
+        "profession": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
     "v1DeleteAlbumResponse": {
       "type": "object"
     },
@@ -129,14 +143,6 @@
       "type": "object",
       "properties": {
         "album": {
-          "$ref": "#/definitions/v1FullAlbum"
-        }
-      }
-    },
-    "v1FullAlbum": {
-      "type": "object",
-      "properties": {
-        "album": {
           "$ref": "#/definitions/v1Album"
         },
         "info": {
@@ -145,7 +151,7 @@
         "credits": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Credit"
+            "$ref": "#/definitions/v1CreditInfo"
           }
         },
         "tracklist": {

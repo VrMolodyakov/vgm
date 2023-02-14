@@ -38,7 +38,7 @@ create table credit(
     credit_id SERIAL PRIMARY KEY,
     person_id INT REFERENCES person (person_id),
     album_id UUID  REFERENCES album (album_id),
-    credit_role TEXT, 
+    credit_role TEXT 
 ); 
 
 create table track

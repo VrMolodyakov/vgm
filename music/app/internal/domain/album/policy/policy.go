@@ -42,8 +42,16 @@ type albumPolicy struct {
 	creditService CreditService
 }
 
-func NewAlbumPolicy(service AlbumService) *albumPolicy {
-	return &albumPolicy{albumService: service}
+func NewAlbumPolicy(
+	albumService AlbumService,
+	infoService InfoService,
+	trackService TrackService,
+	creditService CreditService) *albumPolicy {
+	return &albumPolicy{
+		albumService:  albumService,
+		infoService:   infoService,
+		trackService:  trackService,
+		creditService: creditService}
 }
 
 func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
@@ -68,7 +76,6 @@ func (p *albumPolicy) Create(ctx context.Context, album model.Album) error {
 	if err != nil {
 		return err
 	}
-
 	err = p.infoService.Create(ctx, album.Info)
 	if err != nil {
 		return err

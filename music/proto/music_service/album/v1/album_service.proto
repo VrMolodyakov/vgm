@@ -49,23 +49,23 @@ message FindAlbumRequest {
     string title = 1;
 }
 
-message FullAlbum{
-    Album album = 1;
-    proto.music_service.info.v1.Info info = 4;
-    repeated proto.music_service.credit.v1.Credit credits = 2;
-    repeated proto.music_service.track.v1.Track tracklist = 3;
-}
+
+
+
 
 message FindAlbumResponse{
     Album album = 1;
 }
 
 message FindFullAlbumRequest{
-    string title = 1;
+    string album_id = 1;
 }
 
 message FindFullAlbumResponse{
-    FullAlbum album = 1;
+    Album album = 1;
+    proto.music_service.info.v1.Info info = 2;
+    repeated proto.music_service.credit.v1.CreditInfo credits = 3;
+    repeated proto.music_service.track.v1.Track tracklist = 4;
 }
 
 message FindAllAlbumsRequest{

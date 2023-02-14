@@ -54,9 +54,17 @@ func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRe
 }
 
 func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
+	// album, err := s.albumPolicy.GetOne(context.Background(), request.GetAlbumId())
+	// if err != nil {
+	// 	return &albumPb.FindFullAlbumResponse{}, err
+	// }
+	// return &albumPb.FindFullAlbumResponse{
+	// 	Album: album.Album.ToProto(),
+	// 	Credits: album.,
+	// }
 	return nil, nil
 }
 
-func (s *server) FindAlbum(ctx context.Context, request *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {
+func (s *server) FindAlbum(context.Context, *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {
 	return nil, nil
 }

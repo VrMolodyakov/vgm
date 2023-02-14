@@ -52,22 +52,28 @@ func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *Album {
 	protoCredits := pb.GetCredits()
 	credits := make([]creditModel.Credit, len(protoCredits))
 
+	albumView := AlbumView{
+		ID:         uuid.New().String(),
+		Title:      pb.GetTitle(),
+		ReleasedAt: pb.GetReleasedAt(),
+		CreatedAt:  time.Now().UnixMilli(),
+	}
+	info := infoModel.NewInfoFromPB(pb)
+	info.AlbumID = albumView.ID
+
 	for i := 0; i < len(protoList); i++ {
 		tracklist[i] = trackModel.NewTrackFromPB(protoList[i])
+		tracklist[i].AlbumID = albumView.ID
 	}
 
 	for i := 0; i < len(protoCredits); i++ {
 		credits[i] = creditModel.NewCreditFromPB(protoCredits[i])
+		credits[i].AlbumID = albumView.ID
 	}
 
 	return &Album{
-		Album: AlbumView{
-			ID:         uuid.New().String(),
-			Title:      pb.GetTitle(),
-			ReleasedAt: pb.GetReleasedAt(),
-			CreatedAt:  time.Now().UnixMilli(),
-		},
-		Info:      infoModel.NewInfoFromPB(pb),
+		Album:     albumView,
+		Info:      info,
 		Tracklist: tracklist,
 		Credits:   credits,
 	}

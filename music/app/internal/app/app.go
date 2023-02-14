@@ -29,6 +29,8 @@ import (
 	personDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/dao"
 	personPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/policy"
 	personService "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/service"
+	tracklistDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/dao"
+	tracklistService "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/service"
 
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
@@ -71,16 +73,10 @@ func (a *app) startGrpc(ctx context.Context) {
 		logger.Fatal(err.Error())
 	}
 
-	albumDAO := albumDAO.NewAlbumStorage(pgClient)
-	albumService := AlbumService.NewAlbumService(albumDAO)
-	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService)
-
 	infoDAO := infoDAO.NewInfoStorage(pgClient)
 	infoService := infoService.NewInfoService(infoDAO)
 	infoPolicy := infoPolicy.NewInfoPolicy(infoService)
 	infoServer := info.NewServer(infoPolicy, infoPb.UnimplementedInfoServiceServer{})
-
-	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
 
 	creditDAO := creditDAO.NewCreditStorage(pgClient)
 	creditService := creditService.NewCreditService(creditDAO)
@@ -93,6 +89,15 @@ func (a *app) startGrpc(ctx context.Context) {
 	personPolicy := personPolicy.NewPersonPolicy(personService)
 
 	personServer := person.NewServer(personPolicy, personPb.UnimplementedPersonServiceServer{})
+
+	trackDAO := tracklistDAO.NewTracklistStorage(pgClient)
+	trackService := tracklistService.NewTrackService(trackDAO)
+
+	albumDAO := albumDAO.NewAlbumStorage(pgClient)
+	albumService := AlbumService.NewAlbumService(albumDAO)
+	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService, infoService, trackService, creditService)
+
+	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
 
 	a.grpcServer = grpc.NewServer(serverOptions...)
 
