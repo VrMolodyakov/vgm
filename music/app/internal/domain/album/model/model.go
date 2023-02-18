@@ -101,3 +101,7 @@ func UpdateModelFromPB(pb *albumPb.UpdateAlbumRequest) AlbumView {
 func (a *AlbumView) IsEmpty() bool {
 	return a.Title == ""
 }
+
+func (a *Album) IsEmpty() bool {
+	return a.Album.Title == ""
+}

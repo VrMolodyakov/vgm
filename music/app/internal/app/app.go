@@ -17,19 +17,19 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/info"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/person"
 
-	albumDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/dao"
 	AlbumPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/policy"
+	albumRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/repository"
 	AlbumService "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/service"
-	creditDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/dao"
 	creditPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/policy"
+	creditRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/repository"
 	creditService "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/service"
-	infoDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/dao"
 	infoPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/policy"
+	infoRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/repository"
 	infoService "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/service"
-	personDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/dao"
 	personPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/policy"
+	personRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/repository"
 	personService "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/service"
-	tracklistDAO "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/dao"
+	tracklistRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/repository"
 	tracklistService "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/service"
 
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
@@ -72,29 +72,28 @@ func (a *app) startGrpc(ctx context.Context) {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
-
-	infoDAO := infoDAO.NewInfoStorage(pgClient)
-	infoService := infoService.NewInfoService(infoDAO)
+	infoRepository := infoRepository.NewInfoStorage(pgClient)
+	infoService := infoService.NewInfoService(infoRepository)
 	infoPolicy := infoPolicy.NewInfoPolicy(infoService)
 	infoServer := info.NewServer(infoPolicy, infoPb.UnimplementedInfoServiceServer{})
 
-	creditDAO := creditDAO.NewCreditStorage(pgClient)
-	creditService := creditService.NewCreditService(creditDAO)
+	creditRepository := creditRepository.NewCreditStorage(pgClient)
+	creditService := creditService.NewCreditService(creditRepository)
 	creditPolicy := creditPolicy.NewCreditPolicy(creditService)
 
 	creditServer := credit.NewServer(creditPolicy, creditPb.UnimplementedCreditServiceServer{})
 
-	personDAO := personDAO.NewPersonStorage(pgClient)
-	personService := personService.NewPersonService(personDAO)
+	personRepository := personRepository.NewPersonStorage(pgClient)
+	personService := personService.NewPersonService(personRepository)
 	personPolicy := personPolicy.NewPersonPolicy(personService)
 
 	personServer := person.NewServer(personPolicy, personPb.UnimplementedPersonServiceServer{})
 
-	trackDAO := tracklistDAO.NewTracklistStorage(pgClient)
-	trackService := tracklistService.NewTrackService(trackDAO)
+	trackRepository := tracklistRepository.NewTracklistStorage(pgClient)
+	trackService := tracklistService.NewTrackService(trackRepository)
 
-	albumDAO := albumDAO.NewAlbumStorage(pgClient)
-	albumService := AlbumService.NewAlbumService(albumDAO)
+	albumRepository := albumRepository.NewAlbumRepository(pgClient)
+	albumService := AlbumService.NewAlbumService(albumRepository, creditRepository, infoRepository, trackRepository)
 	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService, infoService, trackService, creditService)
 
 	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})

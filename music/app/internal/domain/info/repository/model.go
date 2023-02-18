@@ -1,4 +1,4 @@
-package dao
+package reposotory
 
 import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"

@@ -8,38 +8,32 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
+	"github.com/jackc/pgx/v4"
 )
 
-type AlbumDAO interface {
-	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
-	GetOne(ctx context.Context, albumID string) (model.AlbumView, error)
-	Create(ctx context.Context, album model.AlbumView) error
-	Delete(ctx context.Context, id string) error
-	Update(ctx context.Context, album model.AlbumView) error
-}
-
 type albumService struct {
-	albumDAO AlbumDAO
+	albumRepo  AlbumRepo
+	creditRepo CreditRepo
+	infoRepo   InfoRepo
+	trackRepo  TrackRepo
+	tx         Transactor
 }
 
-func NewAlbumService(dao AlbumDAO) *albumService {
-	return &albumService{albumDAO: dao}
+func NewAlbumService(
+	albumRepo AlbumRepo,
+	creditRepo CreditRepo,
+	infoRepo InfoRepo,
+	trackRepo TrackRepo) *albumService {
+	return &albumService{albumRepo: albumRepo, creditRepo: creditRepo, infoRepo: infoRepo, trackRepo: trackRepo}
 }
 
 func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.AlbumView, error) {
-	albums, err := a.albumDAO.GetAll(ctx, filter, sort)
+	albums, err := a.albumRepo.GetAll(ctx, filter, sort)
 	if err != nil {
 		return nil, errors.Wrap(err, "albumService.All")
 	}
 	return albums, nil
 
-}
-
-func (s *albumService) Create(ctx context.Context, album model.AlbumView) error {
-	if album.IsEmpty() {
-		return model.ErrValidation
-	}
-	return s.albumDAO.Create(ctx, album)
 }
 
 func (s *albumService) Delete(ctx context.Context, id string) error {
@@ -49,20 +43,43 @@ func (s *albumService) Delete(ctx context.Context, id string) error {
 		return err
 
 	}
-	return s.albumDAO.Delete(ctx, id)
+	return s.albumRepo.Delete(ctx, id)
 }
 
 func (s *albumService) Update(ctx context.Context, album model.AlbumView) error {
 	if album.IsEmpty() {
 		return model.ErrValidation
 	}
-	return s.albumDAO.Update(ctx, album)
+	return s.albumRepo.Update(ctx, album)
 }
 
 func (s *albumService) GetOne(ctx context.Context, albumID string) (model.AlbumView, error) {
 	if albumID == "" {
 		return model.AlbumView{}, errors.New("album id is empty")
 	}
-	return s.albumDAO.GetOne(ctx, albumID)
+	return s.albumRepo.GetOne(ctx, albumID)
 
+}
+
+func (s *albumService) Create(ctx context.Context, album model.Album) error {
+	return s.tx.WithinTransaction(ctx, pgx.TxOptions{IsoLevel: pgx.ReadUncommitted}, func(ctx context.Context) error {
+		err := s.albumRepo.Create(ctx, album.Album)
+		if err != nil {
+			return err
+		}
+		err = s.infoRepo.Create(ctx, album.Info)
+		if err != nil {
+			return err
+		}
+
+		err = s.trackRepo.Create(ctx, album.Tracklist)
+		if err != nil {
+			return err
+		}
+		err = s.creditRepo.Create(ctx, album.Credits)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 }

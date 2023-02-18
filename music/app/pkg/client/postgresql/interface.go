@@ -5,6 +5,7 @@ import (
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
+	_ "github.com/jackc/pgx/v4/pgxpool"
 )
 
 type PostgreSQLClient interface {
@@ -13,5 +14,4 @@ type PostgreSQLClient interface {
 	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
 	Begin(context.Context) (pgx.Tx, error)
 	BeginFunc(ctx context.Context, f func(pgx.Tx) error) error
-	BeginTxFunc(ctx context.Context, txOptions pgx.TxOptions, f func(pgx.Tx) error) error
 }
