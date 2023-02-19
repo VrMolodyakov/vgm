@@ -2,13 +2,14 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
+	reposotory "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/repository"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
-	"github.com/jackc/pgx/v4"
 )
 
 type albumService struct {
@@ -16,7 +17,6 @@ type albumService struct {
 	creditRepo CreditRepo
 	infoRepo   InfoRepo
 	trackRepo  TrackRepo
-	tx         Transactor
 }
 
 func NewAlbumService(
@@ -62,24 +62,29 @@ func (s *albumService) GetOne(ctx context.Context, albumID string) (model.AlbumV
 }
 
 func (s *albumService) Create(ctx context.Context, album model.Album) error {
-	return s.tx.WithinTransaction(ctx, pgx.TxOptions{IsoLevel: pgx.ReadUncommitted}, func(ctx context.Context) error {
-		err := s.albumRepo.Create(ctx, album.Album)
-		if err != nil {
-			return err
-		}
-		err = s.infoRepo.Create(ctx, album.Info)
-		if err != nil {
-			return err
-		}
+	s.albumRepo.Tx(ctx, func(txRepo reposotory.Album) error {
+		err := txRepo.Create(ctx, album.Album)
+		fmt.Println(err)
+		return errors.New("test")
+		// if err != nil {
+		// 	return err
+		// }
+		// txRepo.Conn()
+		// err = s.infoRepo.Create(ctx, album.Info)
+		// if err != nil {
+		// 	fmt.Println("-----REPO ERROR-----")
+		// 	return err
+		// }
 
-		err = s.trackRepo.Create(ctx, album.Tracklist)
-		if err != nil {
-			return err
-		}
-		err = s.creditRepo.Create(ctx, album.Credits)
-		if err != nil {
-			return err
-		}
-		return nil
+		// err = s.trackRepo.Create(ctx, album.Tracklist)
+		// if err != nil {
+		// 	return err
+		// }
+		// err = s.creditRepo.Create(ctx, album.Credits)
+		// if err != nil {
+		// 	return err
+		// }
+		// return nil
 	})
+	return nil
 }

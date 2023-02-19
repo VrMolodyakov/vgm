@@ -8,27 +8,36 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	dbFIlter "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/filter"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/psqltx"
 	dbSort "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/sort"
-	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/transaction"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
 )
 
+type Album interface {
+	psqltx.Transactor
+	Tx(ctx context.Context, action func(txRepo Album) error) error
+	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
+	GetOne(ctx context.Context, albumID string) (model.AlbumView, error)
+	Create(ctx context.Context, album model.AlbumView) error
+	Delete(ctx context.Context, id string) error
+	Update(ctx context.Context, album model.AlbumView) error
+}
+
 type repository struct {
 	queryBuilder sq.StatementBuilderType
-	client       db.PostgreSQLClient
-	tx           transaction.Transactor
+	psqltx.Transactor
 }
 
 const (
 	table = "album"
 )
 
-func NewAlbumRepository(client db.PostgreSQLClient) *repository {
+func NewAlbumRepository(client db.PostgreSQLClient) Album {
 	return &repository{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
-		client:       client,
+		Transactor:   psqltx.NewTx(client),
 	}
 }
 
@@ -50,7 +59,7 @@ func (r *repository) GetAll(ctx context.Context, filtering filter.Filterable, so
 		logger.Error(err.Error())
 		return nil, err
 	}
-	rows, queryErr := r.client.Query(ctx, sql, args...)
+	rows, queryErr := r.Conn().Query(ctx, sql, args...)
 	if queryErr != nil {
 		err := db.ErrDoQuery(queryErr)
 		logger.Error(err.Error())
@@ -91,8 +100,7 @@ func (r *repository) Create(ctx context.Context, album model.AlbumView) error {
 		logger.Error(err.Error())
 		return err
 	}
-
-	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+	if exec, execErr := r.Conn().Exec(ctx, sql, args...); execErr != nil {
 		execErr = db.ErrDoQuery(execErr)
 		logger.Error(execErr.Error())
 		return execErr
@@ -101,7 +109,6 @@ func (r *repository) Create(ctx context.Context, album model.AlbumView) error {
 		logger.Error(execErr.Error())
 		return execErr
 	}
-
 	return nil
 }
 
@@ -120,7 +127,7 @@ func (r *repository) Delete(ctx context.Context, id string) error {
 		return buildErr
 	}
 
-	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+	if exec, execErr := r.Conn().Exec(ctx, sql, args...); execErr != nil {
 		execErr = db.ErrDoQuery(execErr)
 		logger.Error(execErr.Error())
 		return execErr
@@ -152,7 +159,7 @@ func (r *repository) Update(ctx context.Context, album model.AlbumView) error {
 		return buildErr
 	}
 
-	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+	if exec, execErr := r.Conn().Exec(ctx, sql, args...); execErr != nil {
 		execErr = db.ErrDoQuery(execErr)
 		logger.Error(execErr.Error())
 		return execErr
@@ -181,7 +188,7 @@ func (r *repository) GetOne(ctx context.Context, albumID string) (model.AlbumVie
 	}
 
 	var storage AlbumStorage
-	err = r.client.QueryRow(ctx, sql, args...).
+	err = r.Conn().QueryRow(ctx, sql, args...).
 		Scan(
 			&storage.ID,
 			&storage.Title,
@@ -195,10 +202,10 @@ func (r *repository) GetOne(ctx context.Context, albumID string) (model.AlbumVie
 	return storage.toModel(), nil
 }
 
-func (r *repository) Tx(ctx context.Context, action func(txRepo repository) error) error {
-	r.tx.WithinTransaction(
+func (r *repository) Tx(ctx context.Context, action func(txRepo Album) error) error {
+	return r.WithinTransaction(
 		ctx,
-		func(client db.PostgreSQLClient) *repository { return NewAlbumRepository(client) },
-		func(txRepo repository) error { return action(txRepo) },
+		func(client db.PostgreSQLClient) psqltx.Transactor { return NewAlbumRepository(client) },
+		func(txRepo psqltx.Transactor) error { return action(txRepo.(Album)) },
 	)
 }

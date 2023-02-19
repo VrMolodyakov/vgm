@@ -3,7 +3,6 @@ package psqltx
 import (
 	"context"
 	"fmt"
-	"log"
 
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 )
@@ -26,7 +25,7 @@ func NewTx(db db.PostgreSQLClient) *tx {
 	}
 }
 
-func (r *tx) Conn() (db db.PostgreSQLClient) {
+func (r *tx) Conn() db.PostgreSQLClient {
 	return r.db
 }
 
@@ -35,39 +34,30 @@ func (t *tx) WithinTransaction(
 	construct func(tx db.PostgreSQLClient) Transactor,
 	action func(txRepo Transactor) error) (err error) {
 
-	// return t.doTx(func(ctx context.Context, tx Transactor) error {
-	// 	return action(construct(tx.Conn()))
-	// })
-	return t.doTx(ctx, func(ctx context.Context, tx Transactor) error {
+	return t.doTx(ctx, func(tx Transactor) error {
 		return action(construct(tx.Conn()))
 	})
 }
 
-func (t *tx) doTx(ctx context.Context, fn func(context.Context, Transactor) error) error {
+func (t *tx) doTx(ctx context.Context, fn func(Transactor) error) error {
 	tx, err := t.db.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
+		return err
 	}
-	fmt.Println("start of transaction")
 	defer func() {
 		if err != nil {
+			fmt.Println("-----ROLLBACK-----")
 			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
 		}
 	}()
-	err = fn(ctx, t.withTx(tx))
-	fmt.Println("ERROR: ", err)
+
+	err = fn(t.withTx(tx))
 	if err != nil {
-		fmt.Println("inside")
-		if errRollback := tx.Rollback(ctx); errRollback != nil {
-			log.Printf("rollback transaction: %v", errRollback)
-		}
+		fmt.Println("-----GOT ERROR-----")
 		return err
 	}
-
-	if err = tx.Commit(ctx); err != nil {
-		return err
-	}
-
 	return nil
 }
 

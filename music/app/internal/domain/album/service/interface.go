@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
+	reposotory "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/repository"
 	creditModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/model"
 	infoModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
 	trackModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
@@ -13,12 +14,12 @@ import (
 )
 
 type AlbumRepo interface {
+	Tx(ctx context.Context, action func(txRepo reposotory.Album) error) error
 	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
 	GetOne(ctx context.Context, albumID string) (model.AlbumView, error)
 	Create(ctx context.Context, album model.AlbumView) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
-	TX(action func(txRepo AlbumRepo) error) error
 }
 
 type CreditRepo interface {
