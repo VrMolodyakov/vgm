@@ -6,6 +6,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
+	infoStorage "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/repository"
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	dbFIlter "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/psqltx"
@@ -20,28 +21,30 @@ type Album interface {
 	Tx(ctx context.Context, action func(txRepo Album) error) error
 	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
 	GetOne(ctx context.Context, albumID string) (model.AlbumView, error)
-	Create(ctx context.Context, album model.AlbumView) error
+	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
 }
 
-type repository struct {
+type repo struct {
 	queryBuilder sq.StatementBuilderType
 	psqltx.Transactor
 }
 
 const (
-	table = "album"
+	table      = "album"
+	infoTabe   = "album_info"
+	creditTabe = "credit"
 )
 
 func NewAlbumRepository(client db.PostgreSQLClient) Album {
-	return &repository{
+	return &repo{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		Transactor:   psqltx.NewTx(client),
 	}
 }
 
-func (r *repository) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
+func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	sort := dbSort.NewSortOptions(sorting)
@@ -85,34 +88,7 @@ func (r *repository) GetAll(ctx context.Context, filtering filter.Filterable, so
 	return albums, nil
 }
 
-func (r *repository) Create(ctx context.Context, album model.AlbumView) error {
-	logger := logging.LoggerFromContext(ctx)
-	albumStorageMap := toStorageMap(album)
-	sql, args, err := r.queryBuilder.
-		Insert(table).
-		SetMap(albumStorageMap).
-		PlaceholderFormat(sq.Dollar).
-		ToSql()
-
-	logger.Infow(table, sql, args)
-	if err != nil {
-		err = db.ErrCreateQuery(err)
-		logger.Error(err.Error())
-		return err
-	}
-	if exec, execErr := r.Conn().Exec(ctx, sql, args...); execErr != nil {
-		execErr = db.ErrDoQuery(execErr)
-		logger.Error(execErr.Error())
-		return execErr
-	} else if exec.RowsAffected() == 0 || !exec.Insert() {
-		execErr = db.ErrDoQuery(errors.New("album was not created. 0 rows were affected"))
-		logger.Error(execErr.Error())
-		return execErr
-	}
-	return nil
-}
-
-func (r *repository) Delete(ctx context.Context, id string) error {
+func (r *repo) Delete(ctx context.Context, id string) error {
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := r.queryBuilder.
 		Delete(table).
@@ -141,7 +117,7 @@ func (r *repository) Delete(ctx context.Context, id string) error {
 
 }
 
-func (r *repository) Update(ctx context.Context, album model.AlbumView) error {
+func (r *repo) Update(ctx context.Context, album model.AlbumView) error {
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := ToUpdateStorageMap(album)
 	sql, args, buildErr := r.queryBuilder.
@@ -172,7 +148,7 @@ func (r *repository) Update(ctx context.Context, album model.AlbumView) error {
 	return nil
 }
 
-func (r *repository) GetOne(ctx context.Context, albumID string) (model.AlbumView, error) {
+func (r *repo) GetOne(ctx context.Context, albumID string) (model.AlbumView, error) {
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
 		Select("album_id", "title", "released_at", "created_at").
@@ -202,10 +178,107 @@ func (r *repository) GetOne(ctx context.Context, albumID string) (model.AlbumVie
 	return storage.toModel(), nil
 }
 
-func (r *repository) Tx(ctx context.Context, action func(txRepo Album) error) error {
+func (r *repo) Tx(ctx context.Context, action func(txRepo Album) error) error {
 	return r.WithinTransaction(
 		ctx,
 		func(client db.PostgreSQLClient) psqltx.Transactor { return NewAlbumRepository(client) },
 		func(txRepo psqltx.Transactor) error { return action(txRepo.(Album)) },
 	)
+}
+
+func (r *repo) Create(ctx context.Context, album model.Album) error {
+	logger := logging.LoggerFromContext(ctx)
+	albumStorageMap := ToStorageMap(album.Album)
+	tx, err := r.Conn().Begin(ctx)
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
+
+	if err != nil {
+		logger.Error(err.Error())
+		return err
+	}
+	sql, args, err := r.insertMap(table, albumStorageMap)
+	logger.Infow(table, sql, args)
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return err
+	}
+	err = exec(tx, ctx, sql, args)
+	if err != nil {
+		return err
+	}
+	infoStorageMap := infoStorage.ToStorageMap(&album.Info)
+	sql, args, err = r.insertMap(infoTabe, infoStorageMap)
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return err
+	}
+	err = exec(tx, ctx, sql, args)
+	if err != nil {
+		return err
+	}
+
+	insertState := r.queryBuilder.Insert(creditTabe).Columns("album_id", "person_id", "credit_role")
+	for _, credit := range album.Credits {
+		insertState = insertState.Values(credit.AlbumID, credit.PersonID, credit.Profession)
+	}
+	sql, args, err = insertState.ToSql()
+	logger.Infow(table, sql, args)
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return err
+	}
+	err = exec(tx, ctx, sql, args)
+	if err != nil {
+		return err
+	}
+
+	insertState = r.queryBuilder.Insert(table).Columns("album_id", "title", "duration")
+	for _, track := range album.Tracklist {
+		insertState = insertState.Values(track.AlbumID, track.Title, track.Duration)
+	}
+	sql, args, err = insertState.ToSql()
+	logger.Infow(table, sql, args)
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return err
+	}
+	err = exec(tx, ctx, sql, args)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (r *repo) insertMap(table string, storageMap map[string]interface{}) (string, []interface{}, error) {
+	return r.queryBuilder.
+		Insert(table).
+		SetMap(storageMap).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+}
+
+func exec(client db.PostgreSQLClient, ctx context.Context, sql string, args []interface{}) error {
+	logger := logging.LoggerFromContext(ctx)
+	if exec, execErr := client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Insert() {
+		execErr = db.ErrDoQuery(errors.New("album was not created. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+	return nil
 }

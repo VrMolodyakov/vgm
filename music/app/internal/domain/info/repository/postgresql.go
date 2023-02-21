@@ -28,7 +28,7 @@ func NewInfoStorage(client db.PostgreSQLClient) *infoDAO {
 
 func (i *infoDAO) Create(ctx context.Context, info model.Info) error {
 	logger := logging.LoggerFromContext(ctx)
-	infoStorageMap := toStorageMap(&info)
+	infoStorageMap := ToStorageMap(&info)
 	sql, args, err := i.queryBuilder.
 		Insert(table).
 		SetMap(infoStorageMap).

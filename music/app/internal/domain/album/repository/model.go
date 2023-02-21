@@ -38,7 +38,7 @@ func (album AlbumStorage) toModel() model.AlbumView {
 	}
 }
 
-func toStorageMap(album model.AlbumView) map[string]interface{} {
+func ToStorageMap(album model.AlbumView) map[string]interface{} {
 	storage := fromModel(album)
 	albumStorageMap := (&mapper.Decoder{}).Map(storage)
 	return albumStorageMap

@@ -17,7 +17,7 @@ type AlbumRepo interface {
 	Tx(ctx context.Context, action func(txRepo reposotory.Album) error) error
 	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
 	GetOne(ctx context.Context, albumID string) (model.AlbumView, error)
-	Create(ctx context.Context, album model.AlbumView) error
+	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
 }

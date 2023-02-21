@@ -2,10 +2,8 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
-	reposotory "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/repository"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
@@ -62,29 +60,5 @@ func (s *albumService) GetOne(ctx context.Context, albumID string) (model.AlbumV
 }
 
 func (s *albumService) Create(ctx context.Context, album model.Album) error {
-	s.albumRepo.Tx(ctx, func(txRepo reposotory.Album) error {
-		err := txRepo.Create(ctx, album.Album)
-		fmt.Println(err)
-		return errors.New("test")
-		// if err != nil {
-		// 	return err
-		// }
-		// txRepo.Conn()
-		// err = s.infoRepo.Create(ctx, album.Info)
-		// if err != nil {
-		// 	fmt.Println("-----REPO ERROR-----")
-		// 	return err
-		// }
-
-		// err = s.trackRepo.Create(ctx, album.Tracklist)
-		// if err != nil {
-		// 	return err
-		// }
-		// err = s.creditRepo.Create(ctx, album.Credits)
-		// if err != nil {
-		// 	return err
-		// }
-		// return nil
-	})
-	return nil
+	return s.albumRepo.Create(ctx, album)
 }
