@@ -10,7 +10,7 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 )
 
-type creditDAO struct {
+type repo struct {
 	queryBuilder sq.StatementBuilderType
 	client       db.PostgreSQLClient
 }
@@ -19,40 +19,14 @@ const (
 	table = "credit"
 )
 
-func NewCreditStorage(client db.PostgreSQLClient) *creditDAO {
-	return &creditDAO{
+func NewCreditRepo(client db.PostgreSQLClient) *repo {
+	return &repo{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		client:       client,
 	}
 }
 
-func (c *creditDAO) Create(ctx context.Context, credits []model.Credit) error {
-	logger := logging.LoggerFromContext(ctx)
-	insertState := c.queryBuilder.Insert(table).Columns("album_id", "person_id", "credit_role")
-	for _, credit := range credits {
-		insertState = insertState.Values(credit.AlbumID, credit.PersonID, credit.Profession)
-	}
-	sql, args, err := insertState.ToSql()
-	logger.Infow(table, sql, args)
-	if err != nil {
-		err = db.ErrCreateQuery(err)
-		logger.Error(err.Error())
-		return err
-	}
-	if exec, execErr := c.client.Exec(ctx, sql, args...); execErr != nil {
-		execErr = db.ErrDoQuery(execErr)
-		logger.Error(execErr.Error())
-		return execErr
-	} else if exec.RowsAffected() == 0 || !exec.Insert() {
-		execErr = db.ErrDoQuery(errors.New("credits was not created. 0 rows were affected"))
-		logger.Error(execErr.Error())
-		return execErr
-	}
-
-	return nil
-}
-
-func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
+func (c *repo) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := c.queryBuilder.
@@ -97,7 +71,7 @@ func (c *creditDAO) GetAll(ctx context.Context, albumID string) ([]model.CreditI
 	return creditInfo, nil
 }
 
-func (c *creditDAO) Delete(ctx context.Context, albumID string) error {
+func (c *repo) Delete(ctx context.Context, albumID string) error {
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := c.queryBuilder.
 		Delete(table).
@@ -117,11 +91,42 @@ func (c *creditDAO) Delete(ctx context.Context, albumID string) error {
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Delete() {
-		execErr = db.ErrDoQuery(errors.New("album was not deleted. 0 rows were affected"))
+		execErr = db.ErrDoQuery(errors.New("credit was not deleted. 0 rows were affected"))
 		logger.Error(execErr.Error())
 		return execErr
 	}
 
 	return nil
 
+}
+
+func (r *repo) Update(ctx context.Context, albumId string, role string) error {
+	logger := logging.LoggerFromContext(ctx)
+
+	sql, args, buildErr := r.queryBuilder.
+		Update(table).
+		Set("credit_role", role).
+		Where(sq.Eq{"album_id": albumId}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Update() {
+		execErr = db.ErrDoQuery(errors.New("credit was not updated. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
 }

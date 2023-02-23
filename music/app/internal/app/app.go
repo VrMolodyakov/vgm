@@ -7,25 +7,18 @@ import (
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
-	creditPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/credit/v1"
-	infoPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/info/v1"
 	personPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/person/v1"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/config"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/album"
-	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/credit"
-	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/info"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/person"
 
 	AlbumPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/policy"
 	albumRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/repository"
 	AlbumService "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/service"
-	creditPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/policy"
 	creditRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/repository"
 	creditService "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/service"
-	infoPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/policy"
-	infoRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/repository"
-	infoService "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/service"
+
 	personPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/policy"
 	personRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/repository"
 	personService "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/service"
@@ -72,16 +65,9 @@ func (a *app) startGrpc(ctx context.Context) {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
-	infoRepository := infoRepository.NewInfoStorage(pgClient)
-	infoService := infoService.NewInfoService(infoRepository)
-	infoPolicy := infoPolicy.NewInfoPolicy(infoService)
-	infoServer := info.NewServer(infoPolicy, infoPb.UnimplementedInfoServiceServer{})
 
-	creditRepository := creditRepository.NewCreditStorage(pgClient)
+	creditRepository := creditRepository.NewCreditRepo(pgClient)
 	creditService := creditService.NewCreditService(creditRepository)
-	creditPolicy := creditPolicy.NewCreditPolicy(creditService)
-
-	creditServer := credit.NewServer(creditPolicy, creditPb.UnimplementedCreditServiceServer{})
 
 	personRepository := personRepository.NewPersonStorage(pgClient)
 	personService := personService.NewPersonService(personRepository)
@@ -89,20 +75,18 @@ func (a *app) startGrpc(ctx context.Context) {
 
 	personServer := person.NewServer(personPolicy, personPb.UnimplementedPersonServiceServer{})
 
-	trackRepository := tracklistRepository.NewTracklistStorage(pgClient)
+	trackRepository := tracklistRepository.NewTracklistRepo(pgClient)
 	trackService := tracklistService.NewTrackService(trackRepository)
 
 	albumRepository := albumRepository.NewAlbumRepository(pgClient)
-	albumService := AlbumService.NewAlbumService(albumRepository, creditRepository, infoRepository, trackRepository)
-	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService, infoService, trackService, creditService)
+	albumService := AlbumService.NewAlbumService(albumRepository)
+	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService, trackService, creditService)
 
 	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
 
 	a.grpcServer = grpc.NewServer(serverOptions...)
 
 	albumPb.RegisterAlbumServiceServer(a.grpcServer, albumServer)
-	infoPb.RegisterInfoServiceServer(a.grpcServer, infoServer)
-	creditPb.RegisterCreditServiceServer(a.grpcServer, creditServer)
 	personPb.RegisterPersonServiceServer(a.grpcServer, personServer)
 
 	reflection.Register(a.grpcServer)

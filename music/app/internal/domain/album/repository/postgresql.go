@@ -6,7 +6,6 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
-	infoStorage "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/repository"
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	dbFIlter "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/psqltx"
@@ -20,7 +19,7 @@ type Album interface {
 	psqltx.Transactor
 	Tx(ctx context.Context, action func(txRepo Album) error) error
 	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
-	GetOne(ctx context.Context, albumID string) (model.AlbumView, error)
+	GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, error)
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
@@ -32,9 +31,10 @@ type repo struct {
 }
 
 const (
-	table      = "album"
-	infoTabe   = "album_info"
-	creditTabe = "credit"
+	table          = "album"
+	infoTabe       = "album_info"
+	creditTabe     = "credit"
+	tracklistTable = "track"
 )
 
 func NewAlbumRepository(client db.PostgreSQLClient) Album {
@@ -71,7 +71,7 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting 
 
 	albums := make([]model.AlbumView, 0)
 	for rows.Next() {
-		as := AlbumStorage{}
+		as := AlbumViewStorage{}
 		if queryErr = rows.Scan(
 			&as.ID,
 			&as.Title,
@@ -93,6 +93,35 @@ func (r *repo) Delete(ctx context.Context, id string) error {
 	sql, args, buildErr := r.queryBuilder.
 		Delete(table).
 		Where(sq.Eq{"album_id": id}).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := r.Conn().Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Delete() {
+		execErr = db.ErrDoQuery(errors.New("album was not deleted. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
+
+}
+
+func (r *repo) DeleteInfo(ctx context.Context, id string) error {
+	logger := logging.LoggerFromContext(ctx)
+	sql, args, buildErr := r.queryBuilder.
+		Delete(table).
+		Where(sq.Eq{"album_info_id": id}).
 		ToSql()
 
 	logger.Infow(table, sql, args)
@@ -148,11 +177,58 @@ func (r *repo) Update(ctx context.Context, album model.AlbumView) error {
 	return nil
 }
 
-func (r *repo) GetOne(ctx context.Context, albumID string) (model.AlbumView, error) {
+func (r *repo) UpdateInfo(ctx context.Context, info model.Info) error {
+	logger := logging.LoggerFromContext(ctx)
+	infoStorageMap := toUpdateStorageMap(&info)
+
+	sql, args, buildErr := r.queryBuilder.
+		Update(table).
+		SetMap(infoStorageMap).
+		Where(sq.Eq{"album_info_id": info.ID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := r.Conn().Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Update() {
+		execErr = db.ErrDoQuery(errors.New("album was not updated. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
+}
+
+func (r *repo) GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, error) {
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
-		Select("album_id", "title", "released_at", "created_at").
+		Select(
+			"album_id",
+			"title",
+			"released_at",
+			"created_at",
+			"album_info_id",
+			"album_id",
+			"catalog_number",
+			"image_srs",
+			"barcode",
+			"price",
+			"currency_code",
+			"media_format",
+			"classification",
+			"publisher").
 		From(table).
+		Join(infoTabe).
 		Where(sq.Eq{"album_id": albumID})
 
 	sql, args, err := query.ToSql()
@@ -160,20 +236,30 @@ func (r *repo) GetOne(ctx context.Context, albumID string) (model.AlbumView, err
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
-		return model.AlbumView{}, err
+		return model.AlbumInfo{}, err
 	}
 
-	var storage AlbumStorage
+	var storage AlbumInfoStorage
 	err = r.Conn().QueryRow(ctx, sql, args...).
 		Scan(
-			&storage.ID,
-			&storage.Title,
-			&storage.ReleasedAt,
-			&storage.CreatedAt)
+			&storage.Album.ID,
+			&storage.Album.Title,
+			&storage.Album.ReleasedAt,
+			&storage.Album.CreatedAt,
+			&storage.Info.ID,
+			&storage.Info.AlbumID,
+			&storage.Info.CatalogNumber,
+			&storage.Info.ImageSrc,
+			&storage.Info.Barcode,
+			&storage.Info.Price,
+			&storage.Info.CurrencyCode,
+			&storage.Info.MediaFormat,
+			&storage.Info.Classification,
+			&storage.Info.Publisher)
 	if err != nil {
 		err = db.ErrDoQuery(err)
 		logger.Error(err.Error())
-		return model.AlbumView{}, err
+		return model.AlbumInfo{}, err
 	}
 	return storage.toModel(), nil
 }
@@ -213,7 +299,7 @@ func (r *repo) Create(ctx context.Context, album model.Album) error {
 	if err != nil {
 		return err
 	}
-	infoStorageMap := infoStorage.ToStorageMap(&album.Info)
+	infoStorageMap := ToInfoStorageMap(&album.Info)
 	sql, args, err = r.insertMap(infoTabe, infoStorageMap)
 	if err != nil {
 		err = db.ErrCreateQuery(err)
@@ -241,7 +327,7 @@ func (r *repo) Create(ctx context.Context, album model.Album) error {
 		return err
 	}
 
-	insertState = r.queryBuilder.Insert(table).Columns("album_id", "title", "duration")
+	insertState = r.queryBuilder.Insert(tracklistTable).Columns("album_id", "title", "duration")
 	for _, track := range album.Tracklist {
 		insertState = insertState.Values(track.AlbumID, track.Title, track.Duration)
 	}

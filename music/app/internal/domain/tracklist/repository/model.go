@@ -5,6 +5,10 @@ import (
 	mapper "github.com/worldline-go/struct2"
 )
 
+const (
+	fields int = 2
+)
+
 type TrackStorage struct {
 	ID       int64  `struct:"track_id "`
 	AlbumID  string `struct:"album_id"`
@@ -35,4 +39,17 @@ func (t *TrackStorage) toModel() model.Track {
 		AlbumID: t.AlbumID,
 		Title:   t.Title,
 	}
+}
+
+func toUpdateStorageMap(m *model.Track) map[string]interface{} {
+
+	storageMap := make(map[string]interface{}, fields)
+
+	if m.Duration != "" {
+		storageMap["duration"] = m.Duration
+	}
+	if m.Title != "" {
+		storageMap["title"] = m.Title
+	}
+	return storageMap
 }

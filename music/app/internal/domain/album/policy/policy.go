@@ -11,19 +11,16 @@ import (
 
 type albumPolicy struct {
 	albumService  AlbumService
-	infoService   InfoService
 	trackService  TrackService
 	creditService CreditService
 }
 
 func NewAlbumPolicy(
 	albumService AlbumService,
-	infoService InfoService,
 	trackService TrackService,
 	creditService CreditService) *albumPolicy {
 	return &albumPolicy{
 		albumService:  albumService,
-		infoService:   infoService,
 		trackService:  trackService,
 		creditService: creditService}
 }
@@ -54,10 +51,6 @@ func (p *albumPolicy) GetOne(ctx context.Context, albumID string) (model.FullAlb
 	if err != nil {
 		return model.FullAlbum{}, err
 	}
-	info, err := p.infoService.GetOne(ctx, albumID)
-	if err != nil {
-		return model.FullAlbum{}, err
-	}
 	credits, err := p.creditService.GetAll(ctx, albumID)
 	if err != nil {
 		return model.FullAlbum{}, err
@@ -67,8 +60,8 @@ func (p *albumPolicy) GetOne(ctx context.Context, albumID string) (model.FullAlb
 		return model.FullAlbum{}, err
 	}
 	return model.FullAlbum{
-		Album:     album,
-		Info:      info,
+		Album:     album.Album,
+		Info:      album.Info,
 		Credits:   credits,
 		Tracklist: tracklist,
 	}, nil

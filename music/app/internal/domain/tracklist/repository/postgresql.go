@@ -10,7 +10,7 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 )
 
-type tracklistDAO struct {
+type repo struct {
 	queryBuilder sq.StatementBuilderType
 	client       db.PostgreSQLClient
 }
@@ -19,16 +19,16 @@ const (
 	table = "track"
 )
 
-func NewTracklistStorage(client db.PostgreSQLClient) *tracklistDAO {
-	return &tracklistDAO{
+func NewTracklistRepo(client db.PostgreSQLClient) *repo {
+	return &repo{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		client:       client,
 	}
 }
 
-func (t *tracklistDAO) Create(ctx context.Context, tracklist []model.Track) error {
+func (r *repo) Create(ctx context.Context, tracklist []model.Track) error {
 	logger := logging.LoggerFromContext(ctx)
-	insertState := t.queryBuilder.Insert(table).Columns("album_id", "title", "duration")
+	insertState := r.queryBuilder.Insert(table).Columns("album_id", "title", "duration")
 	for _, track := range tracklist {
 		insertState = insertState.Values(track.AlbumID, track.Title, track.Duration)
 	}
@@ -39,7 +39,7 @@ func (t *tracklistDAO) Create(ctx context.Context, tracklist []model.Track) erro
 		logger.Error(err.Error())
 		return err
 	}
-	if exec, execErr := t.client.Exec(ctx, sql, args...); execErr != nil {
+	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
 		execErr = db.ErrDoQuery(execErr)
 		logger.Error(execErr.Error())
 		return execErr
@@ -52,10 +52,10 @@ func (t *tracklistDAO) Create(ctx context.Context, tracklist []model.Track) erro
 	return nil
 }
 
-func (t *tracklistDAO) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
+func (r *repo) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
 	logger := logging.LoggerFromContext(ctx)
 
-	query := t.queryBuilder.
+	query := r.queryBuilder.
 		Select(
 			"track_id",
 			"album_id",
@@ -73,7 +73,7 @@ func (t *tracklistDAO) GetAll(ctx context.Context, albumID string) ([]model.Trac
 		return nil, err
 	}
 
-	rows, queryErr := t.client.Query(ctx, sql, args...)
+	rows, queryErr := r.client.Query(ctx, sql, args...)
 	if queryErr != nil {
 		queryErr = db.ErrDoQuery(queryErr)
 		logger.Error(queryErr.Error())
@@ -96,4 +96,65 @@ func (t *tracklistDAO) GetAll(ctx context.Context, albumID string) ([]model.Trac
 
 	}
 	return tracklist, nil
+}
+
+func (r *repo) Update(ctx context.Context, track model.Track) error {
+	logger := logging.LoggerFromContext(ctx)
+	infoStorageMap := toUpdateStorageMap(&track)
+
+	sql, args, buildErr := r.queryBuilder.
+		Update(table).
+		SetMap(infoStorageMap).
+		Where(sq.Eq{"album_info_id": track.ID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Update() {
+		execErr = db.ErrDoQuery(errors.New("track was not updated. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
+}
+
+func (r *repo) Delete(ctx context.Context, id string) error {
+	logger := logging.LoggerFromContext(ctx)
+	sql, args, buildErr := r.queryBuilder.
+		Delete(table).
+		Where(sq.Eq{"album_id": id}).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Delete() {
+		execErr = db.ErrDoQuery(errors.New("track was not deleted. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
+
 }

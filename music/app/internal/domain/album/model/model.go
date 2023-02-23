@@ -6,7 +6,6 @@ import (
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	creditModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/model"
-	infoModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/info/model"
 	trackModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
 	"github.com/google/uuid"
 )
@@ -22,18 +21,36 @@ type AlbumView struct {
 	CreatedAt  int64
 }
 
+type AlbumInfo struct {
+	Album AlbumView
+	Info  Info
+}
+
 type Album struct {
 	Album     AlbumView
-	Info      infoModel.Info
+	Info      Info
 	Tracklist []trackModel.Track
 	Credits   []creditModel.Credit
 }
 
 type FullAlbum struct {
 	Album     AlbumView
-	Info      infoModel.Info
+	Info      Info
 	Tracklist []trackModel.Track
 	Credits   []creditModel.CreditInfo
+}
+
+type Info struct {
+	ID             string
+	AlbumID        string
+	CatalogNumber  string
+	ImageSrc       string
+	Barcode        string
+	CurrencyCode   string
+	MediaFormat    string
+	Classification string
+	Publisher      string
+	Price          float64
 }
 
 func (a AlbumView) ToProto() *albumPb.Album {
@@ -58,7 +75,7 @@ func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *Album {
 		ReleasedAt: pb.GetReleasedAt(),
 		CreatedAt:  time.Now().UnixMilli(),
 	}
-	info := infoModel.NewInfoFromPB(pb)
+	info := NewInfoFromPB(pb)
 	info.AlbumID = albumView.ID
 
 	for i := 0; i < len(protoList); i++ {
@@ -76,6 +93,20 @@ func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *Album {
 		Info:      info,
 		Tracklist: tracklist,
 		Credits:   credits,
+	}
+}
+
+func NewInfoFromPB(pb *albumPb.CreateAlbumRequest) Info {
+	return Info{
+		ID:             uuid.New().String(),
+		CatalogNumber:  pb.GetCatalogNumber(),
+		ImageSrc:       pb.GetImageSrc(),
+		Barcode:        pb.GetBarcode(),
+		CurrencyCode:   pb.GetCurrencyCode(),
+		MediaFormat:    pb.GetMediaFormat(),
+		Classification: pb.GetClassification(),
+		Publisher:      pb.GetPublisher(),
+		Price:          pb.GetPrice(),
 	}
 }
 

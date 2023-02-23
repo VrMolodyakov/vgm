@@ -11,18 +11,11 @@ import (
 )
 
 type albumService struct {
-	albumRepo  AlbumRepo
-	creditRepo CreditRepo
-	infoRepo   InfoRepo
-	trackRepo  TrackRepo
+	albumRepo AlbumRepo
 }
 
-func NewAlbumService(
-	albumRepo AlbumRepo,
-	creditRepo CreditRepo,
-	infoRepo InfoRepo,
-	trackRepo TrackRepo) *albumService {
-	return &albumService{albumRepo: albumRepo, creditRepo: creditRepo, infoRepo: infoRepo, trackRepo: trackRepo}
+func NewAlbumService(albumRepo AlbumRepo) *albumService {
+	return &albumService{albumRepo: albumRepo}
 }
 
 func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.AlbumView, error) {
@@ -51,11 +44,11 @@ func (s *albumService) Update(ctx context.Context, album model.AlbumView) error 
 	return s.albumRepo.Update(ctx, album)
 }
 
-func (s *albumService) GetOne(ctx context.Context, albumID string) (model.AlbumView, error) {
+func (s *albumService) GetOne(ctx context.Context, albumID string) (model.AlbumInfo, error) {
 	if albumID == "" {
-		return model.AlbumView{}, errors.New("album id is empty")
+		return model.AlbumInfo{}, errors.New("album id is empty")
 	}
-	return s.albumRepo.GetOne(ctx, albumID)
+	return s.albumRepo.GetInfo(ctx, albumID)
 
 }
 

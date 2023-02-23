@@ -9,7 +9,6 @@ import (
 )
 
 type CreditDAO interface {
-	Create(ctx context.Context, credits []model.Credit) error
 	GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error)
 	Delete(ctx context.Context, albumID string) error
 }
@@ -20,13 +19,6 @@ type creditService struct {
 
 func NewCreditService(dao CreditDAO) *creditService {
 	return &creditService{creditDAO: dao}
-}
-
-func (c *creditService) Create(ctx context.Context, credits []model.Credit) error {
-	if len(credits) == 0 {
-		return errors.New("empty credits")
-	}
-	return c.creditDAO.Create(ctx, credits)
 }
 
 func (c *creditService) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
