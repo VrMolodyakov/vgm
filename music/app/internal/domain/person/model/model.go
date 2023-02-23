@@ -14,11 +14,11 @@ type Person struct {
 }
 
 var (
-	ErrValidation = errors.New("First or last name must not be empty")
+	ErrValidation = errors.New("first or last name must not be empty")
 )
 
-func (p *Person) IsEmpty() bool {
-	return p.LastName == "" && p.FirstName == ""
+func (p *Person) IsValid() bool {
+	return p.LastName != "" && p.FirstName != ""
 }
 
 func NewAlbumFromPB(pb *personPb.CreatePersonRequest) Person {

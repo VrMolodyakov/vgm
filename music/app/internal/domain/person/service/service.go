@@ -6,23 +6,26 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/person/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 )
 
-type PersonDAO interface {
+type PersonRepo interface {
 	GetAll(ctx context.Context, filtering filter.Filterable) ([]model.Person, error)
 	Create(ctx context.Context, person model.Person) (model.Person, error)
+	Delete(ctx context.Context, id string) error
+	Update(ctx context.Context, person model.Person) error
 }
 
 type personService struct {
-	personDAO PersonDAO
+	personRepo PersonRepo
 }
 
-func NewPersonService(dao PersonDAO) *personService {
-	return &personService{personDAO: dao}
+func NewPersonService(dao PersonRepo) *personService {
+	return &personService{personRepo: dao}
 }
 
 func (p *personService) GetAll(ctx context.Context, filter filter.Filterable) ([]model.Person, error) {
-	persons, err := p.personDAO.GetAll(ctx, filter)
+	persons, err := p.personRepo.GetAll(ctx, filter)
 	if err != nil {
 		return nil, errors.Wrap(err, "personService.All")
 	}
@@ -31,13 +34,36 @@ func (p *personService) GetAll(ctx context.Context, filter filter.Filterable) ([
 }
 
 func (p *personService) Create(ctx context.Context, person model.Person) (model.Person, error) {
-	if person.IsEmpty() {
+	if !person.IsValid() {
 		return model.Person{}, model.ErrValidation
 	}
-	person, err := p.personDAO.Create(ctx, person)
+	person, err := p.personRepo.Create(ctx, person)
 	if err != nil {
 		return model.Person{}, errors.Wrap(err, "personService.Create")
 	}
 
 	return person, nil
+}
+
+func (p *personService) Update(ctx context.Context, person model.Person) error {
+	if !person.IsValid() {
+		err := errors.New("id must not be empty")
+		logging.LoggerFromContext(ctx).Error(err.Error())
+		return err
+	}
+	err := p.personRepo.Update(ctx, person)
+	if err != nil {
+		return errors.Wrap(err, "trackService.Update")
+	}
+	return nil
+}
+
+func (p *personService) Delete(ctx context.Context, id string) error {
+	if id == "" {
+		err := errors.New("id must not be empty")
+		logging.LoggerFromContext(ctx).Error(err.Error())
+		return err
+
+	}
+	return p.personRepo.Delete(ctx, id)
 }

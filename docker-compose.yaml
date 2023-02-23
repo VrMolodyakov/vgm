@@ -25,9 +25,9 @@ services:
             - ./music/migrations:/migrations
         command:
           [ "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_IP}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" , "-path", "/migrations", "up" ]
-    user:
+    gateway:
         build: 
-          context: ./user/app
+          context: ./gateway/app
           dockerfile: Dockerfile
         env_file:
             - .env

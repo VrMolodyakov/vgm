@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx"
 )
 
-type personDAO struct {
+type repo struct {
 	queryBuilder sq.StatementBuilderType
 	client       db.PostgreSQLClient
 }
@@ -22,14 +22,14 @@ const (
 	table = "person"
 )
 
-func NewPersonStorage(client db.PostgreSQLClient) *personDAO {
-	return &personDAO{
+func NewPersonStorage(client db.PostgreSQLClient) *repo {
+	return &repo{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
 		client:       client,
 	}
 }
 
-func (p *personDAO) Create(ctx context.Context, person model.Person) (model.Person, error) {
+func (p *repo) Create(ctx context.Context, person model.Person) (model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 	personStorageMap := toStorageMap(person)
 	sql, args, err := p.queryBuilder.
@@ -66,7 +66,7 @@ func (p *personDAO) Create(ctx context.Context, person model.Person) (model.Pers
 	return storage.toModel(), nil
 }
 
-func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable) ([]model.Person, error) {
+func (p *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	query := p.queryBuilder.
@@ -109,7 +109,7 @@ func (p *personDAO) GetAll(ctx context.Context, filtering filter.Filterable) ([]
 	return persons, nil
 }
 
-func (p *personDAO) GetOne(ctx context.Context, personID string) (model.Person, error) {
+func (p *repo) GetOne(ctx context.Context, personID string) (model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 
 	query := p.queryBuilder.
@@ -143,4 +143,65 @@ func (p *personDAO) GetOne(ctx context.Context, personID string) (model.Person, 
 		return model.Person{}, err
 	}
 	return storage.toModel(), nil
+}
+
+func (r *repo) Delete(ctx context.Context, id string) error {
+	logger := logging.LoggerFromContext(ctx)
+	sql, args, buildErr := r.queryBuilder.
+		Delete(table).
+		Where(sq.Eq{"person_id": id}).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Delete() {
+		execErr = db.ErrDoQuery(errors.New("person was not deleted. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
+
+}
+
+func (r *repo) Update(ctx context.Context, person model.Person) error {
+	logger := logging.LoggerFromContext(ctx)
+	infoStorageMap := toUpdateStorageMap(person)
+
+	sql, args, buildErr := r.queryBuilder.
+		Update(table).
+		SetMap(infoStorageMap).
+		Where(sq.Eq{"person_id ": person.ID}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	logger.Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Update() {
+		execErr = db.ErrDoQuery(errors.New("person was not updated. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
 }

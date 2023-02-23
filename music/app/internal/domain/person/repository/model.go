@@ -7,6 +7,10 @@ import (
 	mapper "github.com/worldline-go/struct2"
 )
 
+const (
+	fields int = 5
+)
+
 type personStorage struct {
 	ID        int64
 	FirstName string
@@ -42,4 +46,20 @@ func toStorageMap(person model.Person) map[string]interface{} {
 	storage := toStorage(person)
 	personStorageMap := (&mapper.Decoder{}).Map(storage)
 	return personStorageMap
+}
+
+func toUpdateStorageMap(m model.Person) map[string]interface{} {
+
+	storageMap := make(map[string]interface{}, fields)
+
+	if m.FirstName != "" {
+		storageMap["first_name"] = m.FirstName
+	}
+	if m.LastName != "" {
+		storageMap["last_name"] = m.LastName
+	}
+	if m.BirthDate != 0 {
+		storageMap["birth_date"] = m.BirthDate
+	}
+	return storageMap
 }

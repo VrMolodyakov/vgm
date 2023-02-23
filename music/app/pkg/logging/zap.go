@@ -18,7 +18,6 @@ type logger struct {
 	*zap.Logger
 }
 
-//TODO: probably remove it
 func GetLogger() *logger {
 	return &l
 }

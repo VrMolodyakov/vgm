@@ -1,4 +1,4 @@
-module github.com/VrMolodyakov/vgm/user
+module github.com/VrMolodyakov/vgm/gateway
 
 go 1.18
 

@@ -18,8 +18,8 @@ type Track struct {
 	Duration string
 }
 
-func (t *Track) IsEmpty() bool {
-	return t.Title == ""
+func (t *Track) IsValid() bool {
+	return t.Title != ""
 }
 
 func NewTrackFromPB(pb *albumPb.Track) Track {

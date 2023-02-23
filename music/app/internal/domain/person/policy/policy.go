@@ -11,6 +11,8 @@ import (
 type PersonService interface {
 	GetAll(ctx context.Context, filter filter.Filterable) ([]model.Person, error)
 	Create(ctx context.Context, Person model.Person) (model.Person, error)
+	Update(ctx context.Context, person model.Person) error
+	Delete(ctx context.Context, id string) error
 }
 
 type PersonPolicy struct {
@@ -32,4 +34,12 @@ func (p *PersonPolicy) GetAll(ctx context.Context, filter filter.Filterable) ([]
 
 func (p *PersonPolicy) Create(ctx context.Context, person model.Person) (model.Person, error) {
 	return p.personService.Create(ctx, person)
+}
+
+func (p *PersonPolicy) Update(ctx context.Context, person model.Person) error {
+	return p.personService.Update(ctx, person)
+}
+
+func (p *PersonPolicy) Delete(ctx context.Context, albumID string) error {
+	return p.personService.Delete(ctx, albumID)
 }
