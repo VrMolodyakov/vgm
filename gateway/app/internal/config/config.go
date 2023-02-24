@@ -17,9 +17,12 @@ const (
 )
 
 type Postgres struct {
-	User     string `env:"POSTGRES_USER"     env-required:""`
-	Password string `env:"POSTGRES_PASSWORD" env-required:""`
-	Database string `env:"POSTGRES_IP"       env-required:""`
+	User     string `env:"USERDB_POSTGRES_USER"     env-required:""`
+	Password string `env:"USERDB_POSTGRES_PASSWORD" env-required:""`
+	Database string `env:"USERDB_POSTGRES_DB"       env-required:""`
+	IP       string `env:"USERDB_POSTGRES_IP"       env-required:""`
+	Port     string `env:"USERDB_POSTGRES_PORT"       env-required:""`
+	PoolSize string `env:"USERDB_POSTGRES_POOL_SIZE"       env-required:""`
 }
 
 type HTTP struct {
@@ -38,9 +41,16 @@ type HTTP struct {
 	} `yaml:"cors"`
 }
 
+//TODO: remove GRPC struct
+type GRPC struct {
+	IP   string `yaml:"ip" env:"GRPC-IP"`
+	Port int    `yaml:"port" env:"GRPC-PORT"`
+}
+
 type Config struct {
 	HTTP     HTTP `yaml:"http"`
 	Postgres Postgres
+	GRPC     GRPC `yaml:"grpc"`
 }
 
 var instance *Config
@@ -67,9 +77,6 @@ func GetConfig() *Config {
 			}
 		}
 	})
-	var P Postgres
-	cleanenv.ReadEnv(P)
-	fmt.Println(P)
 	return instance
 }
 

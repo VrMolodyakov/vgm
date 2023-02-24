@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-    postgres:
+    music-db:
         image: postgres:14
         restart: always
         ports:
             - '5432:5432'    
         volumes:
-            - ./db_data:/var/lib/postgresql/data
+            - ./db_data/music:/var/lib/postgresql/data
         env_file:
             - .env    
         healthcheck:
@@ -15,16 +15,44 @@ services:
             timeout: 45s
             interval: 10s
             retries: 10
-    migrate:
+    user-db:
+        image: postgres:14
+        restart: always
+        ports:
+            - '5433:5432'
+        expose:
+            - "5433"        
+        volumes:
+            - ./db_data/users:/var/lib/postgresql/data
+        environment:
+            POSTGRES_DB: ${USERDB_POSTGRES_DB}
+            POSTGRES_USER:  ${USERDB_POSTGRES_USER}
+            POSTGRES_PASSWORD:  ${USERDB_POSTGRES_PASSWORD}  
+        healthcheck:
+            test: [ "CMD", "pg_isready", "-q", "-d", "userdb", "-U","postgres" ]
+            timeout: 45s
+            interval: 10s
+            retries: 10        
+    migrate-1:
         image: migrate/migrate
         restart: on-failure
         depends_on:
-          postgres:
+          music-db:
             condition: service_healthy   
         volumes:
-            - ./music/migrations:/migrations
+            - ./music/migrations:/migrations/music
         command:
-          [ "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_IP}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" , "-path", "/migrations", "up" ]
+          [ "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_IP}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" , "-path", "/migrations/music", "up" ]
+    migrate-2:
+        image: migrate/migrate
+        restart: on-failure
+        depends_on:
+          music-db:
+            condition: service_healthy   
+        volumes:
+            - ./gateway/migrations:/migrations/gateway
+        command:
+          [ "-database",  "postgres://${USERDB_POSTGRES_USER}:${USERDB_POSTGRES_PASSWORD}@${USERDB_POSTGRES_IP}:${USERDB_POSTGRES_PORT}/${USERDB_POSTGRES_DB}?sslmode=disable" , "-path", "/migrations/gateway", "up" ]     
     gateway:
         build: 
           context: ./gateway/app

@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/ilyakaznacheev/cleanenv v1.4.2
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect

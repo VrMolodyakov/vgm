@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
@@ -25,29 +24,12 @@ type Postgres struct {
 	PoolSize string `env:"POSTGRES_POOL_SIZE"       env-required:""`
 }
 
-type HTTP struct {
-	IP           string        `yaml:"ip"`
-	Port         int           `yaml:"port"`
-	ReadTimeout  time.Duration `yaml:"read-timeout"`
-	WriteTimeout time.Duration `yaml:"write-timeout"`
-	CORS         struct {
-		AllowedMethods     []string `yaml:"allowed_methods"`
-		AllowedOrigins     []string `yaml:"allowed_origins"`
-		AllowCredentials   bool     `yaml:"allow_credentials"`
-		AllowedHeaders     []string `yaml:"allowed_headers"`
-		OptionsPassthrough bool     `yaml:"options_passthrough"`
-		ExposedHeaders     []string `yaml:"exposed_headers"`
-		Debug              bool     `yaml:"debug"`
-	} `yaml:"cors"`
-}
-
 type GRPC struct {
 	IP   string `yaml:"ip" env:"GRPC-IP"`
 	Port int    `yaml:"port" env:"GRPC-PORT"`
 }
 
 type Config struct {
-	HTTP     HTTP `yaml:"http"`
 	Postgres Postgres
 	GRPC     GRPC `yaml:"grpc"`
 }

@@ -79,15 +79,3 @@ func initLogger(consoleLevel string, console io.Writer, files ...io.Writer) {
 
 	l = logger{zap}
 }
-
-func (l *logger) Infow(msg string, keyAndValues ...interface{}) {
-	sugar := l.Logger.Sugar()
-	sugar.Infow(msg, keyAndValues...)
-	l.Logger = sugar.Desugar()
-}
-
-func (l *logger) With(keyAndValues ...interface{}) {
-	sugar := l.Logger.Sugar()
-	sugar.With(keyAndValues...)
-	l.Logger = sugar.Desugar()
-}
