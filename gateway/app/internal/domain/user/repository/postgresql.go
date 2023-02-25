@@ -29,7 +29,7 @@ func NewUserRepo(client postgresql.PostgreSQLClient) *repo {
 
 func (r *repo) Create(ctx context.Context, user model.User) error {
 	logger := logging.LoggerFromContext(ctx)
-	columns := []string{"user_name", "user_mail", "user_password", "create_at"}
+	columns := []string{"user_name", "user_email", "user_password", "create_at"}
 	nestedSql := r.queryBuilder.
 		Select("user_id").
 		Prefix("NOT EXISTS(").
@@ -59,24 +59,99 @@ func (r *repo) Create(ctx context.Context, user model.User) error {
 	return nil
 }
 
-func (u *repo) Find(ctx context.Context, username string) (model.User, error) {
-	sql := `SELECT u_id,u_name,u_password,create_at FROM users WHERE u_name = $1`
-	var user model.User
-	err := u.client.QueryRow(ctx, sql, username).Scan(&user.Id, &user.Username, &user.Password, &user.CreateAt)
-	if err != nil {
+func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) {
+	logger := logging.LoggerFromContext(ctx)
+	query := r.queryBuilder.
+		Select(
+			"user_id",
+			"user_name",
+			"user_email",
+			"user_password",
+			"create_at").
+		From(table).
+		Where(sq.Eq{"user_name": username})
 
+	sql, args, err := query.ToSql()
+	logger.Logger.Sugar().Infow(table, sql, args)
+
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return model.User{}, err
+	}
+
+	var user model.User
+	err = r.client.QueryRow(ctx, sql, args...).
+		Scan(
+			&user.Id,
+			&user.Username,
+			&user.Email,
+			&user.Password,
+			&user.CreateAt)
+	if err != nil {
+		err = db.ErrDoQuery(err)
+		logger.Error(err.Error())
 		return model.User{}, err
 	}
 	return user, nil
 }
 
-func (u *repo) FindById(ctx context.Context, id int) (model.User, error) {
-	sql := `SELECT u_id,u_name,u_password,create_at FROM users WHERE u_id = $1`
-	var user model.User
-	err := u.client.QueryRow(ctx, sql, id).Scan(&user.Id, &user.Username, &user.Password, &user.CreateAt)
-	if err != nil {
+func (r *repo) Delete(ctx context.Context, username string) error {
+	logger := logging.LoggerFromContext(ctx)
+	sql, args, buildErr := r.queryBuilder.
+		Delete(table).
+		Where(sq.Eq{"user_name": username}).
+		ToSql()
 
-		return model.User{}, err
+	logger.Logger.Sugar().Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
 	}
-	return user, nil
+
+	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Delete() {
+		execErr = db.ErrDoQuery(errors.New("person was not deleted. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
+}
+
+func (r *repo) Update(ctx context.Context, user model.User) error {
+	logger := logging.LoggerFromContext(ctx)
+	infoStorageMap := toUpdateStorageMap(user)
+
+	sql, args, buildErr := r.queryBuilder.
+		Update(table).
+		SetMap(infoStorageMap).
+		Where(sq.Eq{"user_name": user.Username}).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+
+	logger.Logger.Sugar().Infow(table, sql, args)
+
+	if buildErr != nil {
+		buildErr = db.ErrCreateQuery(buildErr)
+		logger.Error(buildErr.Error())
+		return buildErr
+	}
+
+	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+		execErr = db.ErrDoQuery(execErr)
+		logger.Error(execErr.Error())
+		return execErr
+	} else if exec.RowsAffected() == 0 || !exec.Update() {
+		execErr = db.ErrDoQuery(errors.New("person was not updated. 0 rows were affected"))
+		logger.Error(execErr.Error())
+		return execErr
+	}
+
+	return nil
 }

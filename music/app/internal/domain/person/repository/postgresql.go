@@ -29,10 +29,10 @@ func NewPersonStorage(client db.PostgreSQLClient) *repo {
 	}
 }
 
-func (p *repo) Create(ctx context.Context, person model.Person) (model.Person, error) {
+func (r *repo) Create(ctx context.Context, person model.Person) (model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 	personStorageMap := toStorageMap(person)
-	sql, args, err := p.queryBuilder.
+	sql, args, err := r.queryBuilder.
 		Insert(table).
 		SetMap(personStorageMap).
 		Suffix(`
@@ -49,7 +49,7 @@ func (p *repo) Create(ctx context.Context, person model.Person) (model.Person, e
 	}
 
 	var storage personStorage
-	if QueryRow := p.client.QueryRow(ctx, sql, args...).
+	if QueryRow := r.client.QueryRow(ctx, sql, args...).
 		Scan(
 			&storage.ID,
 			&storage.FirstName,
@@ -66,10 +66,10 @@ func (p *repo) Create(ctx context.Context, person model.Person) (model.Person, e
 	return storage.toModel(), nil
 }
 
-func (p *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model.Person, error) {
+func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
-	query := p.queryBuilder.
+	query := r.queryBuilder.
 		Select("person_id", "first_name", "last_name", "birth_date").
 		From(table)
 
@@ -82,7 +82,7 @@ func (p *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model
 		logger.Error(err.Error())
 		return nil, err
 	}
-	rows, queryErr := p.client.Query(ctx, sql, args...)
+	rows, queryErr := r.client.Query(ctx, sql, args...)
 	if queryErr != nil {
 		err := db.ErrDoQuery(queryErr)
 		logger.Error(err.Error())
@@ -109,10 +109,10 @@ func (p *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model
 	return persons, nil
 }
 
-func (p *repo) GetOne(ctx context.Context, personID string) (model.Person, error) {
+func (r *repo) GetOne(ctx context.Context, personID string) (model.Person, error) {
 	logger := logging.LoggerFromContext(ctx)
 
-	query := p.queryBuilder.
+	query := r.queryBuilder.
 		Select(
 			"person_id",
 			"first_name",
@@ -131,7 +131,7 @@ func (p *repo) GetOne(ctx context.Context, personID string) (model.Person, error
 	}
 
 	var storage personStorage
-	err = p.client.QueryRow(ctx, sql, args...).
+	err = r.client.QueryRow(ctx, sql, args...).
 		Scan(
 			&storage.ID,
 			&storage.FirstName,

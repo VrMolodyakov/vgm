@@ -9,3 +9,7 @@ type User struct {
 	Password string
 	CreateAt time.Time
 }
+
+func (u *User) IsValid() bool {
+	return u.Username != "" && u.Email != "" && u.Password != ""
+}
