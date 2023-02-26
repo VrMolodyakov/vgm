@@ -7,9 +7,10 @@ type User struct {
 	Username string
 	Email    string
 	Password string
+	Role     string
 	CreateAt time.Time
 }
 
 func (u *User) IsValid() bool {
-	return u.Username != "" && u.Email != "" && u.Password != ""
+	return u.Username != "" && u.Email != "" && u.Password != "" && u.Role != ""
 }

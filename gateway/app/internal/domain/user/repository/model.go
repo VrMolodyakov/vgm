@@ -15,6 +15,7 @@ type userStorage struct {
 	Username string    `struct:"user_name"`
 	Email    string    `struct:"user_email"`
 	Password string    `struct:"user_password"`
+	Role     string    `struct:"role_name"`
 	CreateAt time.Time `struct:"create_at"`
 }
 

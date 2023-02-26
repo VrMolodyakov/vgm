@@ -12,7 +12,9 @@ import (
 )
 
 const (
-	table string = "users"
+	userTable      string = "users"
+	userRolesTable string = "user_roles"
+	rolesTable     string = "roles"
 )
 
 type repo struct {
@@ -29,25 +31,58 @@ func NewUserRepo(client postgresql.PostgreSQLClient) *repo {
 
 func (r *repo) Create(ctx context.Context, user model.User) error {
 	logger := logging.LoggerFromContext(ctx)
+	tx, err := r.client.Begin(ctx)
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
 	columns := []string{"user_name", "user_email", "user_password", "create_at"}
 	nestedSql := r.queryBuilder.
 		Select("user_id").
 		Prefix("NOT EXISTS(").
-		From(table).
+		From(userTable).
 		Where(sq.Eq{"user_name": user.Username}).
 		Suffix(")")
 
-	notExistSelect := r.queryBuilder.Select(columns...).From(table).Where(nestedSql)
-	sql, args, err := r.queryBuilder.Insert(table).Columns(columns...).Select(notExistSelect).ToSql()
-
-	logger.Logger.Sugar().Infow(table, sql, args)
-
+	notExistSelect := r.queryBuilder.Select(columns...).From(userTable).Where(nestedSql)
+	sql, args, err := r.queryBuilder.Insert(userTable).Columns(columns...).Select(notExistSelect).Suffix("RETURNING user_id").ToSql()
+	logger.Logger.Sugar().Infow(userTable, sql, args)
 	if err != nil {
 		err = db.ErrCreateQuery(err)
 		logger.Error(err.Error())
 		return err
 	}
-	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
+	var userID int
+	err = tx.QueryRow(ctx, sql, args...).Scan(&userID)
+	if err != nil {
+		err = db.ErrDoQuery(err)
+		logger.Error(err.Error())
+		return err
+	}
+
+	sql, args, err = r.queryBuilder.Select("role_id").From(rolesTable).Where(sq.Eq{"role_name": user.Role}).ToSql()
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return err
+	}
+	var roleID int
+	err = tx.QueryRow(ctx, sql, args...).Scan(&roleID)
+	if err != nil {
+		err = db.ErrDoQuery(err)
+		logger.Error(err.Error())
+		return err
+	}
+	sql, args, err = r.queryBuilder.Insert(userRolesTable).Columns("user_id", "role_id").Values(userID, roleID).ToSql()
+	if err != nil {
+		err = db.ErrCreateQuery(err)
+		logger.Error(err.Error())
+		return err
+	}
+	if exec, execErr := tx.Exec(ctx, sql, args...); execErr != nil {
 		execErr = db.ErrDoQuery(execErr)
 		logger.Error(execErr.Error())
 		return execErr
@@ -67,12 +102,15 @@ func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) 
 			"user_name",
 			"user_email",
 			"user_password",
-			"create_at").
-		From(table).
+			"create_at",
+			"role_name").
+		From(userTable).
+		Join("user_roles using (user_id)").
+		Join("roles using (role_id)").
 		Where(sq.Eq{"user_name": username})
 
 	sql, args, err := query.ToSql()
-	logger.Logger.Sugar().Infow(table, sql, args)
+	logger.Logger.Sugar().Infow(userTable, sql, args)
 
 	if err != nil {
 		err = db.ErrCreateQuery(err)
@@ -87,7 +125,8 @@ func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) 
 			&user.Username,
 			&user.Email,
 			&user.Password,
-			&user.CreateAt)
+			&user.CreateAt,
+			&user.Role)
 	if err != nil {
 		err = db.ErrDoQuery(err)
 		logger.Error(err.Error())
@@ -99,11 +138,11 @@ func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) 
 func (r *repo) Delete(ctx context.Context, username string) error {
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := r.queryBuilder.
-		Delete(table).
+		Delete(userTable).
 		Where(sq.Eq{"user_name": username}).
 		ToSql()
 
-	logger.Logger.Sugar().Infow(table, sql, args)
+	logger.Logger.Sugar().Infow(userTable, sql, args)
 
 	if buildErr != nil {
 		buildErr = db.ErrCreateQuery(buildErr)
@@ -116,7 +155,7 @@ func (r *repo) Delete(ctx context.Context, username string) error {
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Delete() {
-		execErr = db.ErrDoQuery(errors.New("person was not deleted. 0 rows were affected"))
+		execErr = db.ErrDoQuery(errors.New("user was not deleted. 0 rows were affected"))
 		logger.Error(execErr.Error())
 		return execErr
 	}
@@ -129,13 +168,13 @@ func (r *repo) Update(ctx context.Context, user model.User) error {
 	infoStorageMap := toUpdateStorageMap(user)
 
 	sql, args, buildErr := r.queryBuilder.
-		Update(table).
+		Update(userTable).
 		SetMap(infoStorageMap).
 		Where(sq.Eq{"user_name": user.Username}).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 
-	logger.Logger.Sugar().Infow(table, sql, args)
+	logger.Logger.Sugar().Infow(userTable, sql, args)
 
 	if buildErr != nil {
 		buildErr = db.ErrCreateQuery(buildErr)
@@ -148,7 +187,7 @@ func (r *repo) Update(ctx context.Context, user model.User) error {
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Update() {
-		execErr = db.ErrDoQuery(errors.New("person was not updated. 0 rows were affected"))
+		execErr = db.ErrDoQuery(errors.New("user was not updated. 0 rows were affected"))
 		logger.Error(execErr.Error())
 		return execErr
 	}
