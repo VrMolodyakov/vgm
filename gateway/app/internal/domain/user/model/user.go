@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	Id       int
@@ -13,4 +15,13 @@ type User struct {
 
 func (u *User) IsValid() bool {
 	return u.Username != "" && u.Email != "" && u.Password != "" && u.Role != ""
+}
+
+func NewUser(username, password, email, role string) User {
+	return User{
+		Username: username,
+		Email:    email,
+		Password: password,
+		Role:     role,
+	}
 }

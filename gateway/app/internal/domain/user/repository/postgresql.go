@@ -2,13 +2,12 @@ package repository
 
 import (
 	"context"
-	"errors"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/client/postgresql"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
-	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 )
 
 const (
@@ -51,43 +50,43 @@ func (r *repo) Create(ctx context.Context, user model.User) error {
 	sql, args, err := r.queryBuilder.Insert(userTable).Columns(columns...).Select(notExistSelect).Suffix("RETURNING user_id").ToSql()
 	logger.Logger.Sugar().Infow(userTable, sql, args)
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(err, "create query")
 		logger.Error(err.Error())
 		return err
 	}
 	var userID int
 	err = tx.QueryRow(ctx, sql, args...).Scan(&userID)
 	if err != nil {
-		err = db.ErrDoQuery(err)
+		err = errors.NewInternal(err, "executy query")
 		logger.Error(err.Error())
 		return err
 	}
 
 	sql, args, err = r.queryBuilder.Select("role_id").From(rolesTable).Where(sq.Eq{"role_name": user.Role}).ToSql()
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(err, "create query")
 		logger.Error(err.Error())
 		return err
 	}
 	var roleID int
 	err = tx.QueryRow(ctx, sql, args...).Scan(&roleID)
 	if err != nil {
-		err = db.ErrDoQuery(err)
+		err = errors.NewInternal(err, "executy query")
 		logger.Error(err.Error())
 		return err
 	}
 	sql, args, err = r.queryBuilder.Insert(userRolesTable).Columns("user_id", "role_id").Values(userID, roleID).ToSql()
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(err, "create query")
 		logger.Error(err.Error())
 		return err
 	}
 	if exec, execErr := tx.Exec(ctx, sql, args...); execErr != nil {
-		execErr = db.ErrDoQuery(execErr)
+		execErr = errors.NewInternal(execErr, "executy query")
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Insert() {
-		execErr = db.ErrDoQuery(errors.New("user was not created. 0 rows were affected"))
+		execErr = errors.NewInternal(execErr, "user was not created. 0 rows were affected")
 		logger.Error(execErr.Error())
 		return execErr
 	}
@@ -113,7 +112,7 @@ func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) 
 	logger.Logger.Sugar().Infow(userTable, sql, args)
 
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(err, "create query")
 		logger.Error(err.Error())
 		return model.User{}, err
 	}
@@ -128,7 +127,7 @@ func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) 
 			&user.CreateAt,
 			&user.Role)
 	if err != nil {
-		err = db.ErrDoQuery(err)
+		err = errors.NewInternal(err, "execute query")
 		logger.Error(err.Error())
 		return model.User{}, err
 	}
@@ -137,25 +136,25 @@ func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) 
 
 func (r *repo) Delete(ctx context.Context, username string) error {
 	logger := logging.LoggerFromContext(ctx)
-	sql, args, buildErr := r.queryBuilder.
+	sql, args, err := r.queryBuilder.
 		Delete(userTable).
 		Where(sq.Eq{"user_name": username}).
 		ToSql()
 
 	logger.Logger.Sugar().Infow(userTable, sql, args)
 
-	if buildErr != nil {
-		buildErr = db.ErrCreateQuery(buildErr)
-		logger.Error(buildErr.Error())
-		return buildErr
+	if err != nil {
+		err = errors.NewInternal(err, "create query")
+		logger.Error(err.Error())
+		return err
 	}
 
 	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
-		execErr = db.ErrDoQuery(execErr)
+		execErr = errors.NewInternal(execErr, "execute query")
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Delete() {
-		execErr = db.ErrDoQuery(errors.New("user was not deleted. 0 rows were affected"))
+		execErr = errors.NewInternal(execErr, "user was not deleted. 0 rows were affected")
 		logger.Error(execErr.Error())
 		return execErr
 	}
@@ -177,17 +176,17 @@ func (r *repo) Update(ctx context.Context, user model.User) error {
 	logger.Logger.Sugar().Infow(userTable, sql, args)
 
 	if buildErr != nil {
-		buildErr = db.ErrCreateQuery(buildErr)
+		buildErr = errors.NewInternal(buildErr, "create query")
 		logger.Error(buildErr.Error())
 		return buildErr
 	}
 
 	if exec, execErr := r.client.Exec(ctx, sql, args...); execErr != nil {
-		execErr = db.ErrDoQuery(execErr)
+		execErr = errors.NewInternal(execErr, "execute query")
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Update() {
-		execErr = db.ErrDoQuery(errors.New("user was not updated. 0 rows were affected"))
+		execErr = errors.NewInternal(execErr, "user was not updated. 0 rows were affected")
 		logger.Error(execErr.Error())
 		return execErr
 	}
