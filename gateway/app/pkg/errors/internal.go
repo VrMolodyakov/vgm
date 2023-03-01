@@ -15,7 +15,7 @@ func (i InternalError) Unwrap() error {
 	return i.Err
 }
 
-func ISInternal(err error) (internal InternalError, ok bool) {
+func IsInternal(err error) (internal InternalError, ok bool) {
 	internal, ok = err.(InternalError)
 	return
 }
