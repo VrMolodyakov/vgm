@@ -54,7 +54,7 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
@@ -142,29 +142,35 @@ func (u *userHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
-	// refreshToken, err := ctx.Cookie("refresh_token")
-	// if err != nil {
-	// 	errs.HTTPErrorResponse(ctx, a.logger, errs.New(errs.Unauthorized, err))
-	// 	return
-	// }
-	// a.logger.Infof("get refreshToken from cookie = %v", refreshToken)
-	// err = a.tokenHandler.ValidateRefreshToken(refreshToken)
-	// if err != nil {
-	// 	errs.HTTPErrorResponse(ctx, a.logger, errs.New(errs.Unauthorized, err))
-	// 	return
-	// }
-	// userId, err := a.tokenService.Find(refreshToken)
-	// if err != nil {
-	// 	errs.HTTPErrorResponse(ctx, a.logger, err)
-	// 	return
-	// }
-	// accessToken, err := a.tokenHandler.CreateAccessToken(time.Duration(a.refreshTtl)*time.Minute, userId)
-	// if err != nil {
-	// 	errs.HTTPErrorResponse(ctx, a.logger, errs.New(errs.Internal, err))
-	// 	return
-	// }
-	// ctx.SetCookie("access_token", accessToken, a.accessTtl*60, "/", a.host, false, true)
-	// ctx.SetCookie("logged_in", "true", a.accessTtl*60, "/", a.host, false, false)
+	userId, err := u.tokenService.Find(refreshToken)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+	accessToken, err := u.tokenHandler.CreateAccessToken(time.Duration(u.accessTtl)*time.Minute, userId)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	accessCookie := http.Cookie{
+		Name:     "access_token",
+		Value:    accessToken,
+		Path:     "/",
+		MaxAge:   u.accessTtl * 60,
+		Secure:   false,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &accessCookie)
 
-	// ctx.JSON(http.StatusOK, gin.H{"status": "success", "access_token": accessToken})
+	loginCookie := http.Cookie{
+		Name:     "ogged_in",
+		Value:    "true",
+		Path:     "/",
+		MaxAge:   u.accessTtl * 60,
+		Secure:   false,
+		HttpOnly: false,
+	}
+	http.SetCookie(w, &loginCookie)
+
+	w.WriteHeader(http.StatusOK)
 }
