@@ -17,6 +17,7 @@ require (
 )
 
 require (
+	github.com/go-chi/chi v1.5.4
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/ilyakaznacheev/cleanenv v1.4.2
