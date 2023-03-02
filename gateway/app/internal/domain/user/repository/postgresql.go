@@ -28,7 +28,7 @@ func NewUserRepo(client postgresql.PostgreSQLClient) *repo {
 	}
 }
 
-func (r *repo) Create(ctx context.Context, user model.User) error {
+func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
 	logger := logging.LoggerFromContext(ctx)
 	tx, err := r.client.Begin(ctx)
 	defer func() {
@@ -52,45 +52,45 @@ func (r *repo) Create(ctx context.Context, user model.User) error {
 	if err != nil {
 		err = errors.NewInternal(err, "create query")
 		logger.Error(err.Error())
-		return err
+		return -1, err
 	}
 	var userID int
 	err = tx.QueryRow(ctx, sql, args...).Scan(&userID)
 	if err != nil {
 		err = errors.NewInternal(err, "executy query")
 		logger.Error(err.Error())
-		return err
+		return -1, err
 	}
 
 	sql, args, err = r.queryBuilder.Select("role_id").From(rolesTable).Where(sq.Eq{"role_name": user.Role}).ToSql()
 	if err != nil {
 		err = errors.NewInternal(err, "create query")
 		logger.Error(err.Error())
-		return err
+		return -1, err
 	}
 	var roleID int
 	err = tx.QueryRow(ctx, sql, args...).Scan(&roleID)
 	if err != nil {
 		err = errors.NewInternal(err, "executy query")
 		logger.Error(err.Error())
-		return err
+		return -1, err
 	}
 	sql, args, err = r.queryBuilder.Insert(userRolesTable).Columns("user_id", "role_id").Values(userID, roleID).ToSql()
 	if err != nil {
 		err = errors.NewInternal(err, "create query")
 		logger.Error(err.Error())
-		return err
+		return -1, err
 	}
 	if exec, execErr := tx.Exec(ctx, sql, args...); execErr != nil {
 		execErr = errors.NewInternal(execErr, "executy query")
 		logger.Error(execErr.Error())
-		return execErr
+		return -1, execErr
 	} else if exec.RowsAffected() == 0 || !exec.Insert() {
 		execErr = errors.NewInternal(execErr, "user was not created. 0 rows were affected")
 		logger.Error(execErr.Error())
-		return execErr
+		return -1, execErr
 	}
-	return nil
+	return userID, nil
 }
 
 func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) {

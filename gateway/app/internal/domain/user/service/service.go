@@ -8,7 +8,7 @@ import (
 )
 
 type UserRepo interface {
-	Create(ctx context.Context, user model.User) error
+	Create(ctx context.Context, user model.User) (int, error)
 	GetOne(ctx context.Context, username string) (model.User, error)
 	Delete(ctx context.Context, username string) error
 	Update(ctx context.Context, user model.User) error
@@ -24,9 +24,9 @@ func NewUserService(repo UserRepo) *userService {
 	}
 }
 
-func (u *userService) Create(ctx context.Context, user model.User) error {
+func (u *userService) Create(ctx context.Context, user model.User) (int, error) {
 	if !user.IsValid() {
-		return errors.New("user data must not be empty")
+		return -1, errors.New("user data must not be empty")
 	}
 	return u.userRepo.Create(ctx, user)
 }
