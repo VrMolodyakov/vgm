@@ -9,9 +9,10 @@ import (
 
 type UserRepo interface {
 	Create(ctx context.Context, user model.User) (int, error)
-	GetOne(ctx context.Context, username string) (model.User, error)
 	Delete(ctx context.Context, username string) error
 	Update(ctx context.Context, user model.User) error
+	GetByUsername(ctx context.Context, username string) (model.User, error)
+	GetByID(ctx context.Context, ID string) (model.User, error)
 }
 
 type userService struct {
@@ -31,11 +32,18 @@ func (u *userService) Create(ctx context.Context, user model.User) (int, error) 
 	return u.userRepo.Create(ctx, user)
 }
 
-func (u *userService) GetOne(ctx context.Context, username string) (model.User, error) {
+func (u *userService) GetByUsername(ctx context.Context, username string) (model.User, error) {
 	if username == "" {
 		return model.User{}, errors.New("username is empty")
 	}
-	return u.userRepo.GetOne(ctx, username)
+	return u.userRepo.GetByUsername(ctx, username)
+}
+
+func (u *userService) GetByID(ctx context.Context, ID string) (model.User, error) {
+	if ID == "" {
+		return model.User{}, errors.New("ID is empty")
+	}
+	return u.userRepo.GetByID(ctx, ID)
 }
 
 func (u *userService) Delete(ctx context.Context, username string) error {

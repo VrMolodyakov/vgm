@@ -46,6 +46,12 @@ func (a *app) startHTTP(ctx context.Context) error {
 	// router.GET("/logout", a.authMiddleware.Auth(), a.authHandler.Logout)
 	// handler := c.Handler(a.router)
 
+	// router.Route("/auth", func(r chi.Router) {
+	// 	r.Get("/", getArticle)
+	// 	r.Put("/", updateArticle)
+	// 	r.Delete("/", deleteArticle)
+	//   })
+
 	a.httpServer = &http.Server{
 		Handler:      router,
 		WriteTimeout: a.cfg.HTTP.WriteTimeout,

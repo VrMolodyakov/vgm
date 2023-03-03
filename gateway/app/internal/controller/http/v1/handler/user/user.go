@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/user/dto"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user/dto"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/hashing"
