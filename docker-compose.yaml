@@ -53,6 +53,12 @@ services:
             - ./gateway/migrations:/migrations/gateway
         command:
           [ "-database",  "postgres://${USERDB_POSTGRES_USER}:${USERDB_POSTGRES_PASSWORD}@${USERDB_POSTGRES_IP}:${USERDB_POSTGRES_PORT}/${USERDB_POSTGRES_DB}?sslmode=disable" , "-path", "/migrations/gateway", "up" ]     
+    gateway-redis:
+        image: redis:6.2
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock      
+        ports:
+          - 6379:6379       
     gateway:
         build: 
           context: ./gateway/app
@@ -61,6 +67,9 @@ services:
             - .env
         volumes:
             - ./configs:/configs
+        depends_on:
+          - user-db
+          - gateway-redis 
     music:
         build: 
           context: ./music/app

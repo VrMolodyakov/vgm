@@ -9,9 +9,7 @@ import (
 
 type UserService interface {
 	Create(ctx context.Context, user model.User) (int, error)
-	GetOne(ctx context.Context, username string) (model.User, error)
-	Delete(ctx context.Context, username string) error
-	Update(ctx context.Context, user model.User) error
+	GetByUsername(ctx context.Context, username string) (model.User, error)
 }
 
 type TokenHandler interface {
@@ -21,7 +19,7 @@ type TokenHandler interface {
 }
 
 type TokenService interface {
-	Save(refreshToken string, userId int, expireAt time.Duration) error
-	Find(refreshToken string) (int, error)
-	Remove(refreshToken string) error
+	Save(ctx context.Context, refreshToken string, userId int, expireAt time.Duration) error
+	Find(ctx context.Context, refreshToken string) (int, error)
+	Remove(ctx context.Context, refreshToken string) error
 }

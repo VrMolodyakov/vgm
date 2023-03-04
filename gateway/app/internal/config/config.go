@@ -17,19 +17,19 @@ const (
 )
 
 type Redis struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	Password string `yaml:"password"`
-	DbNumber int    `yaml:"dbnumber"`
+	Host     string `env:"REDIS_HOST"`
+	Port     string `env:"REDIS_PORT"`
+	Password string `env:"REDIS_PASSWORD"`
+	DbNumber int    `env:"REDIS_DBNUMBER"`
 }
 
-type TokenPairs struct {
-	AccessPublic   string `yaml:"access_public"`
-	AccessPrivate  string `yaml:"access_private"`
-	RefreshPublic  string `yaml:"refresh_public"`
-	RefreshPrivate string `yaml:"refresh_private"`
-	AccessTtl      int    `yaml:"access_ttl"`
-	RefreshTtl     int    `yaml:"refresh_ttl"`
+type KeyPairs struct {
+	AccessPublic   string `ENV:"ACCESS_PUBLIC"`
+	AccessPrivate  string `ENV:"ACCESS_PRIVATE"`
+	RefreshPublic  string `ENV:"REFRESH_PUBLIC"`
+	RefreshPrivate string `ENV:"REFRESH_PRIVATE"`
+	AccessTtl      int    `ENV:"ACCESS_TTL"`
+	RefreshTtl     int    `ENV:"REFRESH_TTL"`
 }
 
 type Postgres struct {
@@ -64,11 +64,11 @@ type GRPC struct {
 }
 
 type Config struct {
-	HTTP       HTTP `yaml:"http"`
-	Postgres   Postgres
-	GRPC       GRPC       `yaml:"grpc"`
-	Redis      Redis      `yaml : "redis"`
-	TokenPairs TokenPairs `yaml : "token"`
+	HTTP     HTTP `yaml:"http"`
+	Postgres Postgres
+	GRPC     GRPC `yaml:"grpc"`
+	Redis    Redis
+	KeyPairs KeyPairs
 }
 
 var instance *Config

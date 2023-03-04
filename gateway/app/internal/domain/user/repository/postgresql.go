@@ -134,7 +134,7 @@ func (r *repo) GetByUsername(ctx context.Context, username string) (model.User, 
 	return user, nil
 }
 
-func (r *repo) GetByID(ctx context.Context, ID string) (model.User, error) {
+func (r *repo) GetByID(ctx context.Context, ID int) (model.User, error) {
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
 		Select(

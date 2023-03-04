@@ -1,33 +1,11 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
-	"github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 )
-
-type UserKey struct{}
-
-type UserService interface {
-	GetById(ctx context.Context, id int) (model.User, error)
-}
-
-type TokenHandler interface {
-	ValidateAccessToken(token string) (interface{}, error)
-}
-
-type TokenService interface {
-	Find(refreshToken string) (int, error)
-}
-
-type authMiddleware struct {
-	userService  UserService
-	tokenHandler TokenHandler
-	tokenService TokenService
-}
 
 func NewAuthMiddleware(
 	userService UserService,
@@ -62,7 +40,7 @@ func (a *authMiddleware) Auth(next http.Handler) http.Handler {
 		}
 
 		userId := sub.(float64)
-		_, err = a.userService.GetById(r.Context(), int(userId))
+		_, err = a.userService.GetByID(r.Context(), int(userId))
 		if err != nil {
 			if _, ok := errors.IsInternal(err); ok {
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

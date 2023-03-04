@@ -11,12 +11,18 @@ import (
 	"time"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user"
+	userMiddleware "github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
+	tokenRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/repository"
+	tokenService "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/service"
 	userRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/repository"
+	userService "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/service"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/client/redis"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/token"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 type app struct {
@@ -26,6 +32,10 @@ type app struct {
 
 func NewApp(cfg *config.Config) *app {
 	return &app{cfg: cfg}
+}
+
+func (a *app) Run(ctx context.Context) {
+	a.startHTTP(ctx)
 }
 
 func (a *app) startHTTP(ctx context.Context) error {
@@ -56,27 +66,35 @@ func (a *app) startHTTP(ctx context.Context) error {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
+	accessKeyPair, refreshKeyPair := a.loadKeyPairs()
+
+	tokenHandler := token.NewTokenHandler(accessKeyPair, refreshKeyPair)
+
 	userRepo := userRepo.NewUserRepo(pgClient)
+	tokenRepo := tokenRepo.NewTokenRepo(rdClient)
+	userService := userService.NewUserService(userRepo)
+	tokenService := tokenService.NewTokenService(tokenRepo)
+
+	userHandler := user.NewUserHandler(userService, tokenHandler, tokenService, a.cfg.KeyPairs.AccessTtl, a.cfg.KeyPairs.RefreshTtl)
+	userAuth := userMiddleware.NewAuthMiddleware(userService, tokenService, tokenHandler)
 
 	router := chi.NewRouter()
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 
 	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
 
-	// router.Get()
-	// router := rg.Group("/auth")
-	// router.POST("/register", a.authHandler.SignUpUser)
-	// router.POST("/login", a.authHandler.SignInUser)
-	// router.GET("/refresh", a.authHandler.RefreshAccessToken)
-	// router.GET("/logout", a.authMiddleware.Auth(), a.authHandler.Logout)
-	// handler := c.Handler(a.router)
-
-	// router.Route("/auth", func(r chi.Router) {
-	// 	r.Get("/", getArticle)
-	// 	r.Put("/", updateArticle)
-	// 	r.Delete("/", deleteArticle)
-	//   })
+	router.Route("/auth", func(r chi.Router) {
+		r.Post("/register", userHandler.SignUpUser)
+		r.Post("/login", userHandler.SignInUser)
+		r.Get("/refresh", userHandler.RefreshAccessToken)
+		r.Group(func(r chi.Router) {
+			r.Use(userAuth.Auth)
+			r.Get("/logout", userHandler.RefreshAccessToken)
+		})
+	})
 
 	a.httpServer = &http.Server{
 		Handler:      router,
@@ -92,31 +110,31 @@ func (a *app) startHTTP(ctx context.Context) error {
 			logger.Fatal(err.Error())
 		}
 	}
-	err = a.httpServer.Shutdown(context.Background())
+	err = a.httpServer.Shutdown(ctx)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 	return err
 }
 
-func (a *app) loadTokens() (token.TokenPair, token.TokenPair) {
-	aprk, err := base64.StdEncoding.DecodeString(a.cfg.TokenPairs.AccessPrivate)
+func (a *app) loadKeyPairs() (token.KeyPair, token.KeyPair) {
+	aprk, err := base64.StdEncoding.DecodeString(a.cfg.KeyPairs.AccessPrivate)
 	if err != nil {
 		log.Fatal(err)
 	}
-	apbk, err := base64.StdEncoding.DecodeString(a.cfg.TokenPairs.AccessPublic)
+	apbk, err := base64.StdEncoding.DecodeString(a.cfg.KeyPairs.AccessPublic)
 	if err != nil {
 		log.Fatal(err)
 	}
-	rprk, err := base64.StdEncoding.DecodeString(a.cfg.TokenPairs.RefreshPrivate)
+	rprk, err := base64.StdEncoding.DecodeString(a.cfg.KeyPairs.RefreshPrivate)
 	if err != nil {
 		log.Fatal(err)
 	}
-	rpbk, err := base64.StdEncoding.DecodeString(a.cfg.TokenPairs.RefreshPublic)
+	rpbk, err := base64.StdEncoding.DecodeString(a.cfg.KeyPairs.RefreshPublic)
 	if err != nil {
 		log.Fatal(err)
 	}
-	apair := token.TokenPair{PrivateKey: aprk, PublicKey: apbk}
-	rpair := token.TokenPair{PrivateKey: rprk, PublicKey: rpbk}
+	apair := token.KeyPair{PrivateKey: aprk, PublicKey: apbk}
+	rpair := token.KeyPair{PrivateKey: rprk, PublicKey: rpbk}
 	return apair, rpair
 }

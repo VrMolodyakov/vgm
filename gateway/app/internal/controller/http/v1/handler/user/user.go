@@ -24,12 +24,16 @@ type userHandler struct {
 func NewUserHandler(
 	user UserService,
 	tokenHandler TokenHandler,
+	tokenService TokenService,
 	accessTtl int,
 	refreshTtl int) *userHandler {
 
 	return &userHandler{
 		user:         user,
 		tokenHandler: tokenHandler,
+		tokenService: tokenService,
+		accessTtl:    accessTtl,
+		refreshTtl:   refreshTtl,
 	}
 }
 
@@ -76,7 +80,7 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
-	user, err := u.user.GetOne(context.Background(), req.Username)
+	user, err := u.user.GetByUsername(context.Background(), req.Username)
 	if err != nil {
 		if _, ok := errors.IsInternal(err); ok {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -100,7 +104,7 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	err = u.tokenService.Save(refreshToken, user.Id, time.Duration(u.refreshTtl)*time.Minute)
+	err = u.tokenService.Save(r.Context(), refreshToken, user.Id, time.Duration(u.refreshTtl)*time.Minute)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -165,7 +169,7 @@ func (u *userHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
-	userId, err := u.tokenService.Find(refreshToken)
+	userId, err := u.tokenService.Find(r.Context(), refreshToken)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
@@ -223,7 +227,7 @@ func (u *userHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
-	err = u.tokenService.Remove(refreshToken)
+	err = u.tokenService.Remove(r.Context(), refreshToken)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

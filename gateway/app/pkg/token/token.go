@@ -8,17 +8,17 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-type TokenPair struct {
+type KeyPair struct {
 	PrivateKey []byte
 	PublicKey  []byte
 }
 
 type tokenHandler struct {
-	accessPair  TokenPair
-	refreshPair TokenPair
+	accessPair  KeyPair
+	refreshPair KeyPair
 }
 
-func NewTokenHandler(accessPair TokenPair, refreshPair TokenPair) *tokenHandler {
+func NewTokenHandler(accessPair KeyPair, refreshPair KeyPair) *tokenHandler {
 	return &tokenHandler{accessPair: accessPair, refreshPair: refreshPair}
 }
 
