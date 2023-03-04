@@ -2,7 +2,6 @@ package psqltx
 
 import (
 	"context"
-	"fmt"
 
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 )
@@ -46,7 +45,6 @@ func (t *tx) doTx(ctx context.Context, fn func(Transactor) error) error {
 	}
 	defer func() {
 		if err != nil {
-			fmt.Println("-----ROLLBACK-----")
 			tx.Rollback(ctx)
 		} else {
 			tx.Commit(ctx)
@@ -55,7 +53,6 @@ func (t *tx) doTx(ctx context.Context, fn func(Transactor) error) error {
 
 	err = fn(t.withTx(tx))
 	if err != nil {
-		fmt.Println("-----GOT ERROR-----")
 		return err
 	}
 	return nil

@@ -2,13 +2,20 @@ package app
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
+	userRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/repository"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/client/postgresql"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/client/redis"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/token"
 	"github.com/go-chi/chi"
 )
 
@@ -31,6 +38,25 @@ func (a *app) startHTTP(ctx context.Context) error {
 		logger.Info(err.Error())
 		logger.Fatal("failed to create listener")
 	}
+
+	pgConfig := postgresql.NewPgConfig(
+		a.cfg.Postgres.User,
+		a.cfg.Postgres.Password,
+		a.cfg.Postgres.IP,
+		a.cfg.Postgres.Port,
+		a.cfg.Postgres.Database,
+		a.cfg.Postgres.PoolSize,
+	)
+	rdCfg := redis.NewRdConfig(a.cfg.Redis.Password, a.cfg.Redis.Host, a.cfg.Redis.Port, a.cfg.Redis.DbNumber)
+	rdClient, err := redis.NewClient(ctx, &rdCfg)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+	pgClient, err := postgresql.NewClient(ctx, 5, time.Second*5, pgConfig)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+	userRepo := userRepo.NewUserRepo(pgClient)
 
 	router := chi.NewRouter()
 
@@ -71,4 +97,26 @@ func (a *app) startHTTP(ctx context.Context) error {
 		logger.Fatal(err.Error())
 	}
 	return err
+}
+
+func (a *app) loadTokens() (token.TokenPair, token.TokenPair) {
+	aprk, err := base64.StdEncoding.DecodeString(a.cfg.TokenPairs.AccessPrivate)
+	if err != nil {
+		log.Fatal(err)
+	}
+	apbk, err := base64.StdEncoding.DecodeString(a.cfg.TokenPairs.AccessPublic)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rprk, err := base64.StdEncoding.DecodeString(a.cfg.TokenPairs.RefreshPrivate)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rpbk, err := base64.StdEncoding.DecodeString(a.cfg.TokenPairs.RefreshPublic)
+	if err != nil {
+		log.Fatal(err)
+	}
+	apair := token.TokenPair{PrivateKey: aprk, PublicKey: apbk}
+	rpair := token.TokenPair{PrivateKey: rprk, PublicKey: rpbk}
+	return apair, rpair
 }

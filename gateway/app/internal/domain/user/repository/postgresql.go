@@ -93,7 +93,7 @@ func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
 	return userID, nil
 }
 
-func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) {
+func (r *repo) GetByUsername(ctx context.Context, username string) (model.User, error) {
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
 		Select(
@@ -107,6 +107,47 @@ func (r *repo) GetOne(ctx context.Context, username string) (model.User, error) 
 		Join("user_roles using (user_id)").
 		Join("roles using (role_id)").
 		Where(sq.Eq{"user_name": username})
+
+	sql, args, err := query.ToSql()
+	logger.Logger.Sugar().Infow(userTable, sql, args)
+
+	if err != nil {
+		err = errors.NewInternal(err, "create query")
+		logger.Error(err.Error())
+		return model.User{}, err
+	}
+
+	var user model.User
+	err = r.client.QueryRow(ctx, sql, args...).
+		Scan(
+			&user.Id,
+			&user.Username,
+			&user.Email,
+			&user.Password,
+			&user.CreateAt,
+			&user.Role)
+	if err != nil {
+		err = errors.NewInternal(err, "execute query")
+		logger.Error(err.Error())
+		return model.User{}, err
+	}
+	return user, nil
+}
+
+func (r *repo) GetByID(ctx context.Context, ID string) (model.User, error) {
+	logger := logging.LoggerFromContext(ctx)
+	query := r.queryBuilder.
+		Select(
+			"user_id",
+			"user_name",
+			"user_email",
+			"user_password",
+			"create_at",
+			"role_name").
+		From(userTable).
+		Join("user_roles using (user_id)").
+		Join("roles using (role_id)").
+		Where(sq.Eq{"user_id": ID})
 
 	sql, args, err := query.ToSql()
 	logger.Logger.Sugar().Infow(userTable, sql, args)

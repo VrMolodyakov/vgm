@@ -59,7 +59,8 @@ func (a *app) startGrpc(ctx context.Context) {
 		a.cfg.Postgres.IP,
 		a.cfg.Postgres.Port,
 		a.cfg.Postgres.Database,
-		a.cfg.Postgres.PoolSize)
+		a.cfg.Postgres.PoolSize,
+	)
 
 	pgClient, err := postgresql.NewClient(ctx, 5, time.Second*5, pgConfig)
 	if err != nil {

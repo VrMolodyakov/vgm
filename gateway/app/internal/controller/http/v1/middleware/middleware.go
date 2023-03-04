@@ -9,6 +9,8 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 )
 
+type UserKey struct{}
+
 type UserService interface {
 	GetById(ctx context.Context, id int) (model.User, error)
 }
@@ -31,7 +33,8 @@ func NewAuthMiddleware(
 	userService UserService,
 	tokenService TokenService,
 	tokenHandler TokenHandler) *authMiddleware {
-	return &authMiddleware{userService: userService,
+	return &authMiddleware{
+		userService:  userService,
 		tokenService: tokenService,
 		tokenHandler: tokenHandler}
 }
@@ -59,7 +62,7 @@ func (a *authMiddleware) Auth(next http.Handler) http.Handler {
 		}
 
 		userId := sub.(float64)
-		user, err := a.userService.GetById(r.Context(), int(userId))
+		_, err = a.userService.GetById(r.Context(), int(userId))
 		if err != nil {
 			if _, ok := errors.IsInternal(err); ok {
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -68,7 +71,6 @@ func (a *authMiddleware) Auth(next http.Handler) http.Handler {
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
-		ctx := context.WithValue(r.Context(), "user", user)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r)
 	})
 }

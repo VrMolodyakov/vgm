@@ -16,6 +16,22 @@ const (
 	configPath = "\\configs\\config.yaml"
 )
 
+type Redis struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Password string `yaml:"password"`
+	DbNumber int    `yaml:"dbnumber"`
+}
+
+type TokenPairs struct {
+	AccessPublic   string `yaml:"access_public"`
+	AccessPrivate  string `yaml:"access_private"`
+	RefreshPublic  string `yaml:"refresh_public"`
+	RefreshPrivate string `yaml:"refresh_private"`
+	AccessTtl      int    `yaml:"access_ttl"`
+	RefreshTtl     int    `yaml:"refresh_ttl"`
+}
+
 type Postgres struct {
 	User     string `env:"USERDB_POSTGRES_USER"     env-required:""`
 	Password string `env:"USERDB_POSTGRES_PASSWORD" env-required:""`
@@ -48,9 +64,11 @@ type GRPC struct {
 }
 
 type Config struct {
-	HTTP     HTTP `yaml:"http"`
-	Postgres Postgres
-	GRPC     GRPC `yaml:"grpc"`
+	HTTP       HTTP `yaml:"http"`
+	Postgres   Postgres
+	GRPC       GRPC       `yaml:"grpc"`
+	Redis      Redis      `yaml : "redis"`
+	TokenPairs TokenPairs `yaml : "token"`
 }
 
 var instance *Config
