@@ -42,12 +42,6 @@ func (a *app) startHTTP(ctx context.Context) error {
 	logger.Sugar().Infow("http config:", "port", a.cfg.HTTP.Port, "ip", a.cfg.HTTP.IP)
 	logger.Info("HTTP Server initializing")
 
-	// listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.HTTP.IP, a.cfg.HTTP.Port))
-	// if err != nil {
-	// 	logger.Info(err.Error())
-	// 	logger.Fatal("failed to create listener")
-	// }
-
 	pgConfig := postgresql.NewPgConfig(
 		a.cfg.Postgres.User,
 		a.cfg.Postgres.Password,
@@ -63,7 +57,7 @@ func (a *app) startHTTP(ctx context.Context) error {
 		a.cfg.Redis.Port,
 		a.cfg.Redis.DbNumber,
 	)
-	fmt.Println("-------------BEFOFRE REDIS------------")
+
 	rdClient, err := redis.NewClient(ctx, &rdCfg)
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -101,6 +95,7 @@ func (a *app) startHTTP(ctx context.Context) error {
 			r.Get("/logout", userHandler.RefreshAccessToken)
 		})
 	})
+
 	addr := fmt.Sprintf("%s:%d", a.cfg.HTTP.IP, a.cfg.HTTP.Port)
 	fmt.Println(addr)
 
@@ -110,9 +105,7 @@ func (a *app) startHTTP(ctx context.Context) error {
 		WriteTimeout: a.cfg.HTTP.WriteTimeout,
 		ReadTimeout:  a.cfg.HTTP.ReadTimeout,
 	}
-	fmt.Println("------------BEFORE--------------")
 	if err = a.httpServer.ListenAndServe(); err != nil {
-		fmt.Println("------------INSIDE--------------")
 		switch {
 		case errors.Is(err, http.ErrServerClosed):
 			logger.Warn("server shutdown")
