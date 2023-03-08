@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user"
 	userMiddleware "github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
 	tokenRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/repository"
@@ -85,6 +86,11 @@ func (a *app) startHTTP(ctx context.Context) error {
 	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
+
+	fmt.Println("---------------------")
+	grpcClient := client.NewMusicClient("0.0.0.0:30000")
+	grpcClient.Start()
+	fmt.Println("---------------------")
 
 	router.Route("/auth", func(r chi.Router) {
 		r.Post("/register", userHandler.SignUpUser)
