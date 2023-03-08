@@ -1,7 +1,7 @@
 proto-music-check:
 	cd music && buf lint
 
-proto-music-gen:
+proto-music-server-gen:
 	cd music && buf generate
 
 start: 

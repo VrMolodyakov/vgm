@@ -2,12 +2,14 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"github.com/jackc/pgx/v4"
 )
 
 const (
@@ -38,16 +40,11 @@ func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
 			tx.Commit(ctx)
 		}
 	}()
-	columns := []string{"user_name", "user_email", "user_password", "create_at"}
-	nestedSql := r.queryBuilder.
+	sql, args, err := r.queryBuilder.
 		Select("user_id").
-		Prefix("NOT EXISTS(").
 		From(userTable).
-		Where(sq.Eq{"user_name": user.Username}).
-		Suffix(")")
+		Where(sq.Eq{"user_name": user.Username}).ToSql()
 
-	notExistSelect := r.queryBuilder.Select(columns...).From(userTable).Where(nestedSql)
-	sql, args, err := r.queryBuilder.Insert(userTable).Columns(columns...).Select(notExistSelect).Suffix("RETURNING user_id").ToSql()
 	logger.Logger.Sugar().Infow(userTable, sql, args)
 	if err != nil {
 		err = errors.NewInternal(err, "create query")
@@ -57,40 +54,64 @@ func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
 	var userID int
 	err = tx.QueryRow(ctx, sql, args...).Scan(&userID)
 	if err != nil {
-		err = errors.NewInternal(err, "executy query")
 		logger.Error(err.Error())
-		return -1, err
-	}
+		if !errors.Is(err, pgx.ErrNoRows) {
+			err = errors.NewInternal(err, "executy query")
+			return -1, err
+		}
+		sql, args, err = r.queryBuilder.
+			Insert(userTable).
+			Columns(
+				"user_name",
+				"user_email",
+				"user_password",
+				"create_at").
+			Values(user.Username, user.Email, user.Password, time.Now()).
+			Suffix("RETURNING user_id").
+			ToSql()
 
-	sql, args, err = r.queryBuilder.Select("role_id").From(rolesTable).Where(sq.Eq{"role_name": user.Role}).ToSql()
-	if err != nil {
-		err = errors.NewInternal(err, "create query")
-		logger.Error(err.Error())
-		return -1, err
+		err = tx.QueryRow(ctx, sql, args...).Scan(&userID)
+		if err != nil {
+			logger.Error(err.Error())
+			if errors.Is(err, pgx.ErrNoRows) {
+				return -1, err
+			}
+			err = errors.NewInternal(err, "executy query")
+			return -1, err
+		}
+
+		sql, args, err = r.queryBuilder.Select("role_id").From(rolesTable).Where(sq.Eq{"role_name": user.Role}).ToSql()
+		if err != nil {
+			err = errors.NewInternal(err, "create query")
+			logger.Error(err.Error())
+			return -1, err
+		}
+		var roleID int
+		err = tx.QueryRow(ctx, sql, args...).Scan(&roleID)
+		if err != nil {
+			err = errors.NewInternal(err, "executy query")
+			logger.Error(err.Error())
+			return -1, err
+		}
+		sql, args, err = r.queryBuilder.Insert(userRolesTable).Columns("user_id", "role_id").Values(userID, roleID).ToSql()
+		if err != nil {
+			err = errors.NewInternal(err, "create query")
+			logger.Error(err.Error())
+			return -1, err
+		}
+		if exec, execErr := tx.Exec(ctx, sql, args...); execErr != nil {
+			execErr = errors.NewInternal(execErr, "executy query")
+			logger.Error(execErr.Error())
+			return -1, execErr
+		} else if exec.RowsAffected() == 0 || !exec.Insert() {
+			execErr = errors.NewInternal(execErr, "user was not created. 0 rows were affected")
+			logger.Error(execErr.Error())
+			return -1, execErr
+		}
+		return userID, nil
 	}
-	var roleID int
-	err = tx.QueryRow(ctx, sql, args...).Scan(&roleID)
-	if err != nil {
-		err = errors.NewInternal(err, "executy query")
-		logger.Error(err.Error())
-		return -1, err
-	}
-	sql, args, err = r.queryBuilder.Insert(userRolesTable).Columns("user_id", "role_id").Values(userID, roleID).ToSql()
-	if err != nil {
-		err = errors.NewInternal(err, "create query")
-		logger.Error(err.Error())
-		return -1, err
-	}
-	if exec, execErr := tx.Exec(ctx, sql, args...); execErr != nil {
-		execErr = errors.NewInternal(execErr, "executy query")
-		logger.Error(execErr.Error())
-		return -1, execErr
-	} else if exec.RowsAffected() == 0 || !exec.Insert() {
-		execErr = errors.NewInternal(execErr, "user was not created. 0 rows were affected")
-		logger.Error(execErr.Error())
-		return -1, execErr
-	}
-	return userID, nil
+	return -1, errors.New("user already exists")
+
 }
 
 func (r *repo) GetByUsername(ctx context.Context, username string) (model.User, error) {
@@ -126,9 +147,13 @@ func (r *repo) GetByUsername(ctx context.Context, username string) (model.User, 
 			&user.Password,
 			&user.CreateAt,
 			&user.Role)
+
 	if err != nil {
-		err = errors.NewInternal(err, "execute query")
 		logger.Error(err.Error())
+		if !errors.Is(err, pgx.ErrNoRows) {
+			err = errors.NewInternal(err, "executy query")
+			return model.User{}, err
+		}
 		return model.User{}, err
 	}
 	return user, nil
@@ -168,8 +193,11 @@ func (r *repo) GetByID(ctx context.Context, ID int) (model.User, error) {
 			&user.CreateAt,
 			&user.Role)
 	if err != nil {
-		err = errors.NewInternal(err, "execute query")
 		logger.Error(err.Error())
+		if !errors.Is(err, pgx.ErrNoRows) {
+			err = errors.NewInternal(err, "executy query")
+			return model.User{}, err
+		}
 		return model.User{}, err
 	}
 	return user, nil
@@ -195,7 +223,6 @@ func (r *repo) Delete(ctx context.Context, username string) error {
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Delete() {
-		execErr = errors.NewInternal(execErr, "user was not deleted. 0 rows were affected")
 		logger.Error(execErr.Error())
 		return execErr
 	}
@@ -227,7 +254,6 @@ func (r *repo) Update(ctx context.Context, user model.User) error {
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Update() {
-		execErr = errors.NewInternal(execErr, "user was not updated. 0 rows were affected")
 		logger.Error(execErr.Error())
 		return execErr
 	}

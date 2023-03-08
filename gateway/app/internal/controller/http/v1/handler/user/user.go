@@ -38,11 +38,11 @@ func NewUserHandler(
 }
 
 func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
-	var req dto.UserRequest
+	var req dto.SignUpRequest
 
 	defer r.Body.Close()
 
-	if err := json.NewEncoder(w).Encode(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
@@ -58,7 +58,7 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	response := dto.UserResponse{UserID: userID}
@@ -73,10 +73,10 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
-	var req dto.UserRequest
+	var req dto.SignInRequest
 	defer r.Body.Close()
 
-	if err := json.NewEncoder(w).Encode(&req); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
@@ -86,12 +86,12 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	err = hashing.ComparePassword(user.Password, req.Password)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	accessToken, err := u.tokenHandler.CreateAccessToken(time.Duration(u.accessTtl)*time.Minute, user.Id)

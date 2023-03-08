@@ -11,6 +11,7 @@ import (
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/config"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/album"
+	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/interceptor"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/person"
 
 	AlbumPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/policy"
@@ -51,7 +52,7 @@ func (a *app) startGrpc(ctx context.Context) {
 	if err != nil {
 		logger.Error(err.Error())
 	}
-	serverOptions := []grpc.ServerOption{}
+	// serverOptions := []grpc.ServerOption{}
 
 	pgConfig := postgresql.NewPgConfig(
 		a.cfg.Postgres.User,
@@ -85,7 +86,11 @@ func (a *app) startGrpc(ctx context.Context) {
 
 	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
 
-	a.grpcServer = grpc.NewServer(serverOptions...)
+	a.grpcServer = grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			interceptor.NewLoggerInterceptor(logging.GetLogger().Logger),
+		),
+	)
 
 	albumPb.RegisterAlbumServiceServer(a.grpcServer, albumServer)
 	personPb.RegisterPersonServiceServer(a.grpcServer, personServer)

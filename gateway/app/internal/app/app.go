@@ -92,7 +92,7 @@ func (a *app) startHTTP(ctx context.Context) error {
 		r.Get("/refresh", userHandler.RefreshAccessToken)
 		r.Group(func(r chi.Router) {
 			r.Use(userAuth.Auth)
-			r.Get("/logout", userHandler.RefreshAccessToken)
+			r.Get("/logout", userHandler.Logout)
 		})
 	})
 

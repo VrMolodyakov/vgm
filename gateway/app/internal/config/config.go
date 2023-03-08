@@ -24,12 +24,12 @@ type Redis struct {
 }
 
 type KeyPairs struct {
-	AccessPublic   string `ENV:"ACCESS_PUBLIC"`
-	AccessPrivate  string `ENV:"ACCESS_PRIVATE"`
-	RefreshPublic  string `ENV:"REFRESH_PUBLIC"`
-	RefreshPrivate string `ENV:"REFRESH_PRIVATE"`
-	AccessTtl      int    `ENV:"ACCESS_TTL"`
-	RefreshTtl     int    `ENV:"REFRESH_TTL"`
+	AccessPublic   string `env:"ACCESS_PUBLIC"`
+	AccessPrivate  string `env:"ACCESS_PRIVATE"`
+	RefreshPublic  string `env:"REFRESH_PUBLIC"`
+	RefreshPrivate string `env:"REFRESH_PRIVATE"`
+	AccessTtl      int    `env:"ACCESS_TTL"`
+	RefreshTtl     int    `env:"REFRESH_TTL"`
 }
 
 type Postgres struct {
