@@ -17,6 +17,18 @@
   ],
   "paths": {},
   "definitions": {
+    "music_servicealbumv1Credit": {
+      "type": "object",
+      "properties": {
+        "profession": {
+          "type": "string"
+        },
+        "personId": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "music_servicealbumv1Track": {
       "type": "object",
       "properties": {
@@ -90,18 +102,6 @@
     },
     "v1CreateAlbumResponse": {
       "type": "object"
-    },
-    "v1Credit": {
-      "type": "object",
-      "properties": {
-        "profession": {
-          "type": "string"
-        },
-        "personId": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
     },
     "v1CreditInfo": {
       "type": "object",

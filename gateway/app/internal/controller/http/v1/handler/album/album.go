@@ -7,10 +7,12 @@ import (
 	"net/http"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album/dto"
+	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 )
 
 type AlbumService interface {
-	CreateAlbum(context.Context)
+	CreateAlbum(ctx context.Context, album model.Album) error
 }
 
 type albumHandler struct {
@@ -25,10 +27,19 @@ func NewAlbumHandler(service AlbumService) *albumHandler {
 
 func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	var album dto.Album
-
+	logger := logging.GetLogger()
 	if err := json.NewDecoder(r.Body).Decode(&album); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
+	err := a.service.CreateAlbum(context.Background(), model.AlbumFromDto(album))
+	if err != nil {
+		logger.Error(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("the album was created"))
 }

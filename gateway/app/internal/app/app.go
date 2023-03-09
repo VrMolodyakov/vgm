@@ -87,10 +87,8 @@ func (a *app) startHTTP(ctx context.Context) error {
 		w.Write([]byte("pong"))
 	})
 
-	fmt.Println("---------------------")
 	grpcClient := client.NewMusicClient("0.0.0.0:30000")
 	grpcClient.Start()
-	fmt.Println("---------------------")
 
 	router.Route("/auth", func(r chi.Router) {
 		r.Post("/register", userHandler.SignUpUser)

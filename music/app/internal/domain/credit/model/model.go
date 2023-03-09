@@ -3,7 +3,7 @@ package model
 import (
 	"errors"
 
-	creditPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/credit/v1"
+	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 )
 
 var (
@@ -26,7 +26,7 @@ func (c *Credit) IsEmpty() bool {
 	return c.AlbumID == "" || c.PersonID == 0 || c.Profession == ""
 }
 
-func NewCreditFromPB(pb *creditPb.Credit) Credit {
+func NewCreditFromPB(pb *albumPb.Credit) Credit {
 	return Credit{
 		PersonID:   pb.GetPersonId(),
 		Profession: pb.GetProfession(),

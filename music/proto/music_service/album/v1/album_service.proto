@@ -32,10 +32,15 @@ message CreateAlbumRequest{
     string classification = 9;
     string publisher = 10;
     repeated Track tracklist = 11;
-    repeated proto.music_service.credit.v1.Credit credits = 12;
+    repeated Credit credits = 12;
 }
 
 message CreateAlbumResponse{
+}
+
+message Credit {
+    string profession = 1;
+    int64 person_id = 2;
 }
 
 message Track{
@@ -43,15 +48,9 @@ message Track{
     string duration = 2;    
 }
 
-
-
 message FindAlbumRequest {
     string title = 1;
 }
-
-
-
-
 
 message FindAlbumResponse{
     Album album = 1;
@@ -82,10 +81,8 @@ message DeleteAlbumRequest{
     string id = 1;
 } 
 
-
 message DeleteAlbumResponse{
 } 
-
 
 message UpdateAlbumRequest{
     string id = 1;

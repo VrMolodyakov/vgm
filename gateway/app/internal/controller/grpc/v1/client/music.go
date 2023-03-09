@@ -1,17 +1,19 @@
 package client
 
 import (
+	"context"
 	"log"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type musicClient struct {
 	target string
-	albumPb.AlbumServiceClient
+	client albumPb.AlbumServiceClient
 }
 
 func NewMusicClient(target string) *musicClient {
@@ -29,9 +31,41 @@ func (m *musicClient) Start() {
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
-	m.AlbumServiceClient = albumPb.NewAlbumServiceClient(conn)
+	m.client = albumPb.NewAlbumServiceClient(conn)
 }
 
-func (m *musicClient) Create(album model.Album) error {
+func (m *musicClient) Create(ctx context.Context, album model.Album) error {
+	logger := logging.LoggerFromContext(ctx)
+	tracklist := make([]*albumPb.Track, len(album.Tracklist))
+	for i := 0; i < len(album.Tracklist); i++ {
+		tracklist[i] = album.Tracklist[i].PbFromkModel()
+	}
+
+	credits := make([]*albumPb.Credit, len(album.Credits))
+	for i := 0; i < len(album.Credits); i++ {
+		credits[i] = album.Credits[i].PbFromkModel()
+	}
+
+	request := albumPb.CreateAlbumRequest{
+		Title:          album.Album.Title,
+		ReleasedAt:     album.Album.ReleasedAt,
+		CatalogNumber:  album.Info.CatalogNumber,
+		ImageSrc:       &album.Info.ImageSrc,
+		Barcode:        &album.Info.Barcode,
+		Price:          album.Info.Price,
+		CurrencyCode:   album.Info.CurrencyCode,
+		MediaFormat:    album.Info.MediaFormat,
+		Classification: album.Info.Classification,
+		Publisher:      album.Info.Publisher,
+		Tracklist:      tracklist,
+		Credits:        credits,
+	}
+
+	response, err := m.client.CreateAlbum(ctx, &request)
+	if err != nil {
+		logger.Error(err.Error())
+		return err
+	}
+	logger.Sugar().Info(response)
 	return nil
 }

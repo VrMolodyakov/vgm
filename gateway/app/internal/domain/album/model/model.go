@@ -1,6 +1,9 @@
 package model
 
-import "github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album/dto"
+import (
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album/dto"
+	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+)
 
 type Album struct {
 	Album     AlbumView
@@ -84,5 +87,19 @@ func AlbumFromDto(dto dto.Album) Album {
 		},
 		Tracklist: tracklist,
 		Credits:   credits,
+	}
+}
+
+func (t *Track) PbFromkModel() *albumPb.Track {
+	return &albumPb.Track{
+		Title:    t.Title,
+		Duration: t.Duration,
+	}
+}
+
+func (c *Credit) PbFromkModel() *albumPb.Credit {
+	return &albumPb.Credit{
+		Profession: c.Profession,
+		PersonId:   c.PersonID,
 	}
 }
