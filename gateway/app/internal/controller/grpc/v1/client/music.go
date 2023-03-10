@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
-	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -61,11 +61,15 @@ func (m *musicClient) Create(ctx context.Context, album model.Album) error {
 		Credits:        credits,
 	}
 
-	response, err := m.client.CreateAlbum(ctx, &request)
+	_, err := m.client.CreateAlbum(ctx, &request)
 	if err != nil {
 		logger.Error(err.Error())
 		return err
 	}
-	logger.Sugar().Info(response)
+	return nil
+}
+
+func (m *musicClient) FindAll(ctx context.Context) error {
+
 	return nil
 }

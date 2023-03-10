@@ -89,7 +89,7 @@ func (a *app) startHTTP(ctx context.Context) error {
 		w.Write([]byte("pong"))
 	})
 
-	grpcClient := client.NewMusicClient("0.0.0.0:30000")
+	grpcClient := client.NewMusicClient("music:30000")
 	grpcClient.Start()
 	albumService := service.NewAlbumService(grpcClient)
 	albumHandler := album.NewAlbumHandler(albumService)

@@ -7,7 +7,7 @@ import (
 type ctxLogger struct{}
 
 // ContextWithLogger adds logger to context
-func ContextWithLogger(ctx context.Context, l Logger) context.Context {
+func ContextWithLogger(ctx context.Context, l *logger) context.Context {
 	return context.WithValue(ctx, ctxLogger{}, l)
 }
 
