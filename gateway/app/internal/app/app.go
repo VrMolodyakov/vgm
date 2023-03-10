@@ -11,8 +11,10 @@ import (
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user"
 	userMiddleware "github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
+	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/service"
 	tokenRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/repository"
 	tokenService "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/service"
 	userRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/repository"
@@ -77,8 +79,8 @@ func (a *app) startHTTP(ctx context.Context) error {
 	tokenService := tokenService.NewTokenService(tokenRepo)
 
 	userHandler := user.NewUserHandler(userService, tokenHandler, tokenService, a.cfg.KeyPairs.AccessTtl, a.cfg.KeyPairs.RefreshTtl)
-	userAuth := userMiddleware.NewAuthMiddleware(userService, tokenService, tokenHandler)
 
+	userAuth := userMiddleware.NewAuthMiddleware(userService, tokenService, tokenHandler)
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
@@ -89,6 +91,8 @@ func (a *app) startHTTP(ctx context.Context) error {
 
 	grpcClient := client.NewMusicClient("0.0.0.0:30000")
 	grpcClient.Start()
+	albumService := service.NewAlbumService(grpcClient)
+	albumHandler := album.NewAlbumHandler(albumService)
 
 	router.Route("/auth", func(r chi.Router) {
 		r.Post("/register", userHandler.SignUpUser)
@@ -98,6 +102,11 @@ func (a *app) startHTTP(ctx context.Context) error {
 			r.Use(userAuth.Auth)
 			r.Get("/logout", userHandler.Logout)
 		})
+	})
+
+	router.Route("/music", func(r chi.Router) {
+		r.Use(userAuth.Auth)
+		r.Post("/create", albumHandler.CreateAlbum)
 	})
 
 	addr := fmt.Sprintf("%s:%d", a.cfg.HTTP.IP, a.cfg.HTTP.Port)

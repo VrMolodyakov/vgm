@@ -4,6 +4,10 @@ import (
 	"context"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type AlbumGrpcClient interface {
@@ -21,5 +25,24 @@ func NewAlbumService(client AlbumGrpcClient) *album {
 }
 
 func (a *album) CreateAlbum(ctx context.Context, album model.Album) error {
-	return a.client.Create(ctx, album)
+	logger := logging.LoggerFromContext(ctx)
+	err := a.client.Create(ctx, album)
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				logger.Error("Has Internal Error")
+				return errors.NewInternal(err, "grpc client response")
+			case codes.Aborted:
+				logger.Error("gRPC Aborted the call")
+				return err
+			default:
+				logger.Sugar().Error(e.Code(), e.Message())
+				return err
+			}
+		}
+		return err
+	}
+
+	return nil
 }

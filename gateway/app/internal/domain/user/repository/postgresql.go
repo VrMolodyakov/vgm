@@ -40,6 +40,11 @@ func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
 			tx.Commit(ctx)
 		}
 	}()
+	if err != nil {
+		err = errors.NewInternal(err, "start tx")
+		logger.Error(err.Error())
+		return -1, err
+	}
 	sql, args, err := r.queryBuilder.
 		Select("user_id").
 		From(userTable).

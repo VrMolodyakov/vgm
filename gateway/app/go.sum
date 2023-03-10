@@ -6,6 +6,8 @@ github.com/Masterminds/squirrel v1.5.3 h1:YPpoceAcxuzIljlr5iWpNKaql7hLeG1KLSrhvd
 github.com/Masterminds/squirrel v1.5.3/go.mod h1:NNaOrjSoIDfDA40n7sr2tPNZRfjzjA400rg+riTZj10=
 github.com/VrMolodyakov/vgm/music/app v0.0.0-20230308111153-3c63fdc72961 h1:VcrmXuo1qoKcGdzeZPZTykSO6iM2OnSeFq0gilX5r10=
 github.com/VrMolodyakov/vgm/music/app v0.0.0-20230308111153-3c63fdc72961/go.mod h1:DQ5nsyyM7kIwKRr6ePLpEI9bUHekSAL+FaZwrilPgpw=
+github.com/VrMolodyakov/vgm/music/app v0.0.0-20230309193559-dfea4c3411ba h1:MDtyjikuygnkThqr+FsYePnwvSCtsyTeW5nttMot4Ss=
+github.com/VrMolodyakov/vgm/music/app v0.0.0-20230309193559-dfea4c3411ba/go.mod h1:DQ5nsyyM7kIwKRr6ePLpEI9bUHekSAL+FaZwrilPgpw=
 github.com/cockroachdb/apd v1.1.0/go.mod h1:8Sl8LxpKi29FqWXR16WEFZRNSz3SoPzUzeMeY4+DwBQ=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=

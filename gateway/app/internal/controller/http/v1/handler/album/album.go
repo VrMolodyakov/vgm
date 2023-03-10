@@ -8,6 +8,7 @@ import (
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album/dto"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 )
 
@@ -36,7 +37,11 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	err := a.service.CreateAlbum(context.Background(), model.AlbumFromDto(album))
 	if err != nil {
 		logger.Error(err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		if _, ok := errors.IsInternal(err); ok {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

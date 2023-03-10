@@ -2,7 +2,6 @@ package reposotory
 
 import (
 	"context"
-	"errors"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
@@ -10,6 +9,7 @@ import (
 	dbFIlter "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/psqltx"
 	dbSort "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/sort"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
@@ -285,15 +285,17 @@ func (r *repo) Create(ctx context.Context, album model.Album) error {
 	}()
 
 	if err != nil {
+		err = errors.NewInternal(err, "start tx")
 		logger.Error(err.Error())
 		return err
 	}
 	sql, args, err := r.insertMap(table, albumStorageMap)
 	logger.Infow(table, sql, args)
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(db.ErrCreateQuery(err), "create query")
 		logger.Error(err.Error())
 		return err
+
 	}
 	err = exec(tx, ctx, sql, args)
 	if err != nil {
@@ -302,7 +304,7 @@ func (r *repo) Create(ctx context.Context, album model.Album) error {
 	infoStorageMap := ToInfoStorageMap(&album.Info)
 	sql, args, err = r.insertMap(infoTabe, infoStorageMap)
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(db.ErrCreateQuery(err), "create query")
 		logger.Error(err.Error())
 		return err
 	}
@@ -318,7 +320,7 @@ func (r *repo) Create(ctx context.Context, album model.Album) error {
 	sql, args, err = insertState.ToSql()
 	logger.Infow(table, sql, args)
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(db.ErrCreateQuery(err), "create query")
 		logger.Error(err.Error())
 		return err
 	}
@@ -334,7 +336,7 @@ func (r *repo) Create(ctx context.Context, album model.Album) error {
 	sql, args, err = insertState.ToSql()
 	logger.Infow(table, sql, args)
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(db.ErrCreateQuery(err), "create query")
 		logger.Error(err.Error())
 		return err
 	}
@@ -358,7 +360,7 @@ func (r *repo) insertMap(table string, storageMap map[string]interface{}) (strin
 func exec(client db.PostgreSQLClient, ctx context.Context, sql string, args []interface{}) error {
 	logger := logging.LoggerFromContext(ctx)
 	if exec, execErr := client.Exec(ctx, sql, args...); execErr != nil {
-		execErr = db.ErrDoQuery(execErr)
+		execErr = errors.NewInternal(db.ErrDoQuery(execErr), "exec query")
 		logger.Error(execErr.Error())
 		return execErr
 	} else if exec.RowsAffected() == 0 || !exec.Insert() {

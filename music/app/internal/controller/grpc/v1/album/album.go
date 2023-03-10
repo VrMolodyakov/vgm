@@ -5,6 +5,9 @@ import (
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	albumModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
@@ -47,6 +50,9 @@ func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRe
 	album := albumModel.NewAlbumFromPB(request)
 	err := s.albumPolicy.Create(ctx, *album)
 	if err != nil {
+		if _, ok := errors.IsInternal(err); ok {
+			status.Error(codes.Internal, "internal server error")
+		}
 		return nil, err
 	}
 	return &albumPb.CreateAlbumResponse{}, nil
