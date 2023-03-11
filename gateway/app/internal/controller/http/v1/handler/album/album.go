@@ -52,22 +52,17 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
-	sortBy := r.URL.Query().Get("sortBy")
-	if sortBy == "" {
-		// id.asc is the default sort query
-		sortBy = "id.asc"
-	}
-	sortQuery, err := validateAndReturnSortQuery(sortBy)
+	sortBy := r.URL.Query().Get("sort_by")
+	sortBy, err := parseSortQuery(sortBy)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	strLimit := r.URL.Query().Get("limit")
-	// with a value as -1 for gorms Limit method, we'll get a request without limit as default
 	limit := -1
 	if strLimit != "" {
 		limit, err = strconv.Atoi(strLimit)
-		if err != nil || limit < -1 {
+		if err != nil || limit <= -1 {
 			http.Error(w, "limit query parameter is no valid number", http.StatusBadRequest)
 			return
 		}
@@ -76,27 +71,27 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 	offset := -1
 	if strOffset != "" {
 		offset, err = strconv.Atoi(strOffset)
-		if err != nil || offset < -1 {
+		if err != nil || offset <= -1 {
 			http.Error(w, "offset query parameter is no valid number", http.StatusBadRequest)
 			return
 		}
 	}
-	filter := r.URL.Query().Get("filter")
-	filterMap := map[string]string{}
-	if filter != "" {
-		filterMap, err = validateAndReturnFilterMap(filter)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-	}
+	fildFilterVal := r.URL.Query().Get("title.val")
+	fildFilterOp := r.URL.Query().Get("title.op")
+
+	fmt.Println(fildFilterOp)
+	fmt.Println(fildFilterVal)
+
 	// client sirvice call here
 	w.Header().Add("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(users); err != nil {
-		fmt.Println(err)
-		http.Error(w, "Error encoding response object", http.StatusInternalServerError)
-	}
+	// if err := json.NewEncoder(w).Encode(users); err != nil {
+	// 	fmt.Println(err)
+	// 	http.Error(w, "Error encoding response object", http.StatusInternalServerError)
+	// }
 }
+
+//title
+//released_at
 
 // Filter for string values, example: ?email.op=eq&email.val=me@example.com
 /*
@@ -122,17 +117,14 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 
 */
 
-func validateAndReturnSortQuery(sortBy string) (string, error) {
-	splits := strings.Split(sortBy, ".")
-	if len(splits) != 2 {
-		return "", errors.New("malformed sortBy query parameter, should be field.orderdirection")
+func parseSortQuery(sortBy string) (string, error) {
+	if sortBy == "" {
+		return sortBy, nil
 	}
-	field, order := splits[0], splits[1]
-	if order != "desc" && order != "asc" {
+	field := strings.TrimPrefix(sortBy, "-")
+	if field != "released_at" && field != "title" {
 		return "", errors.New("malformed orderdirection in sortBy query parameter, should be asc or desc")
 	}
-	if !stringInSlice(userFields, field) {
-		return "", errors.New("unknown field in sortBy query parameter")
-	}
-	return fmt.Sprintf("%s %s", field, strings.ToUpper(order)), nil
+
+	return sortBy, nil
 }

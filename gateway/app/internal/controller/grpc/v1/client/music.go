@@ -69,7 +69,20 @@ func (m *musicClient) Create(ctx context.Context, album model.Album) error {
 	return nil
 }
 
-func (m *musicClient) FindAll(ctx context.Context) error {
+func (m *musicClient) FindAll(
+	ctx context.Context,
+	pagination model.Pagination,
+	titleView model.AlbumTitleView,
+	releaseView model.AlbumReleasedView,
+	sort model.Sort,
+) error {
 
+	// request := albumPb.FindAllAlbumsRequest{
+	// 	Pagination: pagination.PbFromModel(),
+	// 	Title:      titleView.PbFromModel(),
+	// 	ReleasedAt: releaseView.PbFromModel(),
+	// 	Sort:       sort.PBFromModel(),
+	// }
+	// response,err := m.client.FindAllAlbums(ctx,&request)
 	return nil
 }

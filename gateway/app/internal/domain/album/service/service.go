@@ -12,6 +12,13 @@ import (
 
 type AlbumGrpcClient interface {
 	Create(context.Context, model.Album) error
+	FindAll(
+		ctx context.Context,
+		pagination model.Pagination,
+		titleView model.AlbumTitleView,
+		releaseView model.AlbumReleasedView,
+		sort model.Sort,
+	) error
 }
 
 type album struct {
@@ -43,6 +50,20 @@ func (a *album) CreateAlbum(ctx context.Context, album model.Album) error {
 		}
 		return err
 	}
+
+	return nil
+}
+
+func (a *album) FindAllAlbums(
+	ctx context.Context,
+	pagination model.Pagination,
+	titleView model.AlbumTitleView,
+	releaseView model.AlbumReleasedView,
+	sort model.Sort,
+) error {
+
+	// logger := logging.LoggerFromContext(ctx)
+	a.client.FindAll(ctx, pagination, titleView, releaseView, sort)
 
 	return nil
 }

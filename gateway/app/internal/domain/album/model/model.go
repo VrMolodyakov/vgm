@@ -103,3 +103,12 @@ func (c *Credit) PbFromkModel() *albumPb.Credit {
 		PersonId:   c.PersonID,
 	}
 }
+
+func AlbumFromPb(pb *albumPb.Album) AlbumView {
+	return AlbumView{
+		ID:         pb.GetAlbumId(),
+		Title:      pb.GetTitle(),
+		CreatedAt:  pb.GetCreatedAt(),
+		ReleasedAt: pb.GetReleasedAt(),
+	}
+}

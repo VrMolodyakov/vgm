@@ -47,7 +47,6 @@ func (f *filters) Filter(query sq.SelectBuilder, alias string) sq.SelectBuilder 
 		return query
 	}
 	logger := logging.GetLogger()
-	logger.Info("------INSIDE FILTER METHOD-----")
 	logger.Sugar().Info(f.fields)
 	and := sq.And{}
 	for _, where := range f.fields {
