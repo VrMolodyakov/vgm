@@ -2,6 +2,7 @@ package reposotory
 
 import (
 	"context"
+	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
@@ -46,7 +47,14 @@ func NewAlbumRepository(client db.PostgreSQLClient) Album {
 
 func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
 	logger := logging.LoggerFromContext(ctx)
+	fmt.Println("-----------Get ALl postgres------")
+	fmt.Println("filtering", filtering)
+
 	filter := dbFIlter.NewFilters(filtering)
+
+	fmt.Println("filter: ", filter)
+	fmt.Println("-----------Get ALl postgres------")
+
 	sort := dbSort.NewSortOptions(sorting)
 	query := r.queryBuilder.
 		Select("album_id", "title", "released_at", "created_at").
@@ -58,13 +66,13 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting 
 	sql, args, err := query.ToSql()
 	logger.Infow(table, sql, args)
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(db.ErrCreateQuery(err), "create query")
 		logger.Error(err.Error())
 		return nil, err
 	}
 	rows, queryErr := r.Conn().Query(ctx, sql, args...)
 	if queryErr != nil {
-		err := db.ErrDoQuery(queryErr)
+		err = errors.NewInternal(db.ErrCreateQuery(err), "do query")
 		logger.Error(err.Error())
 		return nil, err
 	}

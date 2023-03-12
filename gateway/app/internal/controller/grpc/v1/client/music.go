@@ -75,14 +75,23 @@ func (m *musicClient) FindAll(
 	titleView model.AlbumTitleView,
 	releaseView model.AlbumReleasedView,
 	sort model.Sort,
-) error {
+) ([]model.AlbumView, error) {
 
-	// request := albumPb.FindAllAlbumsRequest{
-	// 	Pagination: pagination.PbFromModel(),
-	// 	Title:      titleView.PbFromModel(),
-	// 	ReleasedAt: releaseView.PbFromModel(),
-	// 	Sort:       sort.PBFromModel(),
-	// }
-	// response,err := m.client.FindAllAlbums(ctx,&request)
-	return nil
+	request := albumPb.FindAllAlbumsRequest{
+		Pagination: pagination.PbFromModel(),
+		Title:      titleView.PbFromModel(),
+		ReleasedAt: releaseView.PbFromModel(),
+		Sort:       sort.PBFromModel(),
+	}
+
+	pb, err := m.client.FindAllAlbums(ctx, &request)
+	if err != nil {
+		return nil, err
+	}
+	albumsPb := pb.GetAlbums()
+	albums := make([]model.AlbumView, len(albumsPb))
+	for i := 0; i < len(albums); i++ {
+		albums[i] = model.AlbumFromPb(albumsPb[i])
+	}
+	return albums, nil
 }

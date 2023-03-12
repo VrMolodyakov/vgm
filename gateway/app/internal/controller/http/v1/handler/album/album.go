@@ -12,10 +12,18 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type AlbumService interface {
 	CreateAlbum(ctx context.Context, album model.Album) error
+	FindAllAlbums(
+		ctx context.Context,
+		pagination model.Pagination,
+		titleView model.AlbumTitleView,
+		releaseView model.AlbumReleasedView,
+		sort model.Sort) ([]model.AlbumView, error)
 }
 
 type albumHandler struct {
@@ -30,21 +38,24 @@ func NewAlbumHandler(service AlbumService) *albumHandler {
 
 func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	var album dto.Album
-	logger := logging.GetLogger()
+	logger := logging.LoggerFromContext(r.Context())
 	if err := json.NewDecoder(r.Body).Decode(&album); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
-
 	err := a.service.CreateAlbum(r.Context(), model.AlbumFromDto(album))
 	if err != nil {
 		logger.Error(err.Error())
-		if _, ok := errors.IsInternal(err); ok {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			default:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 		}
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -52,14 +63,15 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
+	logger := logging.LoggerFromContext(r.Context())
 	sortBy := r.URL.Query().Get("sort_by")
-	sortBy, err := parseSortQuery(sortBy)
+	sortBy, err := validateSortQuery(sortBy)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	strLimit := r.URL.Query().Get("limit")
-	limit := -1
+	limit := 0
 	if strLimit != "" {
 		limit, err = strconv.Atoi(strLimit)
 		if err != nil || limit <= -1 {
@@ -68,7 +80,7 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	strOffset := r.URL.Query().Get("offset")
-	offset := -1
+	offset := 0
 	if strOffset != "" {
 		offset, err = strconv.Atoi(strOffset)
 		if err != nil || offset <= -1 {
@@ -76,48 +88,59 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	fildFilterVal := r.URL.Query().Get("title.val")
-	fildFilterOp := r.URL.Query().Get("title.op")
+	titlFilterVal := r.URL.Query().Get("title.val")
+	titleFilterOp := r.URL.Query().Get("title.op")
+	releaseFilterVal := r.URL.Query().Get("release.val")
+	releaseFilterOp := r.URL.Query().Get("release.op")
 
-	fmt.Println(fildFilterOp)
-	fmt.Println(fildFilterVal)
+	titleView := model.AlbumTitleView{
+		Value:    titlFilterVal,
+		Operator: titleFilterOp,
+	}
 
-	// client sirvice call here
-	w.Header().Add("Content-Type", "application/json")
-	// if err := json.NewEncoder(w).Encode(users); err != nil {
-	// 	fmt.Println(err)
-	// 	http.Error(w, "Error encoding response object", http.StatusInternalServerError)
-	// }
+	releaseView := model.AlbumReleasedView{
+		Value:    releaseFilterVal,
+		Operator: releaseFilterOp,
+	}
+
+	p := model.Pagination{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	s := model.Sort{
+		Field: sortBy,
+	}
+
+	albums, err := a.service.FindAllAlbums(r.Context(), p, titleView, releaseView, s)
+	if err != nil {
+		logger.Error(err.Error())
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			default:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+	}
+	response := make([]dto.AlbumView, len(albums))
+	for i := 0; i < len(response); i++ {
+		response[i] = albums[i].DtoFromModel()
+	}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 }
 
-//title
-//released_at
-
-// Filter for string values, example: ?email.op=eq&email.val=me@example.com
-/*
-
-{
-    "pagination": {
-        "limit": "4",
-        "offset": "20539"
-    },
-    "released_at": {
-        "op": 2,
-        "val": "deserunt magna in amet"
-    },
-    "sort": {
-        "field": "elit laborum in aliqua"
-    },
-    "title": {
-        "op": "OPERATOR_LIKE",
-        "val": "eu aliquip"
-    }
-}
-
-
-*/
-
-func parseSortQuery(sortBy string) (string, error) {
+func validateSortQuery(sortBy string) (string, error) {
 	if sortBy == "" {
 		return sortBy, nil
 	}

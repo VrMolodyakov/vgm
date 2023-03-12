@@ -112,3 +112,12 @@ func AlbumFromPb(pb *albumPb.Album) AlbumView {
 		ReleasedAt: pb.GetReleasedAt(),
 	}
 }
+
+func (a *AlbumView) DtoFromModel() dto.AlbumView {
+	return dto.AlbumView{
+		ID:         a.ID,
+		Title:      a.Title,
+		ReleasedAt: a.ReleasedAt,
+		CreatedAt:  a.CreatedAt,
+	}
+}

@@ -42,6 +42,9 @@ func AlbumFilter(req *albumPb.FindAllAlbumsRequest) filter.Filterable {
 		operator := types.IntOperatorFromPB(req.GetReleasedAt().GetOp())
 		addFilterField(releaseFilter, released.GetVal(), operator, releaseFilterType, options)
 	}
+	fmt.Println("------------Album-FIlter-Model-----------")
+	fmt.Println(options)
+	fmt.Println("------------Album-FIlter-Model-----------")
 	return options
 }
 

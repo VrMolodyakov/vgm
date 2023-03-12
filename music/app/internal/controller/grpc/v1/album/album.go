@@ -16,6 +16,9 @@ func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbu
 
 	all, err := s.albumPolicy.GetAll(ctx, filter, sort)
 	if err != nil {
+		if _, ok := errors.IsInternal(err); ok {
+			status.Error(codes.Internal, "internal server error")
+		}
 		return nil, err
 	}
 
