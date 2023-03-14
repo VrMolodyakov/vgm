@@ -43,7 +43,9 @@ func NewFilters(options filter.Filterable) *filters {
 }
 
 func (f *filters) Filter(query sq.SelectBuilder, alias string) sq.SelectBuilder {
-	fmt.Println("--------Start Filter query--------")
+	if len(f.fields) == 0 && (f.limit != 0 || f.offset != 0) {
+		return query.Limit(f.limit).Offset(f.offset)
+	}
 	if len(f.fields) == 0 {
 		return query
 	}
@@ -88,8 +90,5 @@ func (f *filters) Filter(query sq.SelectBuilder, alias string) sq.SelectBuilder 
 	if f.limit == 0 {
 		return query
 	}
-	fmt.Println("offset: ", f.offset)
-	fmt.Println("limit: ", f.limit)
-	fmt.Println("--------Filter query end --------")
 	return query.Limit(f.limit).Offset(f.offset)
 }
