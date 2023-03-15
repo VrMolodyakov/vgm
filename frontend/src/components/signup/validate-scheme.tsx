@@ -1,7 +1,6 @@
 import * as Yup from 'yup';
 
 export const validationSchema = Yup.object().shape({
-    fullname: Yup.string().required('Fullname is required'),
     username: Yup.string()
       .required('Username is required')
       .min(6, 'Username must be at least 6 characters')
@@ -16,5 +15,4 @@ export const validationSchema = Yup.object().shape({
     confirmPassword: Yup.string()
       .required('Confirm Password is required')
       .oneOf([Yup.ref('password'), ""], 'Confirm Password does not match'),
-    acceptTerms: Yup.bool().oneOf([true], 'Accept Terms is required')
   });
