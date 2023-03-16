@@ -28,19 +28,9 @@ const SignUpForm: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <div className="register-form">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="form-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              {...register('fullname')}
-              className={`form-control ${errors.fullname ? 'is-invalid' : ''}`}
-            />
-            <div className="invalid-feedback">{errors.fullname?.message}</div>
-          </div>
-
+    <div className="wrapper">
+      <div className="register">
+        <form onSubmit={handleSubmit(onSubmit)} className="register-form">
           <div className="form-group">
             <label>Username</label>
             <input
@@ -53,6 +43,7 @@ const SignUpForm: React.FC = () => {
 
           <div className="form-group">
             <label>Email</label>
+            <i className="fa-solid fa-envelope"></i>
             <input
               type="text"
               {...register('email')}

@@ -1,1 +1,60 @@
 {"level":"info","ts":"Wed, 11 Jan 2023 04:26:17 MSK","caller":"app/main.go:16","msg":"start app"}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.wrapper{
+  min-height: 100vh;
+  background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
+}
+
+.register-form {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 350px;
+  height: 500px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-family: 'Poppins', sans-serif;
+}
+
+.form-group{
+  letter-spacing: 1px;
+  padding-top: 20px;
+}
+
+label{
+  padding-bottom: 5px;
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.wrapper{
+  min-height: 100vh;
+  background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-form {
+  background-color: white;
+  width: 450px;
+  height: 550px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.form-group{
+  letter-spacing: 1px;
+  font-size: 20px;
+  padding-top: 20px;
+}
+
+label{
+  padding-bottom: 5px;
+}
