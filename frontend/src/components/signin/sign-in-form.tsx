@@ -9,7 +9,7 @@ type UserSubmitData = {
   password: string;
 };
 
-const Login: React.FC = () => {
+const SignInForm: React.FC = () => {
   const {
     handleSubmit,
     register,
@@ -44,4 +44,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default SignInForm;
