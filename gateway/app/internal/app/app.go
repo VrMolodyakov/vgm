@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user"
-	userMiddleware "github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/service"
 	tokenRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/repository"
 	tokenService "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/service"
@@ -24,7 +25,7 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/token"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/v5/middleware"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
 type app struct {
@@ -80,16 +81,24 @@ func (a *app) startHTTP(ctx context.Context) error {
 
 	userHandler := user.NewUserHandler(userService, tokenHandler, tokenService, a.cfg.KeyPairs.AccessTtl, a.cfg.KeyPairs.RefreshTtl)
 
-	userAuth := userMiddleware.NewAuthMiddleware(userService, tokenService, tokenHandler)
+	userAuth := middleware.NewAuthMiddleware(userService, tokenService, tokenHandler)
+	origins := strings.Join(a.cfg.HTTP.CORS.AllowedOrigins[:], ", ")
+	headers := strings.Join(a.cfg.HTTP.CORS.AllowedHeaders[:], ", ")
+	methods := strings.Join(a.cfg.HTTP.CORS.AllowedMethods[:], ", ")
+
+	cors := middleware.NewCors(origins, headers, methods)
+
 	router := chi.NewRouter()
-	router.Use(middleware.Logger)
-	router.Use(middleware.Recoverer)
+	router.Use(chiMiddleware.Logger)
+	router.Use(cors.CORS)
+	router.Use(chiMiddleware.Recoverer)
 
 	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
-
-	grpcClient := client.NewMusicClient("music:30000")
+	address := fmt.Sprintf("%s:%d", a.cfg.GRPC.Name, a.cfg.GRPC.Port)
+	fmt.Println(address)
+	grpcClient := client.NewMusicClient(address)
 	grpcClient.Start()
 	albumService := service.NewAlbumService(grpcClient)
 	albumHandler := album.NewAlbumHandler(albumService)

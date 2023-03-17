@@ -25,8 +25,8 @@ type Postgres struct {
 }
 
 type GRPC struct {
-	IP   string `yaml:"ip" env:"GRPC-IP"`
-	Port int    `yaml:"port" env:"GRPC-PORT"`
+	IP   string `env:"MUSIC_GRPC_IP"`
+	Port int    `env:"MUSIC_GRPC_PORT"`
 }
 
 type Config struct {

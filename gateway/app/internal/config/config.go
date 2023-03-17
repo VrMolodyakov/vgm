@@ -42,8 +42,8 @@ type Postgres struct {
 }
 
 type HTTP struct {
-	IP           string        `yaml:"ip"`
-	Port         int           `yaml:"port"`
+	IP           string        `env:"GATEWAY_PORT"`
+	Port         int           `env:"GATEWAY_IP"`
 	ReadTimeout  time.Duration `yaml:"read-timeout"`
 	WriteTimeout time.Duration `yaml:"write-timeout"`
 	CORS         struct {
@@ -59,8 +59,8 @@ type HTTP struct {
 
 //TODO: remove GRPC struct
 type GRPC struct {
-	IP   string `yaml:"ip" env:"GRPC-IP"`
-	Port int    `yaml:"port" env:"GRPC-PORT"`
+	Name string `env:"MUSIC_SERVICE_NAME"`
+	Port int    `env:"MUSIC_GRPC_PORT"`
 }
 
 type Config struct {

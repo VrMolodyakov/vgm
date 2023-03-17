@@ -1,4 +1,4 @@
-import { Navbar, Nav, Container } from "react-bootstrap";
+import { Navbar, Nav } from "react-bootstrap";
 import IndexRouter from "../../routes/index-router";
 
 const App: React.FC = () => {

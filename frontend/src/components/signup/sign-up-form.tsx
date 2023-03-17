@@ -4,6 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import {validationSchema} from "./validate-scheme"
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-up-form.css"
+import { getRequest, postRequest } from '../../api/api';
 
 type UserSubmitForm = {
   fullname: string;
@@ -23,8 +24,10 @@ const SignUpForm: React.FC = () => {
     resolver: yupResolver(validationSchema)
   });
 
-  const onSubmit = (data: UserSubmitForm) => {
+  async function onSubmit(data: UserSubmitForm){
     console.log(JSON.stringify(data, null, 2));
+    const response = await getRequest("ping")
+    console.log(response)
   };
 
   return (
