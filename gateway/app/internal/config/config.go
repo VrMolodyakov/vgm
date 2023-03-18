@@ -42,8 +42,8 @@ type Postgres struct {
 }
 
 type HTTP struct {
-	IP           string        `env:"GATEWAY_PORT"`
-	Port         int           `env:"GATEWAY_IP"`
+	IP           string        `env:"GATEWAY_IP"`
+	Port         int           `env:"GATEWAY_PORT"`
 	ReadTimeout  time.Duration `yaml:"read-timeout"`
 	WriteTimeout time.Duration `yaml:"write-timeout"`
 	CORS         struct {
@@ -66,7 +66,7 @@ type GRPC struct {
 type Config struct {
 	HTTP     HTTP `yaml:"http"`
 	Postgres Postgres
-	GRPC     GRPC `yaml:"grpc"`
+	GRPC     GRPC
 	Redis    Redis
 	KeyPairs KeyPairs
 }

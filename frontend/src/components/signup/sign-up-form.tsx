@@ -7,12 +7,18 @@ import "./sign-up-form.css"
 import { getRequest, postRequest } from '../../api/api';
 
 type UserSubmitForm = {
-  fullname: string;
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
+  username: string
+  email: string
+  password: string
+  confirmPassword: string
+}
+
+type UserRequest = {
+  username:string
+  email:string
+  password:string
+  role:string
+}
 
 const SignUpForm: React.FC = () => {
   const {
@@ -26,7 +32,15 @@ const SignUpForm: React.FC = () => {
 
   async function onSubmit(data: UserSubmitForm){
     console.log(JSON.stringify(data, null, 2));
-    const response = await getRequest("ping")
+
+    let newUser:UserRequest = {
+      username:data.username,
+      email:data.email,
+      password:data.password,
+      role:"user"
+    }
+
+    const response = await postRequest("auth/register",newUser)
     console.log(response)
   };
 

@@ -2,12 +2,13 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-in-form.css"
+import { postRequest } from "../../api/api";
 
 
 type UserSubmitData = {
-  username: string;
-  password: string;
-};
+  username: string
+  password: string
+}
 
 const SignInForm: React.FC = () => {
   const {
@@ -15,12 +16,18 @@ const SignInForm: React.FC = () => {
     register,
     setError,
     formState: { errors },
-  } = useForm<UserSubmitData>();
+  } = useForm<UserSubmitData>()
 
-  const onSubmit = (data: UserSubmitData) => {
-    setError("password",{ type: 'custom', message: 'custom message' })
-    console.log(data);
-  };
+  //TODO:check error
+  async function onSubmit(data: UserSubmitData){
+    // setError("password",{ type: 'custom', message: 'custom message' })
+    const response = await postRequest("auth/login",data).catch(error =>{
+      console.log("inside")
+      console.log(error)
+    })
+    console.log(response)  
+
+  }
 
   return (
     <div className="wrapper">

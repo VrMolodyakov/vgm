@@ -31,7 +31,7 @@ type GRPC struct {
 
 type Config struct {
 	Postgres Postgres
-	GRPC     GRPC `yaml:"grpc"`
+	GRPC     GRPC
 }
 
 var instance *Config
