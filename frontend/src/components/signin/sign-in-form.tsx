@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-in-form.css"
 import { postRequest } from "../../api/api";
+import { AuthContextType } from "../../features/auth/types/auth-context-type";
+import AuthContext from "../../features/auth/context/auth";
+import { useLocation, useNavigate } from "react-router-dom";
+import { LocalStorage } from "../../features/local-storage/service/service";
 
 
 type UserSubmitData = {
@@ -10,7 +14,17 @@ type UserSubmitData = {
   password: string
 }
 
+type TokenResponse = {
+  access_token:string 
+  refresh_token:string
+  logged_in:string
+}
+
 const SignInForm: React.FC = () => {
+  const { auth,saveAuth } = useContext(AuthContext) as AuthContextType;
+  const [isRegister,setIsRegister] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     handleSubmit,
     register,
@@ -18,21 +32,52 @@ const SignInForm: React.FC = () => {
     formState: { errors },
   } = useForm<UserSubmitData>()
 
-  //TODO:check error
-  async function onSubmit(data: UserSubmitData){
-    // setError("password",{ type: 'custom', message: 'custom message' })
-    const response = await postRequest("auth/login",data).catch(error =>{
-      console.log("inside")
-      console.log(error)
-    })
-    console.log(response)  
-
+  const getToken = async (userData:UserSubmitData) =>{
+    return postRequest<TokenResponse>("auth/login",userData).then(r => r.data)
+    .catch(error => {   
+      if (error.response.status === 400){
+        setError("root",{type:'custom',message:"wrong username or password"})
+      }else{
+        setError("root",{type:'custom',message:"internal server error"})
+      }
+    });
   }
+
+  function onSubmit(data: UserSubmitData){
+    (async() => {
+      const response = await getToken(data);
+      console.log("response: ",response)
+      if (response) {
+        const accessToken = response.access_token
+        saveAuth(accessToken)
+      }
+    })();
+  }
+
+  useEffect(() => {
+    if (auth !== "" && auth !== undefined) {
+      LocalStorage.set("access_token", auth)
+      console.log("access")
+      // navigate("/home");
+    }
+  }, [auth]);
+
+  useEffect(() => {
+    if (location.state?.previousUrl === "/reg"){
+      setIsRegister(true)
+    }
+  }, []);
 
   return (
     <div className="wrapper">
       <div className="login">
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isRegister && (
+                          <div className="alert alert-success" role="alert">
+                          {"you have been successfully registered"}
+                          </div>
+                         )
+          }
           <div className="form-group">
             <input id="username" type="username" required={true} {...register("username")}></input>
           </div>
@@ -40,11 +85,11 @@ const SignInForm: React.FC = () => {
             <label>Your password</label>
             <input  id="password" className={`form-control ${errors.password ? "is-invalid" : ""}`} {...register("password")}
             ></input>
-            {errors.password && (
-              <small className="text-danger">{errors.password.message}</small>
-            )}
           </div>
           <button type="submit">Submit</button>
+          {errors.root && (
+              <small className="text-danger">{errors.root.message}</small>
+          )}
         </form>
       </div>
     </div>

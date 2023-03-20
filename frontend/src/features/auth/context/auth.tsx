@@ -8,14 +8,14 @@ interface Props {
 }
   
 export const AuthProvider: React.FC<Props> = ({children}) => {
-    const [auth, setAuth] = useState<string>();
+    const [auth, setAuth] = useState<string>("");
 
-    const saveAuth = (auth:string) =>{
-        setAuth(auth)
-    }
+    // const saveAuth = (auth:string) =>{
+    //     setAuth(auth)
+    // }
 
     return (
-        <AuthContext.Provider value={{ auth, saveAuth }}>
+        <AuthContext.Provider value={{ auth:auth, saveAuth:setAuth }}>
             {children}
         </AuthContext.Provider>
     )
