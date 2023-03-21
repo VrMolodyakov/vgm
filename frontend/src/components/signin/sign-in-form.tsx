@@ -7,6 +7,7 @@ import { AuthContextType } from "../../features/auth/types/auth-context-type";
 import AuthContext from "../../features/auth/context/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LocalStorage } from "../../features/local-storage/service/service";
+import useAuth from "../../features/auth/hooks/use-auth";
 
 
 type UserSubmitData = {
@@ -21,7 +22,7 @@ type TokenResponse = {
 }
 
 const SignInForm: React.FC = () => {
-  const { auth,saveAuth } = useContext(AuthContext) as AuthContextType;
+  const { auth,setAuth } = useAuth();
   const [isRegister,setIsRegister] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,13 +50,13 @@ const SignInForm: React.FC = () => {
       console.log("response: ",response)
       if (response) {
         const accessToken = response.access_token
-        saveAuth(accessToken)
+        setAuth("accessToken")
       }
     })();
   }
 
   useEffect(() => {
-    if (auth !== "" && auth !== undefined) {
+    if (auth !== "" && auth !== null) {
       LocalStorage.set("access_token", auth)
       console.log("access")
       // navigate("/home");
@@ -63,6 +64,7 @@ const SignInForm: React.FC = () => {
   }, [auth]);
 
   useEffect(() => {
+    setAuth("abc")
     if (location.state?.previousUrl === "/reg"){
       setIsRegister(true)
     }
