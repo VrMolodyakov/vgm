@@ -1,25 +1,30 @@
-import { createContext,useState } from "react";
+import { createContext,Dispatch,ReactNode,SetStateAction,useContext,useMemo,useState } from "react";
 import { AuthContextType } from "../types/auth-context-type";
 
-const AuthContext = createContext<AuthContextType | undefined>( undefined );
-
-interface Props {
-    children?: React.ReactNode;
+type Props = {
+    children: ReactNode
+}
+type ContextType = {
+    auth: string
+    setAuth: Dispatch<SetStateAction<string>>
 }
   
-export const AuthProvider: React.FC<Props> = ({children}) => {
-    const [auth, setAuth] = useState<string | null>(null);
-
-
-    // const saveAuth = (auth:string) =>{
-    //     setAuth(auth)
-    // }
-
+  const AuthContext = createContext({} as ContextType)
+  
+  export function AuthProvider({children}: Props):JSX.Element {
+    const [auth, setAuth] = useState<string>("") 
+    const value = useMemo(() => ({
+        auth, setAuth
+    }), [auth]);
+  
+    console.log("inside - ",auth)
     return (
-        <AuthContext.Provider value={{ auth, setAuth }}>
-            {children}
-        </AuthContext.Provider>
+      <AuthContext.Provider value={value}>
+      {children}
+      </AuthContext.Provider>
     )
-}
-
-export default AuthContext;
+  }
+  
+  export function useAuth(): ContextType {
+    return useContext(AuthContext)
+  }

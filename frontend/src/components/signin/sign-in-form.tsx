@@ -4,10 +4,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-in-form.css"
 import { postRequest } from "../../api/api";
 import { AuthContextType } from "../../features/auth/types/auth-context-type";
-import AuthContext from "../../features/auth/context/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LocalStorage } from "../../features/local-storage/service/service";
-import useAuth from "../../features/auth/hooks/use-auth";
+import { useAuth } from "../../features/auth/context/auth";
+
 
 
 type UserSubmitData = {
@@ -50,7 +50,7 @@ const SignInForm: React.FC = () => {
       console.log("response: ",response)
       if (response) {
         const accessToken = response.access_token
-        setAuth("accessToken")
+        setAuth(() => accessToken)
       }
     })();
   }
@@ -64,7 +64,6 @@ const SignInForm: React.FC = () => {
   }, [auth]);
 
   useEffect(() => {
-    setAuth("abc")
     if (location.state?.previousUrl === "/reg"){
       setIsRegister(true)
     }
