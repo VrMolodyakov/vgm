@@ -49,19 +49,19 @@ const SignInForm: React.FC = () => {
       const response = await getToken(data);
       console.log("response: ",response)
       if (response) {
+        navigate("/home");
         const accessToken = response.access_token
         setAuth(() => accessToken)
       }
     })();
   }
 
-  useEffect(() => {
-    if (auth !== "" && auth !== null) {
-      LocalStorage.set("access_token", auth)
-      console.log("access")
-      // navigate("/home");
-    }
-  }, [auth]);
+  // useEffect(() => {
+  //   if (auth !== "" && auth !== null) {
+  //     LocalStorage.set("access_token", auth)
+
+  //   }
+  // }, [auth]);
 
   useEffect(() => {
     if (location.state?.previousUrl === "/reg"){

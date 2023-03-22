@@ -1,5 +1,5 @@
 import { Navbar, Nav } from "react-bootstrap";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import RequierAuth from "../../features/auth/requier/requier-auth";
 import IndexRouter from "../../routes/index-router";
 import Home from "../home";
@@ -11,23 +11,23 @@ const App: React.FC = () => {
   return (
     <>
       <Navbar collapseOnSelect expand="lg" bg="blue" variant="white">
-        <Navbar.Brand className="Home" href="/">
+        <Link className="Home" to="/home">
           Home
-        </Navbar.Brand>
-        <Navbar.Brand className="Charts" href="/price">
+        </Link>
+        <Link className="Charts" to="/price">
           Charts
-        </Navbar.Brand>
+        </Link>
 
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto"></Nav>
           <Nav className="links">
-            <Nav.Link className="navBarLink" href="/auth">
+            <Link className="navBarLink" to="/auth">
               Sign In
-            </Nav.Link>
-            <Nav.Link className="navBarLink" href="/reg">
+            </Link>
+            <Link className="navBarLink" to="/reg">
               Sign up
-            </Nav.Link>
+            </Link>
             <Nav.Link className="navBarLink">Log out</Nav.Link>
           </Nav>
         </Navbar.Collapse>
