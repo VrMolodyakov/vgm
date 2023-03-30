@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package proto.email.v1;
+
+service EmailService {
+    rpc Create(CreateReq) returns (CreateRes) {}
+
+    
+}
+
+message Email {
+    string EmailID = 1;
+    string From = 2;
+    string To = 3;
+    string Subject = 4;
+    string Message = 5;
+}

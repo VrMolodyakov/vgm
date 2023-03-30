@@ -13,6 +13,12 @@ type Mail struct {
 	SendTimeout    time.Duration `yaml:"send_timeout"`
 }
 
+type Nats struct {
+	Host string `env:"NATS_PORT"`
+	Port int    `env:"NATS_PORT"`
+}
+
 type Config struct {
 	Mail Mail `yaml:"mail"`
+	Nats Nats
 }
