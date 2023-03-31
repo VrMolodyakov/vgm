@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 
-	"github.com/VrMolodyakov/vgm/email/internal/config"
+	"github.com/VrMolodyakov/vgm/email/app/internal/config"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+
 	"github.com/nats-io/nats.go"
 	"google.golang.org/grpc"
 )
@@ -28,7 +31,12 @@ func (a *app) Run(ctx context.Context) {
 }
 
 func (a *app) startGrpc(ctx context.Context) {
-
+	logger := logging.LoggerFromContext(ctx)
+	logger.Infow("grpc cfg ", "gprc ip : ", a.cfg.GRPC.IP, "gprc port :", a.cfg.GRPC.Port)
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
+	if err != nil {
+		logger.Error(err.Error())
+	}
 }
 
 func (a *app) createStreamContext() nats.JetStreamContext {

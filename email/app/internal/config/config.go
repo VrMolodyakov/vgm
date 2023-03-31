@@ -1,16 +1,16 @@
 package config
 
-import "time"
-
 type Mail struct {
-	From           string        `yaml:"from"`
-	Host           string        `yaml:"host"`
-	Port           int           `env:"MAIL_PORT"`
-	Username       string        `yaml:"username"`
-	Password       string        `yaml:"password"`
-	KeepAlive      bool          `yaml:"keep_alive"`
-	ConnectTimeout time.Duration `yaml:"connect_timeout"`
-	SendTimeout    time.Duration `yaml:"send_timeout"`
+	SmtpAuthAddress   string `env:"SMTP_AUTH_ADDRESS"`
+	SmtpServerAddress string `env:"SMTP_SERVER_ADDRESS"`
+	Name              string `env:"EMAIL_NAME"`
+	FromAddress       string `env:"EMAIL_SENDER_ADDRESS"`
+	FromPassword      string `env:"EMAIL_SENDER_PASSWORD"`
+}
+
+type GRPC struct {
+	IP   string `env:"EMAIL_GRPC_IP"`
+	Port int    `env:"EMAIL_GRPC_PORT"`
 }
 
 type Nats struct {
@@ -19,6 +19,6 @@ type Nats struct {
 }
 
 type Config struct {
-	Mail Mail `yaml:"mail"`
+	Mail Mail
 	Nats Nats
 }

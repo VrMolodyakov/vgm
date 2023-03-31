@@ -1,17 +1,22 @@
 syntax = "proto3";
 
 package proto.email.v1;
+option go_package = "github.com/VrMolodyakov/vgm/email/app/gen/go/proto/email/v1;pb_email";
 
 service EmailService {
-    rpc Create(CreateReq) returns (CreateRes) {}
+    rpc CreateEmail(CreateEmailRequest) returns (CreateEmailResponse) {}
 
     
 }
 
-message Email {
-    string EmailID = 1;
-    string From = 2;
-    string To = 3;
-    string Subject = 4;
-    string Message = 5;
+message CreateEmailRequest{
+    string subject = 1;
+    string content = 2;
+    repeated string to = 3; 
+    repeated string cc = 4; 
+    repeated string bcc = 5; 
+    repeated string files = 6; 
+}
+
+message CreateEmailResponse{
 }

@@ -22,11 +22,8 @@ http:
       - "Authorization"
       - "Content-Disposition"
 
-mail:
-  from: "vrmolodyakov@mail.ru"
-  host: "localhost"
-  username: ""
-  password: ""
-  keep_alive: false
-  connect_timeout: 10
-  send_timeout: 10
+Logger:
+  DisableCaller: false
+  DisableStacktrace: false
+  Encoding: json
+  Level: info  
