@@ -22,8 +22,9 @@ http:
       - "Authorization"
       - "Content-Disposition"
 
-Logger:
-  DisableCaller: false
-  DisableStacktrace: false
-  Encoding: json
-  Level: info  
+logger:
+  disable_caller: false
+  development: true
+  disable_stacktrace: false
+  encoding: console
+  level: info  

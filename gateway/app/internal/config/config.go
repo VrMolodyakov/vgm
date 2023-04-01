@@ -44,8 +44,8 @@ type Postgres struct {
 type HTTP struct {
 	IP           string        `env:"GATEWAY_IP"`
 	Port         int           `env:"GATEWAY_PORT"`
-	ReadTimeout  time.Duration `yaml:"read-timeout"`
-	WriteTimeout time.Duration `yaml:"write-timeout"`
+	ReadTimeout  time.Duration `yaml:"read_timeout"`
+	WriteTimeout time.Duration `yaml:"write_timeout"`
 	CORS         struct {
 		AllowedMethods     []string `yaml:"allowed_methods"`
 		AllowedOrigins     []string `yaml:"allowed_origins"`

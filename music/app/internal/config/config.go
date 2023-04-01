@@ -15,6 +15,9 @@ const (
 	configPath = "\\configs\\config.yaml"
 )
 
+var instance *Config
+var once sync.Once
+
 type Postgres struct {
 	User     string `env:"POSTGRES_USER"     env-required:""`
 	Password string `env:"POSTGRES_PASSWORD" env-required:""`
@@ -33,9 +36,6 @@ type Config struct {
 	Postgres Postgres
 	GRPC     GRPC
 }
-
-var instance *Config
-var once sync.Once
 
 //TODO: remote root path
 func GetConfig() *Config {

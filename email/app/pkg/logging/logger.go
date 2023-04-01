@@ -1,9 +1,9 @@
-package logger
+package logging
 
 import (
 	"os"
 
-	"github.com/VrMolodyakov/vgm/email/internal/config"
+	"github.com/VrMolodyakov/vgm/email/app/internal/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -33,7 +33,7 @@ type apiLogger struct {
 }
 
 // NewApiLogger App Logger constructor
-func NewApiLogger(cfg *config.Config) *apiLogger {
+func NewLogger(cfg *config.Config) *apiLogger {
 	return &apiLogger{cfg: cfg}
 }
 
@@ -64,7 +64,7 @@ func (l *apiLogger) InitLogger() {
 	logWriter := zapcore.AddSync(os.Stderr)
 
 	var encoderCfg zapcore.EncoderConfig
-	if l.cfg.HTTP.Development {
+	if l.cfg.Logger.Development {
 		encoderCfg = zap.NewDevelopmentEncoderConfig()
 	} else {
 		encoderCfg = zap.NewProductionEncoderConfig()

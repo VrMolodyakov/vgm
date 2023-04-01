@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"github.com/VrMolodyakov/vgm/email/app/internal/config"
+	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
+)
 
 func main() {
-	fmt.Println("")
+	cfg := config.GetConfig()
+	logger := logging.NewLogger(cfg)
+	logger.Info("start email service")
 }
