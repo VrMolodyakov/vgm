@@ -2,17 +2,25 @@ package nats
 
 import (
 	"context"
+	"encoding/json"
 	"sync"
+	"time"
 
 	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/model"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
+	"github.com/avast/retry-go"
 	"github.com/nats-io/nats.go"
+)
+
+const (
+	retryAttempts = 3
+	retryDelay    = 1 * time.Second
 )
 
 type MsgHandler func(m *nats.Msg)
 
 type EmailService interface {
-	Send(email *model.Email) error
+	Send(ctx context.Context, email *model.Email) error
 }
 
 type subscriber struct {
@@ -39,7 +47,18 @@ func (s *subscriber) Subscribe(subject, qgroup string, workersNum int, handler n
 	wg := &sync.WaitGroup{}
 	for i := 0; i < workersNum; i++ {
 		wg.Add(1)
-		s.runWorker(wg, i, subject, qgroup, handler, nats.Durable(durableName))
+		s.runWorker(
+			wg,
+			i,
+			subject,
+			qgroup,
+			handler,
+			nats.Durable(durableName),
+			nats.MaxDeliver(maxDeliver),
+			nats.AckWait(ackWait),
+			nats.DeliverAll(),
+			nats.MaxAckPending(maxInflight),
+		)
 	}
 	wg.Wait()
 }
@@ -54,7 +73,8 @@ func (s *subscriber) runWorker(
 	subject string,
 	qgroup string,
 	handler nats.MsgHandler,
-	opts ...nats.SubOpt) {
+	opts ...nats.SubOpt,
+) {
 
 	s.logger.Infof("Subscribing worker: %v, subject: %v, qgroup: %v", workerID, subject, qgroup)
 	defer wg.Done()
@@ -62,14 +82,36 @@ func (s *subscriber) runWorker(
 	if err != nil {
 		s.logger.Errorf("WorkerID: %v, QueueSubscribe: %v", workerID, err)
 		if err := sub.Unsubscribe(); err != nil {
-			s.logger.Errorf("WorkerID: %v, conn.Close error: %v", workerID, err)
+			s.logger.Errorf("WorkerID: %v, sub.Unsubscribe error: %v", workerID, err)
 		}
 	}
 }
 
 func (s *subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
-	// s.stream.Ac
-	return func(m *nats.Msg) {
-
+	return func(msg *nats.Msg) {
+		s.logger.Infof("subscriber process Send Email: %s", msg.Subject)
+		var m model.Email
+		if err := json.Unmarshal(msg.Data, &m); err != nil {
+			s.logger.Errorf("json.Unmarshal : %v", err)
+			return
+		}
+		if err := retry.Do(func() error {
+			return s.emailService.Send(ctx, &m)
+		},
+			retry.Attempts(retryAttempts),
+			retry.Delay(retryDelay),
+			retry.Context(ctx),
+		); err != nil {
+			s.logger.Errorf("email.SendEmail : %v", err)
+			if err := msg.Ack(); err != nil {
+				s.logger.Errorf("msg.Ack: %v", err)
+				return
+			}
+			return
+		}
+		if err := msg.Ack(); err != nil {
+			s.logger.Errorf("msg.Ack: %v", err)
+			return
+		}
 	}
 }
