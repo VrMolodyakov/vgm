@@ -88,9 +88,9 @@ func (l *apiLogger) InitLogger() {
 	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 
 	l.sugarLogger = logger.Sugar()
-	if err := l.sugarLogger.Sync(); err != nil {
-		l.sugarLogger.Error(err)
-	}
+	// if err := l.sugarLogger.Sync(); err != nil {
+	// 	l.sugarLogger.Error(err)
+	// }
 }
 
 // Logger methods

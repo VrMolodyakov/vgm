@@ -26,13 +26,25 @@ type Mail struct {
 	FromPassword      string `env:"EMAIL_SENDER_PASSWORD"`
 }
 
+type Subscriber struct {
+	DurableName        string `yaml:"durable_name"`
+	DeadMessageSubject string `yaml:"dead_message_subject"`
+	SendEmailSubject   string `yaml:"send_subject"`
+	EmailGroupName     string `yaml:"email_group_name"`
+	MainSubject        string `yaml:"main_subject"`
+	AckWait            int    `yaml:"ack_wait"`
+	MaxInflight        int    `yaml:"max_inflight"`
+	MaxDeliver         int    `yaml:"max_deliver"`
+	Workers            int    `yaml:"workers"`
+}
+
 type GRPC struct {
 	IP   string `env:"EMAIL_GRPC_IP"`
 	Port int    `env:"EMAIL_GRPC_PORT"`
 }
 
 type Nats struct {
-	Host string `env:"NATS_PORT"`
+	Host string `env:"NATS_HOST"`
 	Port int    `env:"NATS_PORT"`
 }
 
@@ -45,10 +57,11 @@ type Logger struct {
 }
 
 type Config struct {
-	Logger Logger `yaml:"logger"`
-	Mail   Mail
-	Nats   Nats
-	GRPC   GRPC
+	Logger     Logger     `yaml:"logger"`
+	Subscriber Subscriber `yaml:"subscriber"`
+	Mail       Mail
+	Nats       Nats
+	GRPC       GRPC
 }
 
 //TODO: remote root path

@@ -42,15 +42,15 @@ func main() {
 		"Db number", cfg.Redis.DbNumber,
 	)
 
-	logger.Sugar().Infow(
-		"keys config",
-		"Access private key", cfg.KeyPairs.AccessPrivate,
-		"Access public key", cfg.KeyPairs.AccessPublic,
-		"Refresh private key", cfg.KeyPairs.RefreshPrivate,
-		"Refresh public key", cfg.KeyPairs.RefreshPublic,
-		"Access TTL", cfg.KeyPairs.AccessTtl,
-		"Refresh TTL", cfg.KeyPairs.RefreshTtl,
-	)
+	// logger.Sugar().Infow(
+	// 	"keys config",
+	// 	"Access private key", cfg.KeyPairs.AccessPrivate,
+	// 	"Access public key", cfg.KeyPairs.AccessPublic,
+	// 	"Refresh private key", cfg.KeyPairs.RefreshPrivate,
+	// 	"Refresh public key", cfg.KeyPairs.RefreshPublic,
+	// 	"Access TTL", cfg.KeyPairs.AccessTtl,
+	// 	"Refresh TTL", cfg.KeyPairs.RefreshTtl,
+	// )
 
 	ctx := context.Background()
 	app := app.NewApp(cfg)

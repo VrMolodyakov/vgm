@@ -8,6 +8,7 @@ import (
 
 	"github.com/VrMolodyakov/vgm/email/app/internal/config"
 	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/interceptor"
+	jet "github.com/VrMolodyakov/vgm/email/app/internal/controller/nats"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 	"go.uber.org/zap"
 
@@ -31,6 +32,18 @@ func NewApp(cfg *config.Config, logger logging.Logger) *app {
 }
 
 func (a *app) Run(ctx context.Context) {
+	streamCtx := a.createStreamContext()
+	jet.NewPublisher(streamCtx)
+	jet.NewSubscriberCfg(
+		a.cfg.Subscriber.DurableName,
+		a.cfg.Subscriber.DeadMessageSubject,
+		a.cfg.Subscriber.SendEmailSubject,
+		a.cfg.Subscriber.EmailGroupName,
+		a.cfg.Subscriber.AckWait,
+		a.cfg.Subscriber.Workers,
+		a.cfg.Subscriber.MaxInflight,
+		a.cfg.Subscriber.MaxDeliver,
+	)
 	a.startGrpc(ctx)
 }
 
