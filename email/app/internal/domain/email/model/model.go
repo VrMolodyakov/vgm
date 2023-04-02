@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	emailPb "github.com/VrMolodyakov/vgm/email/app/gen/go/proto/email/v1"
 )
 
@@ -11,6 +13,14 @@ type Email struct {
 	Cc      []string
 	Bcc     []string
 	Files   []string
+}
+
+type EmailErrorMsg struct {
+	Subject string
+	Reply   string
+	Data    []byte
+	Error   error
+	Time    time.Time
 }
 
 func ModelFromPB(req *emailPb.CreateEmailRequest) *Email {

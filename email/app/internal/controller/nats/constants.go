@@ -1,10 +1,11 @@
 package nats
 
-import "time"
-
 const (
-	durableName = "emailservice-dur"
-	ackWait     = 60 * time.Second
-	maxInflight = 30
-	maxDeliver  = 3
+// durableName             = "emailservice-dur"
+// deadMessageQueueSubject = "email:errors"
+// sendEmailSubject        = "mail:send"
+// ackWait                 = 60 * time.Second
+// maxInflight             = 30
+// maxDeliver              = 3
+// emailGroupName     = "email_service"
 )

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/model"
+	"github.com/VrMolodyakov/vgm/email/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 	"github.com/avast/retry-go"
 	"github.com/nats-io/nats.go"
@@ -19,6 +20,40 @@ const (
 
 type MsgHandler func(m *nats.Msg)
 
+type SubscriberCfg struct {
+	DurableName             string
+	DeadMessageQueueSubject string
+	SendEmailSubject        string
+	EmailGroupName          string
+	AckWait                 int
+	MaxInflight             int
+	SendWorkers             int
+	MaxDeliver              int
+}
+
+func NewSubscriberCfg(
+	durableName string,
+	deadMessageQueueSubject string,
+	sendEmailSubject string,
+	emailGroupName string,
+	ackWait int,
+	sendWorkers int,
+	maxInflight int,
+	maxDeliver int,
+) SubscriberCfg {
+
+	return SubscriberCfg{
+		DurableName:             durableName,
+		DeadMessageQueueSubject: deadMessageQueueSubject,
+		SendEmailSubject:        sendEmailSubject,
+		EmailGroupName:          emailGroupName,
+		AckWait:                 ackWait,
+		MaxInflight:             maxInflight,
+		SendWorkers:             sendWorkers,
+		MaxDeliver:              maxDeliver,
+	}
+}
+
 type EmailService interface {
 	Send(ctx context.Context, email *model.Email) error
 }
@@ -27,6 +62,7 @@ type subscriber struct {
 	stream       nats.JetStreamContext
 	emailService EmailService
 	logger       logging.Logger
+	cfg          SubscriberCfg
 }
 
 func NewSubscriber(
@@ -42,7 +78,15 @@ func NewSubscriber(
 
 }
 
-func (s *subscriber) Subscribe(subject, qgroup string, workersNum int, handler nats.MsgHandler) {
+func (s *subscriber) Subscribe(
+	subject string,
+	qgroup string,
+	durableName string,
+	maxDeliver int,
+	ackWait int,
+	maxInflight int,
+	workersNum int,
+	handler nats.MsgHandler) {
 	s.logger.Infof("Subscribing to Subject: %v, group: %v", subject, qgroup)
 	wg := &sync.WaitGroup{}
 	for i := 0; i < workersNum; i++ {
@@ -64,7 +108,16 @@ func (s *subscriber) Subscribe(subject, qgroup string, workersNum int, handler n
 }
 
 func (s *subscriber) Run(ctx context.Context) {
-
+	go s.Subscribe(
+		s.cfg.SendEmailSubject,
+		s.cfg.EmailGroupName,
+		s.cfg.DurableName,
+		s.cfg.MaxDeliver,
+		s.cfg.AckWait,
+		s.cfg.MaxInflight,
+		s.cfg.SendWorkers,
+		s.processSendEmail(ctx),
+	)
 }
 
 func (s *subscriber) runWorker(
@@ -102,7 +155,12 @@ func (s *subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 			retry.Delay(retryDelay),
 			retry.Context(ctx),
 		); err != nil {
-			s.logger.Errorf("email.SendEmail : %v", err)
+
+			if err := s.publishErrorMessage(ctx, msg, err); err != nil {
+				s.logger.Errorf("publishErrorMessage : %v", err)
+				return
+			}
+
 			if err := msg.Ack(); err != nil {
 				s.logger.Errorf("msg.Ack: %v", err)
 				return
@@ -114,4 +172,22 @@ func (s *subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 			return
 		}
 	}
+}
+
+func (s *subscriber) publishErrorMessage(ctx context.Context, msg *nats.Msg, err error) error {
+	s.logger.Infof("publish dead letter queue message: %v", msg)
+	errMsg := model.EmailErrorMsg{
+		Subject: msg.Subject,
+		Reply:   msg.Reply,
+		Data:    msg.Data,
+		Error:   err,
+		Time:    time.Now().UTC(),
+	}
+
+	errMsgBytes, err := json.Marshal(&errMsg)
+	if err != nil {
+		return errors.Wrap(err, "json.Marshal")
+	}
+	_, err = s.stream.Publish(s.cfg.DeadMessageQueueSubject, errMsgBytes)
+	return err
 }
