@@ -30,7 +30,9 @@ logger:
   level: info  
 
 subscriber:
-  main_subject: email
+  main_subject_name: email
+  main_subjects: 
+    - "email"
   durable_name: emailservice-dur
   email_group_name: email_service
   dead_message_subject: email:errors

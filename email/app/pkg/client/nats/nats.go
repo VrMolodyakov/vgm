@@ -1,17 +1,51 @@
 package nats
 
 import (
+	"fmt"
 	"log"
+	"time"
 
+	"github.com/avast/retry-go"
 	"github.com/nats-io/nats.go"
 )
 
-func NewJetStream(url string, maxAsyncPending int) nats.JetStreamContext {
-	nc, _ := nats.Connect(nats.DefaultURL)
-	js, err := nc.JetStream(nats.PublishAsyncMaxPending(256))
-	if err != nil {
-		log.Fatalf("Failed while creating Stream: %v\n", err)
-	}
-	return js
+const (
+	maxDelay = time.Second * 5
+	attempts = 5
+)
 
+func NewStreamContext(
+	host string,
+	port int,
+	subjectName string,
+	subjects []string,
+
+) nats.JetStreamContext {
+
+	address := fmt.Sprintf("nats://%s:%d", host, port)
+	var streamContext nats.JetStreamContext
+	if err := retry.Do(func() error {
+		fmt.Println("start attempt to get connection")
+		n, err := nats.Connect(address)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		streamContext, err = n.JetStream(nats.PublishAsyncMaxPending(256))
+		if err != nil {
+			return err
+		}
+		_, err = streamContext.AddStream(&nats.StreamConfig{
+			Name:     subjectName,
+			Subjects: subjects,
+		})
+		if err != nil {
+			return err
+		}
+		return nil
+
+	}, retry.Delay(maxDelay), retry.Attempts(attempts)); err != nil {
+		log.Fatal(err)
+	}
+	return streamContext
 }

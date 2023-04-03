@@ -27,15 +27,16 @@ type Mail struct {
 }
 
 type Subscriber struct {
-	DurableName        string `yaml:"durable_name"`
-	DeadMessageSubject string `yaml:"dead_message_subject"`
-	SendEmailSubject   string `yaml:"send_subject"`
-	EmailGroupName     string `yaml:"email_group_name"`
-	MainSubject        string `yaml:"main_subject"`
-	AckWait            int    `yaml:"ack_wait"`
-	MaxInflight        int    `yaml:"max_inflight"`
-	MaxDeliver         int    `yaml:"max_deliver"`
-	Workers            int    `yaml:"workers"`
+	DurableName        string   `yaml:"durable_name"`
+	DeadMessageSubject string   `yaml:"dead_message_subject"`
+	SendEmailSubject   string   `yaml:"send_subject"`
+	EmailGroupName     string   `yaml:"email_group_name"`
+	MainSubject        string   `yaml:"main_subject_name"`
+	MainSubjects       []string `yaml:"main_subjects"`
+	AckWait            int      `yaml:"ack_wait"`
+	MaxInflight        int      `yaml:"max_inflight"`
+	MaxDeliver         int      `yaml:"max_deliver"`
+	Workers            int      `yaml:"workers"`
 }
 
 type GRPC struct {

@@ -3,16 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 
 	"github.com/VrMolodyakov/vgm/email/app/internal/config"
 	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/interceptor"
 	jet "github.com/VrMolodyakov/vgm/email/app/internal/controller/nats"
+	"github.com/VrMolodyakov/vgm/email/app/pkg/client/nats"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 	"go.uber.org/zap"
-
-	"github.com/nats-io/nats.go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -32,7 +30,7 @@ func NewApp(cfg *config.Config, logger logging.Logger) *app {
 }
 
 func (a *app) Run(ctx context.Context) {
-	streamCtx := a.createStreamContext()
+	streamCtx := nats.NewStreamContext(a.cfg.Nats.Host, a.cfg.Nats.Port, a.cfg.Subscriber.MainSubject, a.cfg.Subscriber.MainSubjects)
 	jet.NewPublisher(streamCtx)
 	jet.NewSubscriberCfg(
 		a.cfg.Subscriber.DurableName,
@@ -44,7 +42,8 @@ func (a *app) Run(ctx context.Context) {
 		a.cfg.Subscriber.MaxInflight,
 		a.cfg.Subscriber.MaxDeliver,
 	)
-	a.startGrpc(ctx)
+	fmt.Println("end of email service")
+	// a.startGrpc(ctx)
 }
 
 func (a *app) startGrpc(ctx context.Context) {
@@ -64,23 +63,24 @@ func (a *app) startGrpc(ctx context.Context) {
 	a.logger.Info("end of gprc")
 }
 
-func (a *app) createStreamContext() nats.JetStreamContext {
-	address := fmt.Sprintf("nats://%s:%d", a.cfg.Nats.Host, a.cfg.Nats.Port)
-	n, err := nats.Connect(address)
-	if err != nil {
-		log.Fatal(err)
-	}
-	streamContext, err := n.JetStream(nats.PublishAsyncMaxPending(256))
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, err = streamContext.AddStream(&nats.StreamConfig{
-		Name:     subjectName,
-		Subjects: []string{"email.*"},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+// func (a *app) createStreamContext() nats.JetStreamContext {
+// 	address := fmt.Sprintf("nats://%s:%d", a.cfg.Nats.Host, a.cfg.Nats.Port)
+// 	a.logger.Info("address := ", address)
+// 	n, err := nats.Connect(address)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	streamContext, err := n.JetStream(nats.PublishAsyncMaxPending(256))
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	_, err = streamContext.AddStream(&nats.StreamConfig{
+// 		Name:     subjectName,
+// 		Subjects: []string{"email.*"},
+// 	})
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	return streamContext
-}
+// 	return streamContext
+// }
