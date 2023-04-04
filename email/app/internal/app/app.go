@@ -8,6 +8,8 @@ import (
 	"github.com/VrMolodyakov/vgm/email/app/internal/config"
 	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/interceptor"
 	jet "github.com/VrMolodyakov/vgm/email/app/internal/controller/nats"
+	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/usecase"
+	"github.com/VrMolodyakov/vgm/email/app/pkg/client/gmail"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/client/nats"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 	"go.uber.org/zap"
@@ -30,20 +32,33 @@ func NewApp(cfg *config.Config, logger logging.Logger) *app {
 }
 
 func (a *app) Run(ctx context.Context) {
-	streamCtx := nats.NewStreamContext(a.cfg.Nats.Host, a.cfg.Nats.Port, a.cfg.Subscriber.MainSubject, a.cfg.Subscriber.MainSubjects)
-	jet.NewPublisher(streamCtx)
-	jet.NewSubscriberCfg(
-		a.cfg.Subscriber.DurableName,
-		a.cfg.Subscriber.DeadMessageSubject,
-		a.cfg.Subscriber.SendEmailSubject,
-		a.cfg.Subscriber.EmailGroupName,
-		a.cfg.Subscriber.AckWait,
-		a.cfg.Subscriber.Workers,
-		a.cfg.Subscriber.MaxInflight,
-		a.cfg.Subscriber.MaxDeliver,
+	streamCtx := nats.NewStreamContext(a.cfg.Nats.Host, a.cfg.Nats.Port, a.cfg.Subscriber.MainSubjectName, a.cfg.Subscriber.MainSubjects)
+	pub := jet.NewPublisher(streamCtx)
+	emailClient := gmail.NewMailClient(
+		a.cfg.Mail.SmtpAuthAddress,
+		a.cfg.Mail.SmtpServerAddress,
+		a.cfg.Mail.Name,
+		a.cfg.Mail.FromAddress,
+		a.cfg.Mail.FromPassword,
 	)
-	fmt.Println("end of email service")
+	emailUseCase := usecase.NewEmailUseCase(a.logger, pub, a.cfg.Subscriber.MainSubjectName, emailClient)
+	go func() {
+		subCfg := jet.NewSubscriberCfg(
+			a.cfg.Subscriber.DurableName,
+			a.cfg.Subscriber.DeadMessageSubject,
+			a.cfg.Subscriber.SendEmailSubject,
+			a.cfg.Subscriber.EmailGroupName,
+			a.cfg.Subscriber.AckWait,
+			a.cfg.Subscriber.Workers,
+			a.cfg.Subscriber.MaxInflight,
+			a.cfg.Subscriber.MaxDeliver,
+		)
+		sub := jet.NewSubscriber(streamCtx, emailUseCase, subCfg, a.logger)
+		sub.Run(ctx)
+	}()
+	// email.NewServer(emailUseCase, a.logger)
 	// a.startGrpc(ctx)
+	fmt.Println("end of email service")
 }
 
 func (a *app) startGrpc(ctx context.Context) {
@@ -62,25 +77,3 @@ func (a *app) startGrpc(ctx context.Context) {
 	a.grpcServer.Serve(listener)
 	a.logger.Info("end of gprc")
 }
-
-// func (a *app) createStreamContext() nats.JetStreamContext {
-// 	address := fmt.Sprintf("nats://%s:%d", a.cfg.Nats.Host, a.cfg.Nats.Port)
-// 	a.logger.Info("address := ", address)
-// 	n, err := nats.Connect(address)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	streamContext, err := n.JetStream(nats.PublishAsyncMaxPending(256))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	_, err = streamContext.AddStream(&nats.StreamConfig{
-// 		Name:     subjectName,
-// 		Subjects: []string{"email.*"},
-// 	})
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	return streamContext
-// }

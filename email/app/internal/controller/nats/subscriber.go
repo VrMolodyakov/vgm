@@ -20,6 +20,10 @@ const (
 
 type MsgHandler func(m *nats.Msg)
 
+type EmailUseCase interface {
+	Send(ctx context.Context, email *model.Email) error
+}
+
 type SubscriberCfg struct {
 	DurableName             string
 	DeadMessageQueueSubject string
@@ -54,25 +58,23 @@ func NewSubscriberCfg(
 	}
 }
 
-type EmailService interface {
-	Send(ctx context.Context, email *model.Email) error
-}
-
 type subscriber struct {
 	stream       nats.JetStreamContext
-	emailService EmailService
+	emailUseCase EmailUseCase
 	logger       logging.Logger
 	cfg          SubscriberCfg
 }
 
 func NewSubscriber(
 	stream nats.JetStreamContext,
-	emailService EmailService,
+	emailUseCase EmailUseCase,
+	subscriberCfg SubscriberCfg,
 	logger logging.Logger) *subscriber {
 
 	return &subscriber{
 		stream:       stream,
-		emailService: emailService,
+		cfg:          subscriberCfg,
+		emailUseCase: emailUseCase,
 		logger:       logger,
 	}
 
@@ -149,7 +151,7 @@ func (s *subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 			return
 		}
 		if err := retry.Do(func() error {
-			return s.emailService.Send(ctx, &m)
+			return s.emailUseCase.Send(ctx, &m)
 		},
 			retry.Attempts(retryAttempts),
 			retry.Delay(retryDelay),

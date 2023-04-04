@@ -31,7 +31,7 @@ type Subscriber struct {
 	DeadMessageSubject string   `yaml:"dead_message_subject"`
 	SendEmailSubject   string   `yaml:"send_subject"`
 	EmailGroupName     string   `yaml:"email_group_name"`
-	MainSubject        string   `yaml:"main_subject_name"`
+	MainSubjectName    string   `yaml:"main_subject_name"`
 	MainSubjects       []string `yaml:"main_subjects"`
 	AckWait            int      `yaml:"ack_wait"`
 	MaxInflight        int      `yaml:"max_inflight"`

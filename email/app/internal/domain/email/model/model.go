@@ -4,6 +4,7 @@ import (
 	"time"
 
 	emailPb "github.com/VrMolodyakov/vgm/email/app/gen/go/proto/email/v1"
+	"github.com/VrMolodyakov/vgm/email/app/pkg/errors"
 )
 
 type Email struct {
@@ -32,4 +33,17 @@ func ModelFromPB(req *emailPb.CreateEmailRequest) *Email {
 		Bcc:     req.GetBcc(),
 		Files:   req.GetFiles(),
 	}
+}
+
+func (e *Email) Validate() error {
+	if len(e.Subject) == 0 {
+		return errors.New("Validation error: Subject")
+	}
+	if len(e.Content) == 0 {
+		return errors.New("Validation error: Content")
+	}
+	if len(e.To) == 0 {
+		return errors.New("Validation error: To")
+	}
+	return nil
 }

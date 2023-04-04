@@ -1,25 +1,31 @@
 package email
 
 import (
+	"context"
+
 	emailPb "github.com/VrMolodyakov/vgm/email/app/gen/go/proto/email/v1"
 	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/model"
+	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 )
 
-type EmailService interface {
-	Send(email *model.Email) error
+type EmailUseCase interface {
+	Publush(ctx context.Context, email *model.Email) error
 }
 
 type server struct {
-	emailService EmailService
+	logger      logging.Logger
+	emailUseCae EmailUseCase
 	emailPb.UnimplementedEmailServiceServer
 }
 
 func NewServer(
-	emailService EmailService,
+	emailUseCae EmailUseCase,
+	logger logging.Logger,
 	s emailPb.UnimplementedEmailServiceServer) *server {
 
 	return &server{
-		emailService:                    emailService,
+		emailUseCae:                     emailUseCae,
 		UnimplementedEmailServiceServer: s,
+		logger:                          logger,
 	}
 }

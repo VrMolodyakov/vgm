@@ -32,7 +32,7 @@ logger:
 subscriber:
   main_subject_name: email
   main_subjects: 
-    - "email"
+    - "email.*"
   durable_name: emailservice-dur
   email_group_name: email_service
   dead_message_subject: email:errors

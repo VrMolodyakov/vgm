@@ -30,14 +30,6 @@ func NewMailClient(
 	}
 }
 
-func NewSMTPClient(name string, address string, password string) *gmailClient {
-	return &gmailClient{
-		name:         name,
-		fromAddress:  address,
-		fromPassword: password,
-	}
-}
-
 func (g *gmailClient) SendEmail(
 	subject string,
 	content string,
