@@ -35,8 +35,8 @@ subscriber:
     - "email.*"
   durable_name: emailservice-dur
   email_group_name: email_service
-  dead_message_subject: email:errors
-  send_subject: email:send
+  dead_message_subject: email.errors
+  send_subject: email.send
   ack_wait: 60 
   max_inflight: 30 
   max_deliver: 3 

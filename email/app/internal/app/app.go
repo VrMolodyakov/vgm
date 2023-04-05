@@ -3,10 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
+
 	"net"
 
 	"github.com/VrMolodyakov/vgm/email/app/internal/config"
+	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/email"
 	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/interceptor"
+
+	emailPb "github.com/VrMolodyakov/vgm/email/app/gen/go/proto/email/v1"
 	jet "github.com/VrMolodyakov/vgm/email/app/internal/controller/nats"
 	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/usecase"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/client/gmail"
@@ -32,7 +36,19 @@ func NewApp(cfg *config.Config, logger logging.Logger) *app {
 }
 
 func (a *app) Run(ctx context.Context) {
-	streamCtx := nats.NewStreamContext(a.cfg.Nats.Host, a.cfg.Nats.Port, a.cfg.Subscriber.MainSubjectName, a.cfg.Subscriber.MainSubjects)
+	streamCtx := nats.NewStreamContext(
+		a.cfg.Nats.Host,
+		a.cfg.Nats.Port,
+		a.cfg.Subscriber.MainSubjectName,
+		a.cfg.Subscriber.MainSubjects,
+	)
+	info, err := streamCtx.StreamInfo("email")
+	if err != nil {
+		a.logger.Fatal(err)
+	}
+	a.logger.Info("cluster", info.Cluster)
+	a.logger.Info("config", info.Config)
+	a.logger.Info("config", info.Sources)
 	pub := jet.NewPublisher(streamCtx)
 	emailClient := gmail.NewMailClient(
 		a.cfg.Mail.SmtpAuthAddress,
@@ -41,7 +57,7 @@ func (a *app) Run(ctx context.Context) {
 		a.cfg.Mail.FromAddress,
 		a.cfg.Mail.FromPassword,
 	)
-	emailUseCase := usecase.NewEmailUseCase(a.logger, pub, a.cfg.Subscriber.MainSubjectName, emailClient)
+	emailUseCase := usecase.NewEmailUseCase(a.logger, pub, a.cfg.Subscriber.SendEmailSubject, emailClient)
 	go func() {
 		subCfg := jet.NewSubscriberCfg(
 			a.cfg.Subscriber.DurableName,
@@ -56,24 +72,24 @@ func (a *app) Run(ctx context.Context) {
 		sub := jet.NewSubscriber(streamCtx, emailUseCase, subCfg, a.logger)
 		sub.Run(ctx)
 	}()
-	// email.NewServer(emailUseCase, a.logger)
-	// a.startGrpc(ctx)
-	fmt.Println("end of email service")
-}
 
-func (a *app) startGrpc(ctx context.Context) {
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
+	fmt.Printf("print ip = %s port = %d", a.cfg.GRPC.IP, a.cfg.GRPC.Port)
 	a.logger.Info("grpc listener :=", zap.String("ip", a.cfg.GRPC.IP), zap.Int("port", a.cfg.GRPC.Port))
 	if err != nil {
 		a.logger.Error(err.Error())
 	}
+
+	emailServer := email.NewServer(emailUseCase, a.logger, emailPb.UnimplementedEmailServiceServer{})
+
 	a.grpcServer = grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptor.NewLoggerInterceptor(a.logger),
 		),
 	)
+	emailPb.RegisterEmailServiceServer(a.grpcServer, emailServer)
 	reflection.Register(a.grpcServer)
 	a.logger.Info("start grpc serve")
 	a.grpcServer.Serve(listener)
-	a.logger.Info("end of gprc")
+	a.logger.Info("end of email service")
 }

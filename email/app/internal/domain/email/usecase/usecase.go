@@ -51,7 +51,6 @@ func (e *emailUseCase) Publush(ctx context.Context, email *model.Email) error {
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal")
 	}
-
 	return e.publisher.Publish(e.sendSubject, mailBytes)
 }
 
