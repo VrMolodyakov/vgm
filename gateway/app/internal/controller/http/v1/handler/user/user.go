@@ -17,6 +17,7 @@ type userHandler struct {
 	user         UserService
 	tokenHandler TokenHandler
 	tokenService TokenService
+	email        EmailClient
 	accessTtl    int
 	refreshTtl   int
 }
@@ -25,6 +26,7 @@ func NewUserHandler(
 	user UserService,
 	tokenHandler TokenHandler,
 	tokenService TokenService,
+	email EmailClient,
 	accessTtl int,
 	refreshTtl int) *userHandler {
 
@@ -33,6 +35,7 @@ func NewUserHandler(
 		tokenHandler: tokenHandler,
 		tokenService: tokenService,
 		accessTtl:    accessTtl,
+		email:        email,
 		refreshTtl:   refreshTtl,
 	}
 }

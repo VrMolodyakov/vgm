@@ -74,12 +74,28 @@ func (a *app) startHTTP(ctx context.Context) error {
 
 	tokenHandler := token.NewTokenHandler(accessKeyPair, refreshKeyPair)
 
+	musicAddress := fmt.Sprintf("%s:%d", a.cfg.MusicGRPC.HostName, a.cfg.MusicGRPC.Port)
+	logger.Info(musicAddress)
+	emailAddress := fmt.Sprintf("%s:%d", a.cfg.EmailGRPC.HostName, a.cfg.EmailGRPC.Port)
+	logger.Info(emailAddress)
+	grpcMusicClient := client.NewMusicClient(musicAddress)
+	grpcEmailClient := client.NewEmailClient(emailAddress)
+	grpcMusicClient.Start()
+	grpcEmailClient.Start()
+
 	userRepo := userRepo.NewUserRepo(pgClient)
 	tokenRepo := tokenRepo.NewTokenRepo(rdClient)
 	userService := userService.NewUserService(userRepo)
 	tokenService := tokenService.NewTokenService(tokenRepo)
 
-	userHandler := user.NewUserHandler(userService, tokenHandler, tokenService, a.cfg.KeyPairs.AccessTtl, a.cfg.KeyPairs.RefreshTtl)
+	userHandler := user.NewUserHandler(
+		userService,
+		tokenHandler,
+		tokenService,
+		grpcEmailClient,
+		a.cfg.KeyPairs.AccessTtl,
+		a.cfg.KeyPairs.RefreshTtl,
+	)
 
 	userAuth := middleware.NewAuthMiddleware(userService, tokenService, tokenHandler)
 	origins := strings.Join(a.cfg.HTTP.CORS.AllowedOrigins[:], ", ")
@@ -96,11 +112,8 @@ func (a *app) startHTTP(ctx context.Context) error {
 	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
-	address := fmt.Sprintf("%s:%d", a.cfg.GRPC.Name, a.cfg.GRPC.Port)
-	fmt.Println(address)
-	grpcClient := client.NewMusicClient(address)
-	grpcClient.Start()
-	albumService := service.NewAlbumService(grpcClient)
+
+	albumService := service.NewAlbumService(grpcMusicClient)
 	albumHandler := album.NewAlbumHandler(albumService)
 
 	router.Route("/auth", func(r chi.Router) {

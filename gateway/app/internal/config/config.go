@@ -57,18 +57,23 @@ type HTTP struct {
 	} `yaml:"cors"`
 }
 
-//TODO: remove GRPC struct
-type GRPC struct {
-	Name string `env:"MUSIC_SERVICE_NAME"`
-	Port int    `env:"MUSIC_GRPC_PORT"`
+type MusicGRPC struct {
+	HostName string `env:"MUSIC_SERVICE_NAME"`
+	Port     int    `env:"MUSIC_GRPC_PORT"`
+}
+
+type EmailGRPC struct {
+	HostName string `env:"EMAIL_SERVICE_NAME"`
+	Port     int    `env:"EMAIL_GRPC_PORT"`
 }
 
 type Config struct {
-	HTTP     HTTP `yaml:"http"`
-	Postgres Postgres
-	GRPC     GRPC
-	Redis    Redis
-	KeyPairs KeyPairs
+	HTTP      HTTP `yaml:"http"`
+	Postgres  Postgres
+	MusicGRPC MusicGRPC
+	EmailGRPC EmailGRPC
+	Redis     Redis
+	KeyPairs  KeyPairs
 }
 
 var instance *Config

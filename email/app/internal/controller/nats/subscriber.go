@@ -29,7 +29,7 @@ type SubscriberCfg struct {
 	DeadMessageQueueSubject string
 	SendEmailSubject        string
 	EmailGroupName          string
-	AckWait                 int
+	AckWait                 time.Duration
 	MaxInflight             int
 	SendWorkers             int
 	MaxDeliver              int
@@ -40,7 +40,7 @@ func NewSubscriberCfg(
 	deadMessageQueueSubject string,
 	sendEmailSubject string,
 	emailGroupName string,
-	ackWait int,
+	ackWait time.Duration,
 	sendWorkers int,
 	maxInflight int,
 	maxDeliver int,
@@ -85,7 +85,7 @@ func (s *subscriber) Subscribe(
 	qgroup string,
 	durableName string,
 	maxDeliver int,
-	ackWait int,
+	ackWait time.Duration,
 	maxInflight int,
 	workersNum int,
 	handler nats.MsgHandler) {

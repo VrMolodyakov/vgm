@@ -4,25 +4,27 @@ import (
 	"github.com/matcornic/hermes/v2"
 )
 
-type welcome struct {
+type template struct {
 	hermes hermes.Hermes
 }
 
-func (w *welcome) NewTemplate(link string) {
-	w.hermes = hermes.Hermes{
-		// Optional Theme
-		// Theme: new(Default)
+func NewTemplate(link string) *template {
+	var h hermes.Hermes
+	h = hermes.Hermes{
 		Product: hermes.Product{
 			Name: "VGM",
 			Link: link,
-			// Optional product logo
 			Logo: "https://avatars.githubusercontent.com/u/99216816?s=400&u=632542b5c30ddecf0e29b584e9d55c7de8421d21&v=4",
 		},
 	}
+	return &template{
+		hermes: h,
+	}
+
 }
 
-func Email(username, link string) hermes.Email {
-	return hermes.Email{
+func (t *template) Greeting(username, link string) (string, error) {
+	email := hermes.Email{
 		Body: hermes.Body{
 			Name: "VGM",
 			Intros: []string{
@@ -45,4 +47,5 @@ func Email(username, link string) hermes.Email {
 			},
 		},
 	}
+	return t.hermes.GenerateHTML(email)
 }

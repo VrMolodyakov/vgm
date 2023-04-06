@@ -4,12 +4,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
+	emodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/email/model"
+	umodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
 )
 
 type UserService interface {
-	Create(ctx context.Context, user model.User) (int, error)
-	GetByUsername(ctx context.Context, username string) (model.User, error)
+	Create(ctx context.Context, user umodel.User) (int, error)
+	GetByUsername(ctx context.Context, username string) (umodel.User, error)
 }
 
 type TokenHandler interface {
@@ -22,4 +23,8 @@ type TokenService interface {
 	Save(ctx context.Context, refreshToken string, userId int, expireAt time.Duration) error
 	Find(ctx context.Context, refreshToken string) (int, error)
 	Remove(ctx context.Context, refreshToken string) error
+}
+
+type EmailClient interface {
+	Send(ctx context.Context, email emodel.Email) error
 }

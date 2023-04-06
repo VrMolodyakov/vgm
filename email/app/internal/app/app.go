@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"net"
 
@@ -64,7 +65,7 @@ func (a *app) Run(ctx context.Context) {
 			a.cfg.Subscriber.DeadMessageSubject,
 			a.cfg.Subscriber.SendEmailSubject,
 			a.cfg.Subscriber.EmailGroupName,
-			a.cfg.Subscriber.AckWait,
+			time.Duration(a.cfg.Subscriber.AckWait)*time.Second,
 			a.cfg.Subscriber.Workers,
 			a.cfg.Subscriber.MaxInflight,
 			a.cfg.Subscriber.MaxDeliver,
