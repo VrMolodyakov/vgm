@@ -9,8 +9,7 @@ type template struct {
 }
 
 func NewTemplate(link string) *template {
-	var h hermes.Hermes
-	h = hermes.Hermes{
+	h := hermes.Hermes{
 		Product: hermes.Product{
 			Name: "VGM",
 			Link: link,

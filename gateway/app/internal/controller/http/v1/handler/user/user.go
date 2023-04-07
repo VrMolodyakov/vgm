@@ -8,9 +8,17 @@ import (
 	"time"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user/dto"
-	"github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
+	emodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/email/model"
+	umodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/email/templates"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/hashing"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+)
+
+const (
+	link        string        = "http://localhost:3000/home"
+	sendTimeout time.Duration = 30 * time.Second
 )
 
 type userHandler struct {
@@ -54,7 +62,12 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	user := model.NewUser(req.Username, hashedPassword, req.Email, req.Role)
+	user := umodel.User{
+		Username: req.Username,
+		Password: hashedPassword,
+		Email:    req.Email,
+		Role:     req.Role,
+	}
 	userID, err := u.user.Create(r.Context(), user)
 	if err != nil {
 		if _, ok := errors.IsInternal(err); ok {
@@ -64,6 +77,9 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	go u.sendEmail(user)
+
 	response := dto.UserResponse{UserID: userID}
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
@@ -282,4 +298,25 @@ func (u *userHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
+}
+
+//TODO: change To
+func (u *userHandler) sendEmail(user umodel.User) {
+	ctx, cancel := context.WithTimeout(context.Background(), sendTimeout)
+	defer cancel()
+	logger := logging.GetLogger()
+	t := templates.NewTemplate(link)
+	content, err := t.Greeting(user.Username, link)
+	if err != nil {
+		return
+	}
+	email := emodel.Email{
+		Subject: "Greeting",
+		Content: content,
+		To:      []string{"vrmolodyakov@mail.ru"},
+	}
+	err = u.email.Send(ctx, email)
+	if err != nil {
+		logger.Error(err.Error())
+	}
 }
