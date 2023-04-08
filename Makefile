@@ -9,3 +9,10 @@ start:
 
 stop:
 	docker-compose down
+
+# ==============================================================================
+# Make local SSL Certificate
+
+cert:
+	@echo Generating SSL certificates
+	cd ./ssl && sh instructions.sh
