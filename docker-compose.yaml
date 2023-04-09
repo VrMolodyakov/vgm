@@ -67,6 +67,7 @@ services:
             - .env
         volumes:
             - ./configs:/configs
+            - ./cert:/cert
         ports:
           - 8080:8080    
         depends_on:
@@ -82,6 +83,7 @@ services:
             - .env
         volumes:
             - ./configs:/configs
+            - ./cert:/cert
     email:
         build: 
           context: ./email/app
@@ -92,6 +94,7 @@ services:
             - .env
         volumes:
             - ./configs:/configs
+            - ./cert:/cert
         depends_on:
           - nats                   
     nats:

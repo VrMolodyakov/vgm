@@ -2,13 +2,28 @@ package client
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+//TODO:put in yaml
+const (
+	enableTLS               = true
+	clientCertFile   string = "cert/client-cert.pem"
+	clientKeyFile    string = "cert/client-key.pem"
+	clientCACertFile string = "cert/ca-cert.pem"
 )
 
 type musicClient struct {
@@ -26,8 +41,17 @@ func NewMusicClient(target string) *musicClient {
 }
 
 func (m *musicClient) Start() {
+	transportOption := grpc.WithTransportCredentials(insecure.NewCredentials())
+	if enableTLS {
+		tlsCredentials, err := loadTLSCredentials()
+		if err != nil {
+			log.Fatal("cannot load TLS credentials: ", err)
+		}
 
-	conn, err := grpc.Dial(m.target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		transportOption = grpc.WithTransportCredentials(tlsCredentials)
+	}
+
+	conn, err := grpc.Dial(m.target, transportOption)
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -94,4 +118,34 @@ func (m *musicClient) FindAll(
 		albums[i] = model.AlbumFromPb(albumsPb[i])
 	}
 	return albums, nil
+}
+
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	// Load certificate of the CA who signed server's certificate
+	dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
+	path := containerConfigPath + clientCACertFile
+	pemServerCA, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	certPool := x509.NewCertPool()
+	if !certPool.AppendCertsFromPEM(pemServerCA) {
+		return nil, fmt.Errorf("failed to add server CA's certificate")
+	}
+
+	// Load client's certificate and private key
+	clientCert, err := tls.LoadX509KeyPair(containerConfigPath+clientCertFile, containerConfigPath+clientKeyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the credentials and return it
+	config := &tls.Config{
+		Certificates: []tls.Certificate{clientCert},
+		RootCAs:      certPool,
+	}
+
+	return credentials.NewTLS(config), nil
 }

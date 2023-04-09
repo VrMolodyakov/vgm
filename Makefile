@@ -9,3 +9,9 @@ start:
 
 stop:
 	docker-compose down
+
+cert:
+	@echo Generating SSL certificates
+	cd ./cert && sh instructions.sh
+
+.PHONY: cert 
