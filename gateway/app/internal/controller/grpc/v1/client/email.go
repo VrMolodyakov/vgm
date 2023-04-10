@@ -26,8 +26,23 @@ func NewEmailClient(target string) *emailClient {
 }
 
 func (e *emailClient) Start() {
-
 	conn, err := grpc.Dial(e.target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	e.client = emailPb.NewEmailServiceClient(conn)
+}
+
+func (e *emailClient) StartWithTSL(certs ClientCerts) {
+
+	tlsCredentials, err := certs.loadTLSCredentials()
+	if err != nil {
+		log.Fatal("cannot load TLS credentials: ", err)
+	}
+
+	transportOption := grpc.WithTransportCredentials(tlsCredentials)
+
+	conn, err := grpc.Dial(e.target, transportOption)
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}

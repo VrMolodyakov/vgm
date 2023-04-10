@@ -2,8 +2,13 @@ package app
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"net"
+	"os"
+	"path/filepath"
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
@@ -29,7 +34,16 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
+)
+
+//TODO:put in yaml
+const (
+	enableTLS               = true
+	serverCertFile   string = "cert/server-cert.pem"
+	serverKeyFile    string = "cert/server-key.pem"
+	clientCACertFile string = "cert/ca-cert.pem"
 )
 
 type app struct {
@@ -86,11 +100,20 @@ func (a *app) startGrpc(ctx context.Context) {
 
 	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
 
-	a.grpcServer = grpc.NewServer(
-		grpc.ChainUnaryInterceptor(
-			interceptor.NewLoggerInterceptor(logging.GetLogger().Logger),
-		),
-	)
+	serverOptions := []grpc.ServerOption{}
+	if enableTLS {
+		tlsCredentials, err := loadTLSCredentials()
+		if err != nil {
+			logger.Sugar().Fatalf("cannot load TLS credentials: %s", err.Error())
+		}
+
+		serverOptions = append(serverOptions, grpc.Creds(tlsCredentials))
+	}
+	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(
+		interceptor.NewLoggerInterceptor(logging.GetLogger().Logger),
+	))
+
+	a.grpcServer = grpc.NewServer(serverOptions...)
 
 	albumPb.RegisterAlbumServiceServer(a.grpcServer, albumServer)
 	personPb.RegisterPersonServiceServer(a.grpcServer, personServer)
@@ -100,4 +123,36 @@ func (a *app) startGrpc(ctx context.Context) {
 	a.grpcServer.Serve(listener)
 	logger.Info("end of gprc")
 
+}
+
+//TODO:comments
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	// Load certificate of the CA who signed client's certificate
+	dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
+	path := containerConfigPath + clientCACertFile
+	pemClientCA, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	certPool := x509.NewCertPool()
+	if !certPool.AppendCertsFromPEM(pemClientCA) {
+		return nil, fmt.Errorf("failed to add client CA's certificate")
+	}
+
+	// Load server's certificate and private key
+	serverCert, err := tls.LoadX509KeyPair(containerConfigPath+serverCertFile, containerConfigPath+serverKeyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the credentials and return it
+	config := &tls.Config{
+		Certificates: []tls.Certificate{serverCert},
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientCAs:    certPool,
+	}
+
+	return credentials.NewTLS(config), nil
 }

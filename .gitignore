@@ -2,3 +2,8 @@ db_data/*
 .vscode
 log.txt
 TODO
+/cert/*
+!/cert/instructions.sh
+!/cert/client-ext.cnf
+!/cert/server-ext.cnf
+!/cert/email-server-ext.cnf

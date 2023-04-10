@@ -26,8 +26,24 @@ func NewMusicClient(target string) *musicClient {
 }
 
 func (m *musicClient) Start() {
+	transportOption := grpc.WithTransportCredentials(insecure.NewCredentials())
+	conn, err := grpc.Dial(m.target, transportOption)
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	m.client = albumPb.NewAlbumServiceClient(conn)
+}
 
-	conn, err := grpc.Dial(m.target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func (m *musicClient) StartWithTSL(certs ClientCerts) {
+
+	tlsCredentials, err := certs.loadTLSCredentials()
+	if err != nil {
+		log.Fatal("cannot load TLS credentials: ", err)
+	}
+
+	transportOption := grpc.WithTransportCredentials(tlsCredentials)
+
+	conn, err := grpc.Dial(m.target, transportOption)
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
