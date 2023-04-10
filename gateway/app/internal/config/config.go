@@ -67,13 +67,29 @@ type EmailGRPC struct {
 	Port     int    `env:"EMAIL_GRPC_PORT"`
 }
 
+type EmailClientCert struct {
+	EnableTLS        bool   `yaml:"enable_tls"`
+	ClientCertFile   string `yaml:"client_cert_file"`
+	ClientKeyFile    string `yaml:"client_key_file"`
+	ClientCACertFile string `yaml:"client_CAcert_file"`
+}
+
+type MusicClientCert struct {
+	EnableTLS        bool   `yaml:"enable_tls"`
+	ClientCertFile   string `yaml:"client_cert_file"`
+	ClientKeyFile    string `yaml:"client_key_file"`
+	ClientCACertFile string `yaml:"client_CAcert_file"`
+}
+
 type Config struct {
-	HTTP      HTTP `yaml:"http"`
-	Postgres  Postgres
-	MusicGRPC MusicGRPC
-	EmailGRPC EmailGRPC
-	Redis     Redis
-	KeyPairs  KeyPairs
+	HTTP            HTTP `yaml:"http"`
+	Postgres        Postgres
+	MusicGRPC       MusicGRPC
+	EmailGRPC       EmailGRPC
+	Redis           Redis
+	KeyPairs        KeyPairs
+	EmailClientCert EmailClientCert `yaml:"email_client"`
+	MusicClientCert MusicClientCert `yaml:"music_client"`
 }
 
 var instance *Config

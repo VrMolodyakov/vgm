@@ -2,7 +2,12 @@ package app
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"time"
 
 	"net"
@@ -19,11 +24,16 @@ import (
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 )
 
+//TODO:put in yaml
 const (
-	subjectName string = "email"
+	enableTLS               = true
+	serverCertFile   string = "cert/email-server-cert.pem"
+	serverKeyFile    string = "cert/email-server-key.pem"
+	clientCACertFile string = "cert/ca-cert.pem"
 )
 
 type app struct {
@@ -82,15 +92,55 @@ func (a *app) Run(ctx context.Context) {
 	}
 
 	emailServer := email.NewServer(emailUseCase, a.logger, emailPb.UnimplementedEmailServiceServer{})
+	serverOptions := []grpc.ServerOption{}
+	if enableTLS {
+		tlsCredentials, err := loadTLSCredentials()
+		if err != nil {
+			a.logger.Fatalf("cannot load TLS credentials: %s", err.Error())
+		}
 
-	a.grpcServer = grpc.NewServer(
-		grpc.ChainUnaryInterceptor(
-			interceptor.NewLoggerInterceptor(a.logger),
-		),
-	)
+		serverOptions = append(serverOptions, grpc.Creds(tlsCredentials))
+	}
+	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(
+		interceptor.NewLoggerInterceptor(a.logger),
+	))
+	a.grpcServer = grpc.NewServer(serverOptions...)
+
 	emailPb.RegisterEmailServiceServer(a.grpcServer, emailServer)
 	reflection.Register(a.grpcServer)
 	a.logger.Info("start grpc serve")
 	a.grpcServer.Serve(listener)
 	a.logger.Info("end of email service")
+}
+
+//TODO:comments
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	// Load certificate of the CA who signed client's certificate
+	dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
+	path := containerConfigPath + clientCACertFile
+	pemClientCA, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	certPool := x509.NewCertPool()
+	if !certPool.AppendCertsFromPEM(pemClientCA) {
+		return nil, fmt.Errorf("failed to add client CA's certificate")
+	}
+
+	// Load server's certificate and private key
+	serverCert, err := tls.LoadX509KeyPair(containerConfigPath+serverCertFile, containerConfigPath+serverKeyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the credentials and return it
+	config := &tls.Config{
+		Certificates: []tls.Certificate{serverCert},
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientCAs:    certPool,
+	}
+
+	return credentials.NewTLS(config), nil
 }

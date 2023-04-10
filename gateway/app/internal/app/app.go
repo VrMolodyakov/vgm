@@ -78,10 +78,22 @@ func (a *app) startHTTP(ctx context.Context) error {
 	logger.Info(musicAddress)
 	emailAddress := fmt.Sprintf("%s:%d", a.cfg.EmailGRPC.HostName, a.cfg.EmailGRPC.Port)
 	logger.Info(emailAddress)
+	emailCerts := client.NewClientCerts(
+		a.cfg.EmailClientCert.EnableTLS,
+		a.cfg.EmailClientCert.ClientCertFile,
+		a.cfg.EmailClientCert.ClientKeyFile,
+		a.cfg.EmailClientCert.ClientCACertFile,
+	)
+	musicCerts := client.NewClientCerts(
+		a.cfg.MusicClientCert.EnableTLS,
+		a.cfg.MusicClientCert.ClientCertFile,
+		a.cfg.MusicClientCert.ClientKeyFile,
+		a.cfg.MusicClientCert.ClientCACertFile,
+	)
 	grpcMusicClient := client.NewMusicClient(musicAddress)
 	grpcEmailClient := client.NewEmailClient(emailAddress)
-	grpcMusicClient.Start()
-	grpcEmailClient.Start()
+	grpcMusicClient.StartWithTSL(musicCerts)
+	grpcEmailClient.StartWithTSL(emailCerts)
 
 	userRepo := userRepo.NewUserRepo(pgClient)
 	tokenRepo := tokenRepo.NewTokenRepo(rdClient)
