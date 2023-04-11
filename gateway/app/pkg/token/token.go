@@ -22,12 +22,12 @@ func NewTokenHandler(accessPair KeyPair, refreshPair KeyPair) *tokenHandler {
 	return &tokenHandler{accessPair: accessPair, refreshPair: refreshPair}
 }
 
-func (t *tokenHandler) CreateAccessToken(ttl time.Duration, payload interface{}) (string, error) {
+func (t *tokenHandler) CreateAccessToken(ttl time.Duration, payload interface{}, role string) (string, error) {
 	key, err := jwt.ParseRSAPrivateKeyFromPEM(t.accessPair.PrivateKey)
 	if err != nil {
 		return "", fmt.Errorf("couldn't parse private key: %w ", err)
 	}
-	return create(ttl, payload, key)
+	return create(ttl, payload, role, key, false)
 }
 
 func (t *tokenHandler) CreateRefreshToken(ttl time.Duration, payload interface{}) (string, error) {
@@ -35,10 +35,25 @@ func (t *tokenHandler) CreateRefreshToken(ttl time.Duration, payload interface{}
 	if err != nil {
 		return "", fmt.Errorf("couldn't parse private key: %w ", err)
 	}
-	return create(ttl, payload, key)
+	return createRefreshToken(ttl, payload, key)
 }
 
-func create(ttl time.Duration, payload interface{}, key *rsa.PrivateKey) (string, error) {
+func create(ttl time.Duration, payload interface{}, role string, key *rsa.PrivateKey, refresh bool) (string, error) {
+	now := time.Now().UTC()
+	claims := make(jwt.MapClaims)
+	claims["sub"] = payload
+	claims["exp"] = now.Add(ttl).Unix()
+	claims["iat"] = now.Unix()
+	claims["nbf"] = now.Unix()
+	claims["role"] = role
+	token, err := jwt.NewWithClaims(jwt.SigningMethodRS512, claims).SignedString(key)
+	if err != nil {
+		return "", fmt.Errorf("couldn't sign key due to %w", err)
+	}
+	return token, nil
+}
+
+func createRefreshToken(ttl time.Duration, payload interface{}, key *rsa.PrivateKey) (string, error) {
 	now := time.Now().UTC()
 	claims := make(jwt.MapClaims)
 	claims["sub"] = payload
