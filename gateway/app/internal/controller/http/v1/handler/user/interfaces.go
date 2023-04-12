@@ -11,10 +11,11 @@ import (
 type UserService interface {
 	Create(ctx context.Context, user umodel.User) (int, error)
 	GetByUsername(ctx context.Context, username string) (umodel.User, error)
+	GetByID(ctx context.Context, ID int) (umodel.User, error)
 }
 
 type TokenHandler interface {
-	CreateAccessToken(ttl time.Duration, payload interface{}) (string, error)
+	CreateAccessToken(ttl time.Duration, payload interface{}, role string) (string, error)
 	CreateRefreshToken(ttl time.Duration, payload interface{}) (string, error)
 	ValidateRefreshToken(token string) error
 }

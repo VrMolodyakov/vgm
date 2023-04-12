@@ -37,7 +37,6 @@ func (g *gmailClient) SendEmail(
 	cc []string,
 	bcc []string,
 	attachFiles []string) error {
-	fmt.Println("------mail-------")
 	e := email.NewEmail()
 	e.From = fmt.Sprintf("%s <%s>", g.name, g.fromAddress)
 	e.Subject = subject
@@ -52,15 +51,10 @@ func (g *gmailClient) SendEmail(
 			return fmt.Errorf("failed to attach file %s: %w", f, err)
 		}
 	}
-
 	smtpAuth := smtp.PlainAuth("", g.fromAddress, g.fromPassword, g.smtpAuthAddress)
-	fmt.Println(smtpAuth)
-	fmt.Println(g.smtpServerAddress)
 	err := e.Send(g.smtpServerAddress, smtpAuth)
 	if err != nil {
-		fmt.Println("inside err")
-		fmt.Println(err)
+		return err
 	}
-	fmt.Println("------mail-------")
 	return err
 }

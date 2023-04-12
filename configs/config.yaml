@@ -43,13 +43,14 @@ subscriber:
   workers: 3
 
 music_client:
-  enable_tls: true        
-	client_cert_file: cert/client-cert.pem   
-	client_key_file: cert/client-key.pem    
-	client_CAcert_file: cert/ca-cert.pem 
-
+  enable_tls: true
+  client_cert_file: cert/client-cert.pem
+  client_key_file: cert/client-key.pem
+  client_CAcert_file: cert/ca-cert.pem
+  
 email_client:
-  enable_tls: true        
-	client_cert_file: cert/client-cert.pem   
-	client_key_file: cert/client-key.pem    
-	client_CAcert_file: cert/ca-cert.pem   
+  enable_tls: true
+  client_cert_file: cert/client-cert.pem
+  client_key_file: cert/client-key.pem
+  client_CAcert_file: cert/ca-cert.pem
+  
