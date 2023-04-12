@@ -4,20 +4,28 @@ import { AuthContextType } from "../types/auth-context-type";
 type Props = {
   children: ReactNode
 }
+
+export type Auth = {
+  token:string
+  role:string
+}
+
 type ContextType = {
-  auth: string
-  setAuth: Dispatch<SetStateAction<string>>
+  auth: Auth
+  setAuth: Dispatch<SetStateAction<Auth>>
 }
 
 const AuthContext = createContext({} as ContextType)
 
 export function AuthProvider({ children }: Props): JSX.Element {
-  const [auth, setAuth] = useState<string>("")
+  const base: Auth = {
+    token: "",
+    role:""
+  };
+  const [auth, setAuth] = useState<Auth>(base)
   const value = useMemo(() => ({
     auth, setAuth
   }), [auth]);
-
-  console.log("inside - ", auth)
   return (
     <AuthContext.Provider value={value}>
       {children}

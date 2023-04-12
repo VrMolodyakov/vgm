@@ -6,7 +6,7 @@ export const RequierAuth = () => {
     const location = useLocation();
     console.log("require : ",auth)
     return (
-        auth !== ""?<Outlet/> : <Navigate to = "/auth" state = {{from:location}} replace />
+        auth.token !== ""?<Outlet/> : <Navigate to = "/auth" state = {{from:location}} replace />
     );
 }
 
@@ -15,7 +15,7 @@ export const RequierAdminAuth = () => {
     const location = useLocation();
     console.log("require : ",auth)
     return (
-        auth !== "ADMIN"?<Outlet/> : <Navigate to = "/auth" state = {{from:location}} replace />
+        auth.token !== "" && auth.role !== "ADMIN"?<Outlet/> : <Navigate to = "/auth" state = {{from:location}} replace />
     );
 
 }

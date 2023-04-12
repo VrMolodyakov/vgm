@@ -6,7 +6,8 @@ import { postRequest } from "../../api/api";
 import { AuthContextType } from "../../features/auth/types/auth-context-type";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LocalStorage } from "../../features/local-storage/service/service";
-import { useAuth } from "../../features/auth/context/auth";
+import { Auth, useAuth } from "../../features/auth/context/auth";
+import jwt_decode from "jwt-decode";
 
 
 
@@ -19,6 +20,13 @@ type TokenResponse = {
   access_token:string 
   refresh_token:string
   logged_in:string
+}
+
+type Token = {
+  exp:number
+  iat:number
+  nbf:number
+  role:string
 }
 
 const SignInForm: React.FC = () => {
@@ -47,11 +55,15 @@ const SignInForm: React.FC = () => {
   function onSubmit(data: UserSubmitData){
     (async() => {
       const response = await getToken(data);
-      console.log("response: ",response)
       if (response) {
         navigate("/home");
         const accessToken = response.access_token
-        setAuth(() => accessToken)
+        const decoded:Token = jwt_decode(accessToken);
+        const auth:Auth = {
+          token:accessToken,
+          role:decoded.role
+        } 
+        setAuth(() => auth)
       }
     })();
   }
