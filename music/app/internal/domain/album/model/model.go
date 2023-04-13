@@ -44,7 +44,8 @@ type Info struct {
 	ID             string
 	AlbumID        string
 	CatalogNumber  string
-	ImageSrc       string
+	FullImageSrc   string
+	SmallImageSrc  string
 	Barcode        string
 	CurrencyCode   string
 	MediaFormat    string
@@ -100,7 +101,8 @@ func NewInfoFromPB(pb *albumPb.CreateAlbumRequest) Info {
 	return Info{
 		ID:             uuid.New().String(),
 		CatalogNumber:  pb.GetCatalogNumber(),
-		ImageSrc:       pb.GetImageSrc(),
+		FullImageSrc:   pb.GetFullImageSrc(),
+		SmallImageSrc:  pb.GetSmallImageSrc(),
 		Barcode:        pb.GetBarcode(),
 		CurrencyCode:   pb.GetCurrencyCode(),
 		MediaFormat:    pb.GetMediaFormat(),

@@ -20,6 +20,8 @@ github.com/VrMolodyakov/vgm/email/app v0.0.0-20230405203532-2865d2463bd9 h1:un8z
 github.com/VrMolodyakov/vgm/email/app v0.0.0-20230405203532-2865d2463bd9/go.mod h1:YBK2VZ73vD7jDShcbCColJAhRIhDXTsgqEOXMXE4ptY=
 github.com/VrMolodyakov/vgm/music/app v0.0.0-20230309193559-dfea4c3411ba h1:MDtyjikuygnkThqr+FsYePnwvSCtsyTeW5nttMot4Ss=
 github.com/VrMolodyakov/vgm/music/app v0.0.0-20230309193559-dfea4c3411ba/go.mod h1:DQ5nsyyM7kIwKRr6ePLpEI9bUHekSAL+FaZwrilPgpw=
+github.com/VrMolodyakov/vgm/music/app v0.0.0-20230412220322-2c486dcfb906 h1:UtNS9vvaBbBgD1zcwa0BhWsvddEvKNSlf1ImK7N3UtQ=
+github.com/VrMolodyakov/vgm/music/app v0.0.0-20230412220322-2c486dcfb906/go.mod h1:DQ5nsyyM7kIwKRr6ePLpEI9bUHekSAL+FaZwrilPgpw=
 github.com/andybalholm/cascadia v1.0.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/andybalholm/cascadia v1.3.1 h1:nhxRkql1kdYCc8Snf7D5/D3spOX+dBgjA6u8x004T2c=

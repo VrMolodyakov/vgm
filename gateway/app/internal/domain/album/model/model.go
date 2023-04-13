@@ -23,7 +23,8 @@ type Info struct {
 	ID             string
 	AlbumID        string
 	CatalogNumber  string
-	ImageSrc       string
+	FullImageSrc   string
+	SmallImageSrc  string
 	Barcode        string
 	CurrencyCode   string
 	MediaFormat    string
@@ -77,7 +78,8 @@ func AlbumFromDto(dto dto.Album) Album {
 			dto.Info.ID,
 			dto.Info.AlbumID,
 			dto.Info.CatalogNumber,
-			dto.Info.ImageSrc,
+			dto.Info.FullImageSrc,
+			dto.Info.SmallImageSrc,
 			dto.Info.Barcode,
 			dto.Info.CurrencyCode,
 			dto.Info.MediaFormat,

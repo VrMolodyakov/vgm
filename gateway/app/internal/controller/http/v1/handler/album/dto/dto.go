@@ -18,7 +18,8 @@ type Info struct {
 	ID             string  `json:"id"`
 	AlbumID        string  `json:"album_id"`
 	CatalogNumber  string  `json:"catalog_number"`
-	ImageSrc       string  `json:"image_src"`
+	FullImageSrc   string  `json:"full_image_src"`
+	SmallImageSrc  string  `json:"small_image_src"`
 	Barcode        string  `json:"barcode"`
 	CurrencyCode   string  `json:"currency_code"`
 	MediaFormat    string  `json:"media_format"`

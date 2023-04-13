@@ -24,15 +24,16 @@ message CreateAlbumRequest{
     string title = 1;
     int64  released_at = 2;
     string catalog_number = 3;
-    optional string image_src = 4;
-    optional string barcode = 5;
-    double price = 6;
-    string currency_code = 7;
-    string media_format = 8;
-    string classification = 9;
-    string publisher = 10;
-    repeated Track tracklist = 11;
-    repeated Credit credits = 12;
+    optional string full_image_src = 4;
+    optional string small_image_src = 5;
+    optional string barcode = 6;
+    double price = 7;
+    string currency_code = 8;
+    string media_format = 9;
+    string classification = 10;
+    string publisher = 11;
+    repeated Track tracklist = 12;
+    repeated Credit credits = 13;
 }
 
 message CreateAlbumResponse{

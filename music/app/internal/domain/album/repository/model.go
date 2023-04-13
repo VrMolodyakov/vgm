@@ -22,7 +22,8 @@ type InfoStorage struct {
 	ID             string  `struct:"album_info_id"`
 	AlbumID        string  `struct:"album_id"`
 	CatalogNumber  string  `struct:"catalog_number" `
-	ImageSrc       string  `struct:"image_srs" `
+	FullImageSrc   string  `struct:"full_image_srs" `
+	SmallImageSrc  string  `struct:"small_image_srs" `
 	Barcode        string  `struct:"barcode" `
 	CurrencyCode   string  `struct:"currency_code" `
 	MediaFormat    string  `struct:"media_format" `
@@ -47,7 +48,8 @@ func fromInfoModel(info *model.Info) InfoStorage {
 		ID:             info.ID,
 		AlbumID:        info.AlbumID,
 		CatalogNumber:  info.CatalogNumber,
-		ImageSrc:       info.ImageSrc,
+		FullImageSrc:   info.FullImageSrc,
+		SmallImageSrc:  info.SmallImageSrc,
 		Barcode:        info.Barcode,
 		CurrencyCode:   info.CurrencyCode,
 		MediaFormat:    info.MediaFormat,
@@ -89,7 +91,8 @@ func (album *AlbumInfoStorage) toModel() model.AlbumInfo {
 			ID:             album.Info.ID,
 			AlbumID:        album.Info.AlbumID,
 			CatalogNumber:  album.Info.CatalogNumber,
-			ImageSrc:       album.Info.ImageSrc,
+			FullImageSrc:   album.Info.FullImageSrc,
+			SmallImageSrc:  album.Info.SmallImageSrc,
 			Barcode:        album.Info.Barcode,
 			CurrencyCode:   album.Info.CurrencyCode,
 			MediaFormat:    album.Info.MediaFormat,
@@ -131,8 +134,11 @@ func toUpdateStorageMap(m *model.Info) map[string]interface{} {
 	if m.CatalogNumber != "" {
 		storageMap["catalog_number"] = m.CatalogNumber
 	}
-	if m.ImageSrc != "" {
-		storageMap["image_srs"] = m.ImageSrc
+	if m.FullImageSrc != "" {
+		storageMap["full_image_srs"] = m.FullImageSrc
+	}
+	if m.SmallImageSrc != "" {
+		storageMap["small_image_srs"] = m.FullImageSrc
 	}
 	if m.Barcode != "" {
 		storageMap["barcode"] = m.Barcode
