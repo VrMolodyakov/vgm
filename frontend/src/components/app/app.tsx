@@ -7,6 +7,8 @@ import Layout from "../layout";
 import SignInForm from "../signin/sign-in-form";
 import SignUpForm from "../signup/sign-up-form";
 import { Auth,useAuth } from "../../features/auth/context/auth";
+import CreateForm from "../create/create-album";
+import AddRemoveInputField from "../input/add-remove-input-field";
 
 //TODO:index router
 const App: React.FC = () => {
@@ -51,6 +53,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Layout />}>
             <Route path="auth" element={<SignInForm />} />
             <Route path="reg" element={<SignUpForm />} />
+            <Route path="create" element={<CreateForm />} />
             <Route element = {<RequierAuth/>}>
                 <Route path="home" element={<Home />} />              
             </Route>
