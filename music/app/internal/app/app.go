@@ -98,7 +98,7 @@ func (a *app) startGrpc(ctx context.Context) {
 	albumService := AlbumService.NewAlbumService(albumRepository)
 	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService, trackService, creditService)
 
-	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedAlbumServiceServer{})
+	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedMusicServiceServer{})
 
 	serverOptions := []grpc.ServerOption{}
 	if enableTLS {
@@ -115,7 +115,7 @@ func (a *app) startGrpc(ctx context.Context) {
 
 	a.grpcServer = grpc.NewServer(serverOptions...)
 
-	albumPb.RegisterAlbumServiceServer(a.grpcServer, albumServer)
+	albumPb.RegisterMusicServiceServer(a.grpcServer, albumServer)
 	personPb.RegisterPersonServiceServer(a.grpcServer, personServer)
 
 	reflection.Register(a.grpcServer)

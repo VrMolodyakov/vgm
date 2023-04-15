@@ -4,11 +4,13 @@ go 1.18
 
 require (
 	github.com/Masterminds/squirrel v1.5.3
-	github.com/VrMolodyakov/vgm/music/app v0.0.0-20230412220322-2c486dcfb906
+	github.com/VrMolodyakov/vgm/email/app v0.0.0-20230405203532-2865d2463bd9
+	github.com/VrMolodyakov/vgm/music/app v0.0.0-20230413142627-edc505dee357
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/matcornic/hermes/v2 v2.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/worldline-go/struct2 v1.2.3
 	go.uber.org/zap v1.24.0
@@ -22,7 +24,6 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
 	github.com/PuerkitoBio/goquery v1.8.1 // indirect
-	github.com/VrMolodyakov/vgm/email/app v0.0.0-20230405203532-2865d2463bd9 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -41,7 +42,6 @@ require (
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
-	github.com/matcornic/hermes/v2 v2.1.0 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
@@ -56,7 +56,7 @@ require (
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
-	google.golang.org/genproto v0.0.0-20230330200707-38013875ee22 // indirect
+	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect

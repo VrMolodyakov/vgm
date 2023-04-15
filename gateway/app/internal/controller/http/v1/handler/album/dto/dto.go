@@ -7,6 +7,12 @@ type Album struct {
 	Credits   []Credit  `json:"credits"`
 }
 
+type Person struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	BirthDate int64  `json:"birth_date"`
+}
+
 type AlbumView struct {
 	ID         string `json:"id"`
 	Title      string `json:"title"`

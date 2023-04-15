@@ -3,7 +3,7 @@ package album
 import (
 	"context"
 
-	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	musicPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
@@ -20,15 +20,15 @@ type AlbumPolicy interface {
 
 type server struct {
 	albumPolicy AlbumPolicy
-	albumPb.UnimplementedAlbumServiceServer
+	musicPb.UnimplementedMusicServiceServer
 }
 
 func NewServer(
 	albumPolicy AlbumPolicy,
-	s albumPb.UnimplementedAlbumServiceServer) *server {
+	s musicPb.UnimplementedMusicServiceServer) *server {
 
 	return &server{
 		albumPolicy:                     albumPolicy,
-		UnimplementedAlbumServiceServer: s,
+		UnimplementedMusicServiceServer: s,
 	}
 }

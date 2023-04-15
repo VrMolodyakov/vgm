@@ -19,6 +19,12 @@ type AlbumView struct {
 	CreatedAt  int64
 }
 
+type Person struct {
+	FirstName string
+	LastName  string
+	BirthDate int64
+}
+
 type Info struct {
 	ID             string
 	AlbumID        string
@@ -89,6 +95,14 @@ func AlbumFromDto(dto dto.Album) Album {
 		},
 		Tracklist: tracklist,
 		Credits:   credits,
+	}
+}
+
+func PersonFromDto(dto dto.Person) Person {
+	return Person{
+		FirstName: dto.FirstName,
+		LastName:  dto.LastName,
+		BirthDate: dto.BirthDate,
 	}
 }
 

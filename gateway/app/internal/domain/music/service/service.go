@@ -3,36 +3,37 @@ package service
 import (
 	"context"
 
-	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
+	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type AlbumGrpcClient interface {
-	Create(context.Context, model.Album) error
+type MusicGrpcClient interface {
+	CreateAlbum(context.Context, model.Album) error
 	FindAll(
 		ctx context.Context,
 		pagination model.Pagination,
 		titleView model.AlbumTitleView,
 		releaseView model.AlbumReleasedView,
 		sort model.Sort) ([]model.AlbumView, error)
+	CreatePerson(context.Context, model.Person) error
 }
 
-type album struct {
-	client AlbumGrpcClient
+type music struct {
+	client MusicGrpcClient
 }
 
-func NewAlbumService(client AlbumGrpcClient) *album {
-	return &album{
+func NewAlbumService(client MusicGrpcClient) *music {
+	return &music{
 		client: client,
 	}
 }
 
-func (a *album) CreateAlbum(ctx context.Context, album model.Album) error {
+func (a *music) CreateAlbum(ctx context.Context, album model.Album) error {
 	logger := logging.LoggerFromContext(ctx)
-	err := a.client.Create(ctx, album)
+	err := a.client.CreateAlbum(ctx, album)
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
@@ -53,7 +54,30 @@ func (a *album) CreateAlbum(ctx context.Context, album model.Album) error {
 	return nil
 }
 
-func (a *album) FindAllAlbums(
+func (a *music) CreatePerson(ctx context.Context, person model.Person) error {
+	logger := logging.LoggerFromContext(ctx)
+	err := a.client.CreatePerson(ctx, person)
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				logger.Error("Has Internal Error")
+				return errors.NewInternal(err, "grpc client response")
+			case codes.Aborted:
+				logger.Error("gRPC Aborted the call")
+				return err
+			default:
+				logger.Sugar().Error(e.Code(), e.Message())
+				return err
+			}
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (a *music) FindAllAlbums(
 	ctx context.Context,
 	pagination model.Pagination,
 	titleView model.AlbumTitleView,

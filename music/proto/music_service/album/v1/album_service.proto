@@ -11,13 +11,39 @@ import "proto/music_service/info/v1/info.proto";
 import "proto/filter/v1/filter.proto";
 
 
-service AlbumService {
+service MusicService {
     rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
     rpc FindAlbum(FindAlbumRequest) returns (FindAlbumResponse) {}
     rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteAlbumResponse) {}
     rpc UpdateAlbum(UpdateAlbumRequest) returns (UpdateAlbumResponse) {}
     rpc FindFullAlbum(FindFullAlbumRequest) returns (FindFullAlbumResponse) {}
     rpc FindAllAlbums(FindAllAlbumsRequest) returns (FindAllAlbumsResponse) {}
+    rpc FindAllPersons(FindAllPersonsRequest) returns (FindAllPersonsResponse) {}
+    rpc CreatePerson(CreatePersonRequest) returns (CreatePersonResponse) {}
+}
+
+message FindAllPersonsRequest{
+    filter.v1.Pagination pagination = 1;
+    filter.v1.StringFieldFilter full_name = 2;
+}
+message FindAllPersonsResponse{
+    repeated Person person = 1;
+}
+
+message CreatePersonRequest{
+    string first_name = 1;
+    string last_name = 2;
+    int64 birth_date = 3;
+}
+message CreatePersonResponse{
+    Person person = 1;
+}
+
+message Person {
+    int64 person_id  = 1;
+    string first_name = 2;
+    string last_name = 3;
+    int64 birth_date = 4;
 }
   
 message CreateAlbumRequest{

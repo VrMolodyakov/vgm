@@ -15,7 +15,7 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
-	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/service"
+	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/service"
 	tokenRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/repository"
 	tokenService "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/service"
 	userRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/repository"

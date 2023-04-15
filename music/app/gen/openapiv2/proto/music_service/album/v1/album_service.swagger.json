@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "AlbumService"
+      "name": "MusicService"
     }
   ],
   "consumes": [
@@ -103,6 +103,14 @@
     "v1CreateAlbumResponse": {
       "type": "object"
     },
+    "v1CreatePersonResponse": {
+      "type": "object",
+      "properties": {
+        "person": {
+          "$ref": "#/definitions/v1Person"
+        }
+      }
+    },
     "v1CreditInfo": {
       "type": "object",
       "properties": {
@@ -135,6 +143,17 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1Album"
+          }
+        }
+      }
+    },
+    "v1FindAllPersonsResponse": {
+      "type": "object",
+      "properties": {
+        "person": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Person"
           }
         }
       }
@@ -233,6 +252,25 @@
         "offset": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "v1Person": {
+      "type": "object",
+      "properties": {
+        "personId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "birthDate": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

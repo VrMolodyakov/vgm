@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album/dto"
-	"github.com/VrMolodyakov/vgm/gateway/internal/domain/album/model"
+	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"google.golang.org/grpc/codes"
@@ -24,6 +24,7 @@ type AlbumService interface {
 		titleView model.AlbumTitleView,
 		releaseView model.AlbumReleasedView,
 		sort model.Sort) ([]model.AlbumView, error)
+	CreatePerson(context.Context, model.Person) error
 }
 
 type albumHandler struct {
@@ -60,6 +61,32 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("the album was created"))
+}
+
+func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
+	var person dto.Person
+	logger := logging.LoggerFromContext(r.Context())
+	if err := json.NewDecoder(r.Body).Decode(&person); err != nil {
+		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+	err := a.service.CreatePerson(r.Context(), model.PersonFromDto(person))
+	if err != nil {
+		logger.Error(err.Error())
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			default:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("the person was created"))
 }
 
 func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
