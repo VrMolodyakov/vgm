@@ -7,6 +7,7 @@ const CreateForm: React.FC = () => {
   const [tracklist, setTracklist] = useState([{ title: "", duration: "" }])
   const [credits, setCredits] = useState([{ name: "", position: "" }])
 
+  //TODO:create for each
   let handleChange = (i: number, e: ChangeEvent<HTMLInputElement>) => {
     let newFormValues = [...tracklist];
     let n: string = e.target.name

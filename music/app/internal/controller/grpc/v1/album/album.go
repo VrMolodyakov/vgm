@@ -25,7 +25,8 @@ func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbu
 
 	pbAlbums := make([]*albumPb.Album, len(all))
 	for i, a := range all {
-		pbAlbums[i] = a.ToProto()
+		album := a.ToProto()
+		pbAlbums[i] = &album
 	}
 
 	return &albumPb.FindAllAlbumsResponse{
@@ -68,9 +69,29 @@ func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlb
 	if err != nil {
 		return &albumPb.FindFullAlbumResponse{}, err
 	}
+	info := fullAlbum.Info.ToProto()
+	album := fullAlbum.Album.ToProto()
 
-	return &albumPb.FindFullAlbumResponse{}
-	return nil, nil
+	tracklist := []*albumPb.TrackInfo{}
+
+	for i := 0; i < len(fullAlbum.Tracklist); i++ {
+		track := fullAlbum.Tracklist[i].ToProto()
+		tracklist = append(tracklist, &track)
+	}
+
+	credits := []*albumPb.CreditInfo{}
+
+	for i := 0; i < len(fullAlbum.Credits); i++ {
+		credit := fullAlbum.Credits[i].ToProto()
+		credits = append(credits, &credit)
+	}
+
+	return &albumPb.FindFullAlbumResponse{
+		Album:     &album,
+		Info:      &info,
+		Credits:   credits,
+		Tracklist: tracklist,
+	}, nil
 }
 
 func (s *server) FindAlbum(context.Context, *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {

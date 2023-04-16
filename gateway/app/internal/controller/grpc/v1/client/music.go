@@ -127,3 +127,16 @@ func (m *musicClient) FindAll(
 	}
 	return albums, nil
 }
+
+func (m *musicClient) FundFullAlbum(ctx context.Context, id string) error {
+	logger := logging.LoggerFromContext(ctx)
+	request := musicPb.FindFullAlbumRequest{
+		AlbumId: id,
+	}
+	_, err := m.client.FindFullAlbum(ctx, &request)
+	if err != nil {
+		logger.Error(err.Error())
+		return err
+	}
+	return nil
+}

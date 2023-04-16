@@ -63,6 +63,39 @@
         }
       }
     },
+    "v1AlbumInfo": {
+      "type": "object",
+      "properties": {
+        "catalogNumber": {
+          "type": "string"
+        },
+        "fullImageSrc": {
+          "type": "string"
+        },
+        "smallImageSrc": {
+          "type": "string"
+        },
+        "barcode": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "format": "double"
+        },
+        "currencyCode": {
+          "type": "string"
+        },
+        "mediaFormat": {
+          "type": "string"
+        },
+        "classification": {
+          "type": "string"
+        },
+        "publisher": {
+          "type": "string"
+        }
+      }
+    },
     "v1CreateAlbumResponse": {
       "type": "object"
     },
@@ -136,47 +169,11 @@
     "v1FindFullAlbumResponse": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string"
+        "album": {
+          "$ref": "#/definitions/v1Album"
         },
-        "title": {
-          "type": "string"
-        },
-        "releasedAt": {
-          "type": "string",
-          "format": "int64"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "int64"
-        },
-        "catalogNumber": {
-          "type": "string"
-        },
-        "fullImageSrc": {
-          "type": "string"
-        },
-        "smallImageSrc": {
-          "type": "string"
-        },
-        "barcode": {
-          "type": "string"
-        },
-        "price": {
-          "type": "number",
-          "format": "double"
-        },
-        "currencyCode": {
-          "type": "string"
-        },
-        "mediaFormat": {
-          "type": "string"
-        },
-        "classification": {
-          "type": "string"
-        },
-        "publisher": {
-          "type": "string"
+        "info": {
+          "$ref": "#/definitions/v1AlbumInfo"
         },
         "tracklist": {
           "type": "array",
@@ -298,8 +295,7 @@
           "format": "int64"
         },
         "albumId": {
-          "type": "string",
-          "format": "int64"
+          "type": "string"
         },
         "title": {
           "type": "string"

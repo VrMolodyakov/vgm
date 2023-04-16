@@ -22,6 +22,14 @@ type CreditInfo struct {
 	Profession string
 }
 
+func (c *CreditInfo) ToProto() albumPb.CreditInfo {
+	return albumPb.CreditInfo{
+		FirstName:  c.FirstName,
+		LastName:   c.LastName,
+		Profession: c.Profession,
+	}
+}
+
 func (c *Credit) IsEmpty() bool {
 	return c.AlbumID == "" || c.PersonID == 0 || c.Profession == ""
 }

@@ -46,10 +46,23 @@ type Track struct {
 	Duration string
 }
 
+type CreditInfo struct {
+	FirstName  string
+	LastName   string
+	Profession string
+}
+
 type Credit struct {
 	PersonID   int64
 	AlbumID    string
 	Profession string
+}
+
+type FullAlbum struct {
+	Album     AlbumView
+	Info      Info
+	Tracklist []Track
+	Credits   []CreditInfo
 }
 
 func AlbumFromDto(dto dto.Album) Album {

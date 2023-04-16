@@ -54,8 +54,22 @@ type Info struct {
 	Price          float64
 }
 
-func (a AlbumView) ToProto() *albumPb.Album {
-	return &albumPb.Album{
+func (i *Info) ToProto() albumPb.AlbumInfo {
+	return albumPb.AlbumInfo{
+		CatalogNumber:  i.CatalogNumber,
+		FullImageSrc:   &i.FullImageSrc,
+		SmallImageSrc:  &i.SmallImageSrc,
+		Barcode:        &i.Barcode,
+		Price:          i.Price,
+		CurrencyCode:   i.CurrencyCode,
+		MediaFormat:    i.MediaFormat,
+		Classification: i.Classification,
+		Publisher:      i.Publisher,
+	}
+}
+
+func (a *AlbumView) ToProto() albumPb.Album {
+	return albumPb.Album{
 		AlbumId:    a.ID,
 		Title:      a.Title,
 		CreatedAt:  a.CreatedAt,
