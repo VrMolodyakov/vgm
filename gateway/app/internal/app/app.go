@@ -141,6 +141,7 @@ func (a *app) startHTTP(ctx context.Context) error {
 	router.Route("/music", func(r chi.Router) {
 		r.Use(userAuth.Auth)
 		r.Post("/create", albumHandler.CreateAlbum)
+		r.Post("/person", albumHandler.CreatePerson)
 		r.Get("/albums", albumHandler.FindAllAlbums)
 	})
 

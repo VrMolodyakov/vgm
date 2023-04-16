@@ -3,7 +3,7 @@ package model
 import (
 	"errors"
 
-	personPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/person/v1"
+	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 )
 
 type Person struct {
@@ -21,16 +21,16 @@ func (p *Person) IsValid() bool {
 	return p.LastName != "" && p.FirstName != ""
 }
 
-func NewAlbumFromPB(pb *personPb.CreatePersonRequest) Person {
+func NewPersonFromPB(request *albumPb.CreatePersonRequest) Person {
 	return Person{
-		FirstName: pb.GetFirstName(),
-		LastName:  pb.GetLastName(),
-		BirthDate: pb.GetBirthDate(),
+		FirstName: request.GetFirstName(),
+		LastName:  request.GetLastName(),
+		BirthDate: request.GetBirthDate(),
 	}
 }
 
-func (p Person) ToProto() *personPb.Person {
-	return &personPb.Person{
+func (p Person) ToProto() *albumPb.Person {
+	return &albumPb.Person{
 		PersonId:  p.ID,
 		FirstName: p.FirstName,
 		LastName:  p.LastName,

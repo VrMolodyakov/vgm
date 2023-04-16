@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/VrMolodyakov/vgm/email/app v0.0.0-20230405203532-2865d2463bd9
-	github.com/VrMolodyakov/vgm/music/app v0.0.0-20230413142627-edc505dee357
+	github.com/VrMolodyakov/vgm/music/app v0.0.0-20230415200741-f1619a4f80cf
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jackc/pgconn v1.14.0

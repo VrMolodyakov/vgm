@@ -12,12 +12,10 @@ import (
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
-	personPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/person/v1"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/config"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/album"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/interceptor"
-	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/person"
 
 	AlbumPolicy "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/policy"
 	albumRepository "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/repository"
@@ -89,8 +87,6 @@ func (a *app) startGrpc(ctx context.Context) {
 	personService := personService.NewPersonService(personRepository)
 	personPolicy := personPolicy.NewPersonPolicy(personService)
 
-	personServer := person.NewServer(personPolicy, personPb.UnimplementedPersonServiceServer{})
-
 	trackRepository := tracklistRepository.NewTracklistRepo(pgClient)
 	trackService := tracklistService.NewTrackService(trackRepository)
 
@@ -98,7 +94,7 @@ func (a *app) startGrpc(ctx context.Context) {
 	albumService := AlbumService.NewAlbumService(albumRepository)
 	albumPolicy := AlbumPolicy.NewAlbumPolicy(albumService, trackService, creditService)
 
-	albumServer := album.NewServer(albumPolicy, albumPb.UnimplementedMusicServiceServer{})
+	albumServer := album.NewServer(albumPolicy, personPolicy, albumPb.UnimplementedMusicServiceServer{})
 
 	serverOptions := []grpc.ServerOption{}
 	if enableTLS {
@@ -116,7 +112,6 @@ func (a *app) startGrpc(ctx context.Context) {
 	a.grpcServer = grpc.NewServer(serverOptions...)
 
 	albumPb.RegisterMusicServiceServer(a.grpcServer, albumServer)
-	personPb.RegisterPersonServiceServer(a.grpcServer, personServer)
 
 	reflection.Register(a.grpcServer)
 	logger.Info("start grpc serve")

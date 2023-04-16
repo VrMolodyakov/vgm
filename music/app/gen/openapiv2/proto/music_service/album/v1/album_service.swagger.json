@@ -17,43 +17,6 @@
   ],
   "paths": {},
   "definitions": {
-    "music_servicealbumv1Credit": {
-      "type": "object",
-      "properties": {
-        "profession": {
-          "type": "string"
-        },
-        "personId": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
-    "music_servicealbumv1Track": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "duration": {
-          "type": "string"
-        }
-      }
-    },
-    "music_servicetrackv1Track": {
-      "type": "object",
-      "properties": {
-        "title": {
-          "type": "string"
-        },
-        "duration": {
-          "type": "string"
-        },
-        "albumId": {
-          "type": "string"
-        }
-      }
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -111,6 +74,18 @@
         }
       }
     },
+    "v1Credit": {
+      "type": "object",
+      "properties": {
+        "profession": {
+          "type": "string"
+        },
+        "personId": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "v1CreditInfo": {
       "type": "object",
       "properties": {
@@ -161,39 +136,27 @@
     "v1FindFullAlbumResponse": {
       "type": "object",
       "properties": {
-        "album": {
-          "$ref": "#/definitions/v1Album"
-        },
-        "info": {
-          "$ref": "#/definitions/v1Info"
-        },
-        "credits": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1CreditInfo"
-          }
-        },
-        "tracklist": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/music_servicetrackv1Track"
-          }
-        }
-      }
-    },
-    "v1Info": {
-      "type": "object",
-      "properties": {
-        "albumInfoId": {
+        "id": {
           "type": "string"
         },
-        "albumId": {
+        "title": {
           "type": "string"
+        },
+        "releasedAt": {
+          "type": "string",
+          "format": "int64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64"
         },
         "catalogNumber": {
           "type": "string"
         },
-        "imageSrc": {
+        "fullImageSrc": {
+          "type": "string"
+        },
+        "smallImageSrc": {
           "type": "string"
         },
         "barcode": {
@@ -214,6 +177,18 @@
         },
         "publisher": {
           "type": "string"
+        },
+        "tracklist": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1TrackInfo"
+          }
+        },
+        "credits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1CreditInfo"
+          }
         }
       }
     },
@@ -303,6 +278,36 @@
         "OPERATOR_LIKE"
       ],
       "default": "OPERATOR_UNSPECIFIED"
+    },
+    "v1Track": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "string"
+        }
+      }
+    },
+    "v1TrackInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "albumId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "title": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "string"
+        }
+      }
     },
     "v1UpdateAlbumResponse": {
       "type": "object"

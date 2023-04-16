@@ -5,6 +5,7 @@ import (
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	albumModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
+	personModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -63,17 +64,28 @@ func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRe
 }
 
 func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
-	// album, err := s.albumPolicy.GetOne(context.Background(), request.GetAlbumId())
-	// if err != nil {
-	// 	return &albumPb.FindFullAlbumResponse{}, err
-	// }
-	// return &albumPb.FindFullAlbumResponse{
-	// 	Album: album.Album.ToProto(),
-	// 	Credits: album.,
-	// }
+	fullAlbum, err := s.albumPolicy.GetOne(context.Background(), request.GetAlbumId())
+	if err != nil {
+		return &albumPb.FindFullAlbumResponse{}, err
+	}
+
+	return &albumPb.FindFullAlbumResponse{}
 	return nil, nil
 }
 
 func (s *server) FindAlbum(context.Context, *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {
 	return nil, nil
+}
+
+func (s *server) CreatePerson(ctx context.Context, request *albumPb.CreatePersonRequest) (*albumPb.CreatePersonResponse, error) {
+	personModel := personModel.NewPersonFromPB(request)
+	person, err := s.personPolicy.Create(ctx, personModel)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &albumPb.CreatePersonResponse{
+		Person: person.ToProto(),
+	}, nil
 }

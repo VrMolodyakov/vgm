@@ -2,12 +2,12 @@ package reposotory
 
 import (
 	"context"
-	"errors"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/person/model"
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	dbFIlter "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql/filter"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"github.com/jackc/pgx"
@@ -43,7 +43,7 @@ func (r *repo) Create(ctx context.Context, person model.Person) (model.Person, e
 
 	logger.Infow(table, sql, args)
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(err, "create sql")
 		logger.Error(err.Error())
 		return model.Person{}, err
 	}
@@ -56,9 +56,9 @@ func (r *repo) Create(ctx context.Context, person model.Person) (model.Person, e
 			&storage.LastName,
 			&storage.BirthDate); QueryRow != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			QueryRow = db.ErrDoQuery(errors.New("person was not created. 0 rows were affected"))
+			QueryRow = errors.NewInternal(err, "person was not created. 0 rows were affected")
 		} else {
-			QueryRow = db.ErrDoQuery(QueryRow)
+			QueryRow = errors.NewInternal(err, "do query")
 		}
 		logger.Error(QueryRow.Error())
 		return model.Person{}, QueryRow
@@ -78,13 +78,13 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model
 	sql, args, err := query.ToSql()
 	logger.Infow(table, sql, args)
 	if err != nil {
-		err = db.ErrCreateQuery(err)
+		err = errors.NewInternal(err, "create query")
 		logger.Error(err.Error())
 		return nil, err
 	}
 	rows, queryErr := r.client.Query(ctx, sql, args...)
 	if queryErr != nil {
-		err := db.ErrDoQuery(queryErr)
+		err := errors.NewInternal(queryErr, "do query")
 		logger.Error(err.Error())
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model
 			&p.LastName,
 			&p.BirthDate,
 		); queryErr != nil {
-			queryErr = db.ErrScan(queryErr)
+			queryErr = errors.NewInternal(queryErr, "scan query")
 			logger.Error(queryErr.Error())
 			return nil, queryErr
 		}

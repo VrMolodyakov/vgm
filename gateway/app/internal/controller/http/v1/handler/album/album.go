@@ -63,6 +63,7 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("the album was created"))
 }
 
+//TODO:return person?
 func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 	var person dto.Person
 	logger := logging.LoggerFromContext(r.Context())

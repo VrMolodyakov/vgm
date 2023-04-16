@@ -18,10 +18,10 @@ github.com/PuerkitoBio/goquery v1.8.1 h1:uQxhNlArOIdbrH1tr0UXwdVFgDcZDrZVdcpygAc
 github.com/PuerkitoBio/goquery v1.8.1/go.mod h1:Q8ICL1kNUJ2sXGoAhPGUdYDJvgQgHzJsnnd3H7Ho5jQ=
 github.com/VrMolodyakov/vgm/email/app v0.0.0-20230405203532-2865d2463bd9 h1:un8zlkAPM40IN8lfSq8DJ/ysGbrmWtLY6ehdC3BnfPo=
 github.com/VrMolodyakov/vgm/email/app v0.0.0-20230405203532-2865d2463bd9/go.mod h1:YBK2VZ73vD7jDShcbCColJAhRIhDXTsgqEOXMXE4ptY=
-github.com/VrMolodyakov/vgm/music/app v0.0.0-20230412220322-2c486dcfb906 h1:UtNS9vvaBbBgD1zcwa0BhWsvddEvKNSlf1ImK7N3UtQ=
-github.com/VrMolodyakov/vgm/music/app v0.0.0-20230412220322-2c486dcfb906/go.mod h1:DQ5nsyyM7kIwKRr6ePLpEI9bUHekSAL+FaZwrilPgpw=
-github.com/VrMolodyakov/vgm/music/app v0.0.0-20230413142627-edc505dee357 h1:7Kr455tbQ2DS4JWmTP6Nz/Q9J0glGYWP/cbkQuDqZgg=
-github.com/VrMolodyakov/vgm/music/app v0.0.0-20230413142627-edc505dee357/go.mod h1:DQ5nsyyM7kIwKRr6ePLpEI9bUHekSAL+FaZwrilPgpw=
+github.com/VrMolodyakov/vgm/music/app v0.0.0-20230414202509-4e9f39494dcd h1:Cty+asn/dHl1tQizPrbfXrhPng79z0NK46NAmeqFZsg=
+github.com/VrMolodyakov/vgm/music/app v0.0.0-20230414202509-4e9f39494dcd/go.mod h1:DQ5nsyyM7kIwKRr6ePLpEI9bUHekSAL+FaZwrilPgpw=
+github.com/VrMolodyakov/vgm/music/app v0.0.0-20230415200741-f1619a4f80cf h1:LFk/Xs+qJq3eNuJVWjBg8zHfQ8VN0bmxWGBMLTk8Cbw=
+github.com/VrMolodyakov/vgm/music/app v0.0.0-20230415200741-f1619a4f80cf/go.mod h1:DQ5nsyyM7kIwKRr6ePLpEI9bUHekSAL+FaZwrilPgpw=
 github.com/andybalholm/cascadia v1.0.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/andybalholm/cascadia v1.3.1 h1:nhxRkql1kdYCc8Snf7D5/D3spOX+dBgjA6u8x004T2c=
@@ -357,8 +357,6 @@ golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8T
 golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
-google.golang.org/genproto v0.0.0-20230330200707-38013875ee22 h1:n3ThVoQnHbCbnkhZZ1fx3+3fBAisViSwrpbtLV7vydY=
-google.golang.org/genproto v0.0.0-20230330200707-38013875ee22/go.mod h1:UUQDJDOlWu4KYeJZffbWgBkS1YFobzKbLVfK69pe0Ak=
 google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 h1:KpwkzHKEF7B9Zxg18WzOa7djJ+Ha5DzthMyZYQfEn2A=
 google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1/go.mod h1:nKE/iIaLqn2bQwXBg8f1g2Ylh6r5MN5CmZvuzZCgsCU=
 google.golang.org/grpc v1.54.0 h1:EhTqbhiYeixwWQtAEZAxmV9MGqcjEU2mFx52xCzNyag=
