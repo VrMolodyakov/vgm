@@ -64,7 +64,6 @@ func (a *app) startGrpc(ctx context.Context) {
 	if err != nil {
 		logger.Error(err.Error())
 	}
-	// serverOptions := []grpc.ServerOption{}
 
 	pgConfig := postgresql.NewPgConfig(
 		a.cfg.Postgres.User,
@@ -122,7 +121,6 @@ func (a *app) startGrpc(ctx context.Context) {
 
 //TODO:comments
 func loadTLSCredentials() (credentials.TransportCredentials, error) {
-	// Load certificate of the CA who signed client's certificate
 	dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 	containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
 	path := containerConfigPath + clientCACertFile
@@ -136,13 +134,11 @@ func loadTLSCredentials() (credentials.TransportCredentials, error) {
 		return nil, fmt.Errorf("failed to add client CA's certificate")
 	}
 
-	// Load server's certificate and private key
 	serverCert, err := tls.LoadX509KeyPair(containerConfigPath+serverCertFile, containerConfigPath+serverKeyFile)
 	if err != nil {
 		return nil, err
 	}
 
-	// Create the credentials and return it
 	config := &tls.Config{
 		Certificates: []tls.Certificate{serverCert},
 		ClientAuth:   tls.RequireAndVerifyClientCert,

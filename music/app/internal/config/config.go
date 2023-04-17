@@ -11,10 +11,6 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-const (
-	configPath = "\\configs\\config.yaml"
-)
-
 var instance *Config
 var once sync.Once
 
@@ -40,18 +36,11 @@ type Config struct {
 //TODO: remote root path
 func GetConfig() *Config {
 	once.Do(func() {
-		rootPath, _ := os.Getwd()
-		root := filepath.Dir(filepath.Dir(filepath.Dir(filepath.Dir(rootPath))))
 		instance = &Config{}
-		path := root + configPath
 		dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 		containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
 		fmt.Println("container docker path : ", containerConfigPath)
-		if exist, _ := Exists(path); exist {
-			if err := cleanenv.ReadConfig(path, instance); err != nil {
-				log.Fatal(err)
-			}
-		} else if exist, _ := Exists(containerConfigPath + "/configs/config.yaml"); exist {
+		if exist, _ := Exists(containerConfigPath + "/configs/config.yaml"); exist {
 			fmt.Println("inside docker path")
 			if err := cleanenv.ReadConfig(containerConfigPath+"/configs/config.yaml", instance); err != nil {
 				log.Fatal(err)

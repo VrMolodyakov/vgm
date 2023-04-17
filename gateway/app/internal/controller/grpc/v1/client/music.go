@@ -7,14 +7,14 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 
-	musicPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type musicClient struct {
 	target string
-	client musicPb.MusicServiceClient
+	client albumPb.MusicServiceClient
 }
 
 func NewMusicClient(target string) *musicClient {
@@ -32,7 +32,7 @@ func (m *musicClient) Start() {
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
-	m.client = musicPb.NewMusicServiceClient(conn)
+	m.client = albumPb.NewMusicServiceClient(conn)
 }
 
 func (m *musicClient) StartWithTSL(certs ClientCerts) {
@@ -48,22 +48,22 @@ func (m *musicClient) StartWithTSL(certs ClientCerts) {
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
-	m.client = musicPb.NewMusicServiceClient(conn)
+	m.client = albumPb.NewMusicServiceClient(conn)
 }
 
 func (m *musicClient) CreateAlbum(ctx context.Context, album model.Album) error {
 	logger := logging.LoggerFromContext(ctx)
-	tracklist := make([]*musicPb.Track, len(album.Tracklist))
+	tracklist := make([]*albumPb.Track, len(album.Tracklist))
 	for i := 0; i < len(album.Tracklist); i++ {
 		tracklist[i] = album.Tracklist[i].PbFromkModel()
 	}
 
-	credits := make([]*musicPb.Credit, len(album.Credits))
+	credits := make([]*albumPb.Credit, len(album.Credits))
 	for i := 0; i < len(album.Credits); i++ {
 		credits[i] = album.Credits[i].PbFromkModel()
 	}
 
-	request := musicPb.CreateAlbumRequest{
+	request := albumPb.CreateAlbumRequest{
 		Title:          album.Album.Title,
 		ReleasedAt:     album.Album.ReleasedAt,
 		CatalogNumber:  album.Info.CatalogNumber,
@@ -89,7 +89,7 @@ func (m *musicClient) CreateAlbum(ctx context.Context, album model.Album) error 
 
 func (m *musicClient) CreatePerson(ctx context.Context, person model.Person) error {
 	logger := logging.LoggerFromContext(ctx)
-	request := musicPb.CreatePersonRequest{
+	request := albumPb.CreatePersonRequest{
 		FirstName: person.FirstName,
 		LastName:  person.LastName,
 		BirthDate: person.BirthDate,
@@ -110,7 +110,7 @@ func (m *musicClient) FindAll(
 	sort model.Sort,
 ) ([]model.AlbumView, error) {
 
-	request := musicPb.FindAllAlbumsRequest{
+	request := albumPb.FindAllAlbumsRequest{
 		Pagination: pagination.PbFromModel(),
 		Title:      titleView.PbFromModel(),
 		ReleasedAt: releaseView.PbFromModel(),
@@ -131,7 +131,7 @@ func (m *musicClient) FindAll(
 
 func (m *musicClient) FundFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
 	logger := logging.LoggerFromContext(ctx)
-	request := musicPb.FindFullAlbumRequest{
+	request := albumPb.FindFullAlbumRequest{
 		AlbumId: id,
 	}
 	pb, err := m.client.FindFullAlbum(ctx, &request)
