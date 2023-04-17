@@ -111,6 +111,59 @@ func AlbumFromDto(dto dto.Album) Album {
 	}
 }
 
+func FullAlbumFromPb(pb *albumPb.FindFullAlbumResponse) FullAlbum {
+	album := AlbumFromPb(pb.Album)
+	info := InfoFromPb(pb.Info)
+
+	credits := make([]CreditInfo, len(pb.Credits))
+	for i := 0; i < len(pb.Credits); i++ {
+		credits[i] = CreditFromPb(pb.Credits[i])
+	}
+
+	tracklist := make([]Track, len(pb.Tracklist))
+	for i := 0; i < len(pb.Credits); i++ {
+		tracklist[i] = TrackFromPb(pb.Tracklist[i])
+	}
+
+	return FullAlbum{
+		Album:     album,
+		Info:      info,
+		Credits:   credits,
+		Tracklist: tracklist,
+	}
+}
+
+func InfoFromPb(pb *albumPb.AlbumInfo) Info {
+	return Info{
+		CatalogNumber:  pb.CatalogNumber,
+		FullImageSrc:   *pb.FullImageSrc,
+		SmallImageSrc:  *pb.SmallImageSrc,
+		Barcode:        *pb.Barcode,
+		CurrencyCode:   pb.CurrencyCode,
+		MediaFormat:    pb.MediaFormat,
+		Classification: pb.Classification,
+		Publisher:      pb.Publisher,
+		Price:          pb.Price,
+	}
+}
+
+func CreditFromPb(pb *albumPb.CreditInfo) CreditInfo {
+	return CreditInfo{
+		FirstName:  pb.FirstName,
+		LastName:   pb.LastName,
+		Profession: pb.Profession,
+	}
+}
+
+func TrackFromPb(pb *albumPb.TrackInfo) Track {
+	return Track{
+		ID:       pb.Id,
+		AlbumID:  pb.AlbumId,
+		Title:    pb.Title,
+		Duration: pb.Duration,
+	}
+}
+
 func PersonFromDto(dto dto.Person) Person {
 	return Person{
 		FirstName: dto.FirstName,

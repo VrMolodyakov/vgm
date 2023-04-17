@@ -6,6 +6,7 @@ import (
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+
 	musicPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -128,15 +129,15 @@ func (m *musicClient) FindAll(
 	return albums, nil
 }
 
-func (m *musicClient) FundFullAlbum(ctx context.Context, id string) error {
+func (m *musicClient) FundFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
 	logger := logging.LoggerFromContext(ctx)
 	request := musicPb.FindFullAlbumRequest{
 		AlbumId: id,
 	}
-	_, err := m.client.FindFullAlbum(ctx, &request)
+	pb, err := m.client.FindFullAlbum(ctx, &request)
 	if err != nil {
 		logger.Error(err.Error())
-		return err
+		return model.FullAlbum{}, err
 	}
-	return nil
+	return model.FullAlbumFromPb(pb), nil
 }
