@@ -220,8 +220,8 @@ func (r *repo) GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, er
 			"album_info_id",
 			"album_id",
 			"catalog_number",
-			"full_image_srs",
-			"small_image_srs",
+			"full_image_src",
+			"small_image_src",
 			"barcode",
 			"price",
 			"currency_code",
@@ -229,7 +229,7 @@ func (r *repo) GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, er
 			"classification",
 			"publisher").
 		From(table).
-		Join(infoTabe).
+		Join("album_info USING (album_id)").
 		Where(sq.Eq{"album_id": albumID})
 
 	sql, args, err := query.ToSql()

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
@@ -107,6 +108,7 @@ func (m *music) FindAllAlbums(
 }
 
 func (m *music) FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
+	fmt.Println("-----------------FIND FULL SERVICE---------------")
 	logger := logging.LoggerFromContext(ctx)
 	fullAlbum, err := m.client.FindFullAlbum(ctx, id)
 	if err != nil {

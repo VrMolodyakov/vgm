@@ -12,6 +12,7 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"github.com/go-chi/chi"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -170,13 +171,14 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
-	var req dto.FullAlbumRequest
+	// var req dto.FullAlbumRequest
+	albumID := chi.URLParam(r, "albumID")
 	logger := logging.LoggerFromContext(r.Context())
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
-		return
-	}
-	fullAlbum, err := a.service.FindFullAlbum(r.Context(), req.Id)
+	// if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	// 	http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
+	// 	return
+	// }
+	fullAlbum, err := a.service.FindFullAlbum(r.Context(), albumID)
 	if err != nil {
 		logger.Error(err.Error())
 		if e, ok := status.FromError(err); ok {
@@ -190,6 +192,14 @@ func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	jsonResponse, err := json.Marshal(fullAlbum)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 
 }
 

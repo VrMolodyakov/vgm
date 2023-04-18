@@ -222,7 +222,7 @@ func (a *AlbumView) DtoFromModel() dto.AlbumView {
 }
 
 func (f *FullAlbum) DtoFromModel() dto.FullAlbumResponse {
-	view := dto.AlbumView{
+	album := dto.AlbumView{
 		ID:         f.Album.ID,
 		Title:      f.Album.Title,
 		ReleasedAt: f.Album.ReleasedAt,
@@ -242,15 +242,20 @@ func (f *FullAlbum) DtoFromModel() dto.FullAlbumResponse {
 		Price:          f.Info.Price,
 	}
 
-	credits := make([]CreditInfo, len(f.Credits))
+	credits := make([]dto.CreditInfo, len(f.Credits))
 	for i := 0; i < len(f.Credits); i++ {
-		credits[i] = CreditFromPb(f.Credits[i])
+		credits[i] = f.Credits[i].DtoFromkModel()
 	}
 
-	tracklist := make([]Track, len(pb.Tracklist))
-	for i := 0; i < len(pb.Credits); i++ {
-		tracklist[i] = TrackFromPb(pb.Tracklist[i])
+	tracklist := make([]dto.Track, len(f.Tracklist))
+	for i := 0; i < len(f.Tracklist); i++ {
+		tracklist[i] = f.Tracklist[i].DtoFromkModel()
 	}
 
-	return dto.FullAlbumResponse{}
+	return dto.FullAlbumResponse{
+		Album:     album,
+		Info:      info,
+		Credits:   credits,
+		Tracklist: tracklist,
+	}
 }
