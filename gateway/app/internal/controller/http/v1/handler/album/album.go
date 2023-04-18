@@ -25,6 +25,7 @@ type AlbumService interface {
 		releaseView model.AlbumReleasedView,
 		sort model.Sort) ([]model.AlbumView, error)
 	CreatePerson(context.Context, model.Person) error
+	FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error)
 }
 
 type albumHandler struct {
@@ -166,6 +167,30 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
+}
+
+func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
+	var req dto.FullAlbumRequest
+	logger := logging.LoggerFromContext(r.Context())
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+	fullAlbum, err := a.service.FindFullAlbum(r.Context(), req.Id)
+	if err != nil {
+		logger.Error(err.Error())
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			default:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+	}
+
 }
 
 func validateSortQuery(sortBy string) (string, error) {

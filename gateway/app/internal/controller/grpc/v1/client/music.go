@@ -129,7 +129,7 @@ func (m *musicClient) FindAll(
 	return albums, nil
 }
 
-func (m *musicClient) FundFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
+func (m *musicClient) FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
 	logger := logging.LoggerFromContext(ctx)
 	request := albumPb.FindFullAlbumRequest{
 		AlbumId: id,

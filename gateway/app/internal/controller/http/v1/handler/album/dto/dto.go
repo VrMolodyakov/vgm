@@ -46,3 +46,20 @@ type Credit struct {
 	AlbumID    string `json:"album_id"`
 	Profession string `json:"profession"`
 }
+
+type CreditInfo struct {
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Profession string `json:"profession"`
+}
+
+type FullAlbumRequest struct {
+	Id string `json:"album_id"`
+}
+
+type FullAlbumResponse struct {
+	Album     AlbumView
+	Info      Info
+	Tracklist []Track
+	Credits   []CreditInfo
+}
