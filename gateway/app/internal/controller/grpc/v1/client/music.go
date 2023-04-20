@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
@@ -57,6 +58,13 @@ func (m *musicClient) CreateAlbum(ctx context.Context, album model.Album) error 
 	for i := 0; i < len(album.Tracklist); i++ {
 		tracklist[i] = album.Tracklist[i].PbFromkModel()
 	}
+
+	fmt.Println("--------CreateAlbum----")
+	fmt.Println("tracklist := ")
+	for i := 0; i < len(tracklist); i++ {
+		fmt.Println(tracklist[i])
+	}
+	fmt.Println("--------CreateAlbum----")
 
 	credits := make([]*albumPb.Credit, len(album.Credits))
 	for i := 0; i < len(album.Credits); i++ {

@@ -65,46 +65,40 @@ type FullAlbum struct {
 	Credits   []CreditInfo
 }
 
-func AlbumFromDto(dto dto.Album) Album {
+func AlbumFromDto(dto dto.AlbumReq) Album {
 	tracklist := make([]Track, len(dto.Tracklist))
 	credits := make([]Credit, len(dto.Credits))
 
 	for i := 0; i < len(tracklist); i++ {
 		tracklist[i] = Track{
-			dto.Tracklist[i].ID,
-			dto.Tracklist[i].AlbumID,
-			dto.Tracklist[i].Title,
-			dto.Tracklist[i].Duration,
+			Title:    dto.Tracklist[i].Title,
+			Duration: dto.Tracklist[i].Duration,
 		}
 	}
 
 	for i := 0; i < len(credits); i++ {
 		credits[i] = Credit{
-			dto.Credits[i].PersonID,
-			dto.Credits[i].AlbumID,
-			dto.Credits[i].Profession,
+			PersonID:   dto.Credits[i].PersonID,
+			Profession: dto.Credits[i].Profession,
 		}
 	}
 
 	return Album{
 		Album: AlbumView{
-			dto.Album.ID,
-			dto.Album.Title,
-			dto.Album.ReleasedAt,
-			dto.Album.CreatedAt,
+			Title:      dto.Album.Title,
+			ReleasedAt: dto.Album.ReleasedAt,
+			CreatedAt:  dto.Album.CreatedAt,
 		},
 		Info: Info{
-			dto.Info.ID,
-			dto.Info.AlbumID,
-			dto.Info.CatalogNumber,
-			dto.Info.FullImageSrc,
-			dto.Info.SmallImageSrc,
-			dto.Info.Barcode,
-			dto.Info.CurrencyCode,
-			dto.Info.MediaFormat,
-			dto.Info.Classification,
-			dto.Info.Publisher,
-			dto.Info.Price,
+			CatalogNumber:  dto.Info.CatalogNumber,
+			FullImageSrc:   dto.Info.FullImageSrc,
+			SmallImageSrc:  dto.Info.SmallImageSrc,
+			Barcode:        dto.Info.Barcode,
+			CurrencyCode:   dto.Info.CurrencyCode,
+			MediaFormat:    dto.Info.MediaFormat,
+			Classification: dto.Info.Classification,
+			Publisher:      dto.Info.Publisher,
+			Price:          dto.Info.Price,
 		},
 		Tracklist: tracklist,
 		Credits:   credits,
@@ -179,8 +173,8 @@ func (t *Track) PbFromkModel() *albumPb.Track {
 	}
 }
 
-func (t *Track) DtoFromkModel() dto.Track {
-	return dto.Track{
+func (t *Track) DtoFromkModel() dto.TrackRes {
+	return dto.TrackRes{
 		ID:       t.ID,
 		AlbumID:  t.AlbumID,
 		Title:    t.Title,
@@ -195,11 +189,27 @@ func (c *Credit) PbFromkModel() *albumPb.Credit {
 	}
 }
 
-func (c *CreditInfo) DtoFromkModel() dto.CreditInfo {
-	return dto.CreditInfo{
+func (c *CreditInfo) DtoFromkModel() dto.CreditInfoRes {
+	return dto.CreditInfoRes{
 		Profession: c.Profession,
 		FirstName:  c.FirstName,
 		LastName:   c.LastName,
+	}
+}
+
+func (i *Info) DtoFromkModel() dto.InfoRes {
+	return dto.InfoRes{
+		ID:             i.ID,
+		AlbumID:        i.AlbumID,
+		CatalogNumber:  i.CatalogNumber,
+		FullImageSrc:   i.FullImageSrc,
+		SmallImageSrc:  i.SmallImageSrc,
+		Barcode:        i.Barcode,
+		CurrencyCode:   i.CurrencyCode,
+		MediaFormat:    i.MediaFormat,
+		Classification: i.Classification,
+		Publisher:      i.Publisher,
+		Price:          i.Price,
 	}
 }
 
@@ -212,47 +222,30 @@ func AlbumFromPb(pb *albumPb.Album) AlbumView {
 	}
 }
 
-func (a *AlbumView) DtoFromModel() dto.AlbumView {
-	return dto.AlbumView{
-		ID:         a.ID,
+func (a *AlbumView) DtoFromModel() dto.AlbumViewRes {
+	return dto.AlbumViewRes{
+		AlbumID:    a.ID,
 		Title:      a.Title,
 		ReleasedAt: a.ReleasedAt,
 		CreatedAt:  a.CreatedAt,
 	}
 }
 
-func (f *FullAlbum) DtoFromModel() dto.FullAlbumResponse {
-	album := dto.AlbumView{
-		ID:         f.Album.ID,
-		Title:      f.Album.Title,
-		ReleasedAt: f.Album.ReleasedAt,
-		CreatedAt:  f.Album.CreatedAt,
-	}
-	info := dto.Info{
-		ID:             f.Info.ID,
-		AlbumID:        f.Info.AlbumID,
-		CatalogNumber:  f.Info.CatalogNumber,
-		FullImageSrc:   f.Info.FullImageSrc,
-		SmallImageSrc:  f.Info.SmallImageSrc,
-		Barcode:        f.Info.Barcode,
-		CurrencyCode:   f.Info.CurrencyCode,
-		MediaFormat:    f.Info.MediaFormat,
-		Classification: f.Info.Classification,
-		Publisher:      f.Info.Publisher,
-		Price:          f.Info.Price,
-	}
+func (f *FullAlbum) DtoFromModel() dto.FullAlbumRes {
+	album := f.Album.DtoFromModel()
+	info := f.Info.DtoFromkModel()
 
-	credits := make([]dto.CreditInfo, len(f.Credits))
+	credits := make([]dto.CreditInfoRes, len(f.Credits))
 	for i := 0; i < len(f.Credits); i++ {
 		credits[i] = f.Credits[i].DtoFromkModel()
 	}
 
-	tracklist := make([]dto.Track, len(f.Tracklist))
+	tracklist := make([]dto.TrackRes, len(f.Tracklist))
 	for i := 0; i < len(f.Tracklist); i++ {
 		tracklist[i] = f.Tracklist[i].DtoFromkModel()
 	}
 
-	return dto.FullAlbumResponse{
+	return dto.FullAlbumRes{
 		Album:     album,
 		Info:      info,
 		Credits:   credits,

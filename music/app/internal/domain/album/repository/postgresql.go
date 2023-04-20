@@ -2,6 +2,7 @@ package reposotory
 
 import (
 	"context"
+	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
@@ -277,6 +278,12 @@ func (r *repo) Tx(ctx context.Context, action func(txRepo Album) error) error {
 func (r *repo) Create(ctx context.Context, album model.Album) error {
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := ToStorageMap(album.Album)
+	fmt.Println("-----------Create repo------")
+	fmt.Println("tracklist := ")
+	for i := 0; i < len(album.Tracklist); i++ {
+		fmt.Println(album.Tracklist[i])
+	}
+	fmt.Println("-----------Create repo------")
 	tx, err := r.Conn().Begin(ctx)
 	defer func() {
 		if err != nil {

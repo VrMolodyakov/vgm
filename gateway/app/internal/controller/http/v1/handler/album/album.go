@@ -39,13 +39,20 @@ func NewAlbumHandler(service AlbumService) *albumHandler {
 	}
 }
 
+//TODO:delete
 func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
-	var album dto.Album
+	var album dto.AlbumReq
 	logger := logging.LoggerFromContext(r.Context())
 	if err := json.NewDecoder(r.Body).Decode(&album); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
+	fmt.Println("--------http handler----")
+	fmt.Println("tracklist := ")
+	for i := 0; i < len(album.Tracklist); i++ {
+		fmt.Println(album.Tracklist[i])
+	}
+	fmt.Println("--------http handler----")
 	err := a.service.CreateAlbum(r.Context(), model.AlbumFromDto(album))
 	if err != nil {
 		logger.Error(err.Error())
@@ -156,7 +163,7 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	response := make([]dto.AlbumView, len(albums))
+	response := make([]dto.AlbumViewRes, len(albums))
 	for i := 0; i < len(response); i++ {
 		response[i] = albums[i].DtoFromModel()
 	}
