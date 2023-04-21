@@ -119,7 +119,6 @@ func (a *app) startGrpc(ctx context.Context) {
 
 }
 
-//TODO:comments
 func loadTLSCredentials() (credentials.TransportCredentials, error) {
 	dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 	containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))

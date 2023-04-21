@@ -39,7 +39,6 @@ func NewAlbumHandler(service AlbumService) *albumHandler {
 	}
 }
 
-//TODO:delete
 func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 	var album dto.AlbumReq
 	logger := logging.LoggerFromContext(r.Context())
@@ -47,12 +46,6 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
-	fmt.Println("--------http handler----")
-	fmt.Println("tracklist := ")
-	for i := 0; i < len(album.Tracklist); i++ {
-		fmt.Println(album.Tracklist[i])
-	}
-	fmt.Println("--------http handler----")
 	err := a.service.CreateAlbum(r.Context(), model.AlbumFromDto(album))
 	if err != nil {
 		logger.Error(err.Error())
@@ -178,13 +171,8 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
-	// var req dto.FullAlbumRequest
 	albumID := chi.URLParam(r, "albumID")
 	logger := logging.LoggerFromContext(r.Context())
-	// if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-	// 	http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
-	// 	return
-	// }
 	fullAlbum, err := a.service.FindFullAlbum(r.Context(), albumID)
 	if err != nil {
 		logger.Error(err.Error())
@@ -199,7 +187,8 @@ func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	jsonResponse, err := json.Marshal(fullAlbum)
+	dto := fullAlbum.DtoFromModel()
+	jsonResponse, err := json.Marshal(dto)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

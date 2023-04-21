@@ -2,7 +2,6 @@ package album
 
 import (
 	"context"
-	"fmt"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	albumModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
@@ -52,15 +51,8 @@ func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRe
 	return &albumPb.UpdateAlbumResponse{}, nil
 }
 
-//TODO:delete
 func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
 	album := albumModel.NewAlbumFromPB(request)
-	fmt.Println("-----------Create album grpc------")
-	fmt.Println("tracklist := ")
-	for i := 0; i < len(album.Tracklist); i++ {
-		fmt.Println(album.Tracklist[i])
-	}
-	fmt.Println("-----------Create album grpc------")
 	err := s.albumPolicy.Create(ctx, *album)
 	if err != nil {
 		if _, ok := errors.IsInternal(err); ok {
