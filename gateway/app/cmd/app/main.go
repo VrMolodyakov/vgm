@@ -42,6 +42,12 @@ func main() {
 		"Db number", cfg.Redis.DbNumber,
 	)
 
+	logger.Sugar().Infow(
+		"jaeger",
+		"Address", cfg.Jaeger.Address,
+		"Port", cfg.Jaeger.Port,
+	)
+
 	// logger.Sugar().Infow(
 	// 	"keys config",
 	// 	"Access private key", cfg.KeyPairs.AccessPrivate,

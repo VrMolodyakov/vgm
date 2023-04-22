@@ -81,6 +81,11 @@ type MusicClientCert struct {
 	ClientCACertFile string `yaml:"client_CAcert_file"`
 }
 
+type Jaeger struct {
+	Address string `env:"JAEGER_ADDRESS"`
+	Port    string `env:"JAEGER_PORT"`
+}
+
 type Config struct {
 	HTTP            HTTP `yaml:"http"`
 	Postgres        Postgres
@@ -88,6 +93,7 @@ type Config struct {
 	EmailGRPC       EmailGRPC
 	Redis           Redis
 	KeyPairs        KeyPairs
+	Jaeger          Jaeger
 	EmailClientCert EmailClientCert `yaml:"email_client"`
 	MusicClientCert MusicClientCert `yaml:"music_client"`
 }

@@ -201,8 +201,6 @@ func (c *CreditInfo) DtoFromkModel() dto.CreditInfoRes {
 
 func (i *Info) DtoFromkModel() dto.InfoRes {
 	return dto.InfoRes{
-		ID:             i.ID,
-		AlbumID:        i.AlbumID,
 		CatalogNumber:  i.CatalogNumber,
 		FullImageSrc:   i.FullImageSrc,
 		SmallImageSrc:  i.SmallImageSrc,

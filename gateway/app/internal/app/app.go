@@ -22,10 +22,15 @@ import (
 	userService "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/service"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/client/redis"
+	"github.com/VrMolodyakov/vgm/gateway/pkg/jaeger"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/token"
 	"github.com/go-chi/chi"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+)
+
+const (
+	serviceName string = "gateway"
 )
 
 type app struct {
@@ -124,6 +129,11 @@ func (a *app) startHTTP(ctx context.Context) error {
 	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
+
+	err = jaeger.SetGlobalTracer(serviceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 
 	albumService := service.NewAlbumService(grpcMusicClient)
 	albumHandler := album.NewAlbumHandler(albumService)

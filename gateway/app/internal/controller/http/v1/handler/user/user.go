@@ -14,6 +14,7 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/hashing"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"go.opentelemetry.io/otel"
 )
 
 const (
@@ -94,6 +95,10 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	var req dto.SignInRequest
 	defer r.Body.Close()
+
+	tr := otel.Tracer("http")
+	_, span := tr.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)

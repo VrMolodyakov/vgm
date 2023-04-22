@@ -104,7 +104,12 @@ services:
         ports:
           - 4222:4222
         expose:
-          - "4222"        
+          - "4222"
+    jaeger:
+      image: "jaegertracing/all-in-one:1.22"
+      ports:
+        - "16686:16686"
+        - "6831:6831"              
 
 
 
