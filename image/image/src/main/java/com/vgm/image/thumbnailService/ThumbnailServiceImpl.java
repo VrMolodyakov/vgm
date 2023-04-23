@@ -1,4 +1,4 @@
-package com.vgm.image.imageService;
+package com.vgm.image.thumbnailService;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.name.Rename;
