@@ -77,7 +77,6 @@ func (a *AlbumView) ToProto() albumPb.Album {
 	}
 }
 
-//TODO:delete
 func NewAlbumFromPB(pb *albumPb.CreateAlbumRequest) *Album {
 	protoList := pb.GetTracklist()
 	tracklist := make([]trackModel.Track, len(protoList))
