@@ -15,12 +15,14 @@ import (
 	"github.com/VrMolodyakov/vgm/email/app/internal/config"
 	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/email"
 	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/interceptor"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
 	emailPb "github.com/VrMolodyakov/vgm/email/app/gen/go/proto/email/v1"
 	jet "github.com/VrMolodyakov/vgm/email/app/internal/controller/nats"
 	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/usecase"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/client/gmail"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/client/nats"
+	"github.com/VrMolodyakov/vgm/email/app/pkg/jaeger"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -34,6 +36,7 @@ const (
 	serverCertFile   string = "cert/email-server-cert.pem"
 	serverKeyFile    string = "cert/email-server-key.pem"
 	clientCACertFile string = "cert/ca-cert.pem"
+	serviceName      string = "email-server"
 )
 
 type app struct {
@@ -91,6 +94,11 @@ func (a *app) Run(ctx context.Context) {
 		a.logger.Error(err.Error())
 	}
 
+	err = jaeger.SetGlobalTracer(serviceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
+	if err != nil {
+		a.logger.Fatal(err.Error())
+	}
+
 	emailServer := email.NewServer(emailUseCase, a.logger, emailPb.UnimplementedEmailServiceServer{})
 	serverOptions := []grpc.ServerOption{}
 	if enableTLS {
@@ -104,6 +112,8 @@ func (a *app) Run(ctx context.Context) {
 	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(
 		interceptor.NewLoggerInterceptor(a.logger),
 	))
+	serverOptions = append(serverOptions, grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()))
+
 	a.grpcServer = grpc.NewServer(serverOptions...)
 
 	emailPb.RegisterEmailServiceServer(a.grpcServer, emailServer)

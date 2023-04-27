@@ -23,6 +23,11 @@ type Postgres struct {
 	PoolSize string `env:"POSTGRES_POOL_SIZE"       env-required:""`
 }
 
+type Jaeger struct {
+	Address string `env:"JAEGER_ADDRESS"`
+	Port    string `env:"JAEGER_PORT"`
+}
+
 type GRPC struct {
 	IP   string `env:"MUSIC_GRPC_IP"`
 	Port int    `env:"MUSIC_GRPC_PORT"`
@@ -30,16 +35,15 @@ type GRPC struct {
 
 type Config struct {
 	Postgres Postgres
+	Jaeger   Jaeger
 	GRPC     GRPC
 }
 
-//TODO: remote root path
 func GetConfig() *Config {
 	once.Do(func() {
 		instance = &Config{}
 		dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 		containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
-		fmt.Println("container docker path : ", containerConfigPath)
 		if exist, _ := Exists(containerConfigPath + "/configs/config.yaml"); exist {
 			fmt.Println("inside docker path")
 			if err := cleanenv.ReadConfig(containerConfigPath+"/configs/config.yaml", instance); err != nil {

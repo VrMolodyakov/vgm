@@ -12,6 +12,7 @@ import (
 	"time"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/config"
 	"github.com/VrMolodyakov/vgm/music/app/internal/controller/grpc/v1/album"
@@ -30,6 +31,7 @@ import (
 	tracklistService "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/service"
 
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/jaeger"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -42,6 +44,7 @@ const (
 	serverCertFile   string = "cert/server-cert.pem"
 	serverKeyFile    string = "cert/server-key.pem"
 	clientCACertFile string = "cert/ca-cert.pem"
+	serviceName      string = "music-service"
 )
 
 type app struct {
@@ -95,6 +98,11 @@ func (a *app) startGrpc(ctx context.Context) {
 
 	albumServer := album.NewServer(albumPolicy, personPolicy, albumPb.UnimplementedMusicServiceServer{})
 
+	err = jaeger.SetGlobalTracer(serviceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+
 	serverOptions := []grpc.ServerOption{}
 	if enableTLS {
 		tlsCredentials, err := loadTLSCredentials()
@@ -104,10 +112,11 @@ func (a *app) startGrpc(ctx context.Context) {
 
 		serverOptions = append(serverOptions, grpc.Creds(tlsCredentials))
 	}
+
 	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(
 		interceptor.NewLoggerInterceptor(logging.GetLogger().Logger),
 	))
-
+	serverOptions = append(serverOptions, grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()))
 	a.grpcServer = grpc.NewServer(serverOptions...)
 
 	albumPb.RegisterMusicServiceServer(a.grpcServer, albumServer)

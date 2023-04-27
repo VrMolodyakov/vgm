@@ -6,10 +6,15 @@ import (
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
-
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+var (
+	tracer = otel.Tracer("music-client")
 )
 
 type musicClient struct {
@@ -44,7 +49,10 @@ func (m *musicClient) StartWithTSL(certs ClientCerts) {
 
 	transportOption := grpc.WithTransportCredentials(tlsCredentials)
 
-	conn, err := grpc.Dial(m.target, transportOption)
+	conn, err := grpc.Dial(
+		m.target,
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
+		transportOption)
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -108,6 +116,9 @@ func (m *musicClient) FindAll(
 	releaseView model.AlbumReleasedView,
 	sort model.Sort,
 ) ([]model.AlbumView, error) {
+
+	ctx, span := tracer.Start(ctx, "music-client.FindAll")
+	defer span.End()
 
 	request := albumPb.FindAllAlbumsRequest{
 		Pagination: pagination.PbFromModel(),

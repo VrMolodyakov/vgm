@@ -7,11 +7,18 @@ import (
 	albumModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
 	personModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
+var (
+	tracer = otel.Tracer("music-server")
+)
+
 func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
+	ctx, span := tracer.Start(ctx, "music-server.FindAll")
+	defer span.End()
 	sort := albumModel.AlbumSort(request)
 	filter := albumModel.AlbumFilter(request)
 
