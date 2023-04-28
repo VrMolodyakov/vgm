@@ -73,7 +73,9 @@ func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRe
 }
 
 func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
-	fullAlbum, err := s.albumPolicy.GetOne(context.Background(), request.GetAlbumId())
+	ctx, span := tracer.Start(ctx, "music-server.FindFullAlbum")
+	defer span.End()
+	fullAlbum, err := s.albumPolicy.GetOne(ctx, request.GetAlbumId())
 	if err != nil {
 		return &albumPb.FindFullAlbumResponse{}, err
 	}

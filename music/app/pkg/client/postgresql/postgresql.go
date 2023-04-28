@@ -6,7 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/exaring/otelpgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type pgConfig struct {
@@ -44,7 +45,8 @@ func NewClient(ctx context.Context, maxAttempts int, delay time.Duration, cfg *p
 		if err != nil {
 			log.Fatalf("Failed while parsing config: %v\n", err)
 		}
-		pool, err = pgxpool.ConnectConfig(ctx, config)
+		config.ConnConfig.Tracer = otelpgx.NewTracer()
+		pool, err = pgxpool.NewWithConfig(ctx, config)
 		if err != nil {
 			log.Println("Connection failed... Going to do the next attempt")
 

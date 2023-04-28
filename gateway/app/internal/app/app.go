@@ -25,8 +25,9 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/jaeger"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/token"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/riandyrn/otelchi"
 )
 
 const (
@@ -125,6 +126,7 @@ func (a *app) startHTTP(ctx context.Context) error {
 	router.Use(chiMiddleware.Logger)
 	router.Use(cors.CORS)
 	router.Use(chiMiddleware.Recoverer)
+	router.Use(otelchi.Middleware("gateway-http", otelchi.WithChiRoutes(router)))
 
 	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))

@@ -7,7 +7,7 @@ import (
 	repository "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/repository"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 )
 
 type AlbumRepo interface {
