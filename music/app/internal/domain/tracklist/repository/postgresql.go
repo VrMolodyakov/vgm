@@ -8,6 +8,7 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
+	"go.opentelemetry.io/otel"
 )
 
 type repo struct {
@@ -19,6 +20,10 @@ const (
 	table = "track"
 )
 
+var (
+	tracer = otel.Tracer("track-repo")
+)
+
 func NewTracklistRepo(client db.PostgreSQLClient) *repo {
 	return &repo{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
@@ -27,6 +32,9 @@ func NewTracklistRepo(client db.PostgreSQLClient) *repo {
 }
 
 func (r *repo) Create(ctx context.Context, tracklist []model.Track) error {
+	_, span := tracer.Start(ctx, "repo.Create")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	insertState := r.queryBuilder.Insert(table).Columns("album_id", "title", "duration")
 	for _, track := range tracklist {
@@ -53,6 +61,9 @@ func (r *repo) Create(ctx context.Context, tracklist []model.Track) error {
 }
 
 func (r *repo) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
+	_, span := tracer.Start(ctx, "repo.GetAll")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 
 	query := r.queryBuilder.
@@ -99,6 +110,9 @@ func (r *repo) GetAll(ctx context.Context, albumID string) ([]model.Track, error
 }
 
 func (r *repo) Update(ctx context.Context, track model.Track) error {
+	_, span := tracer.Start(ctx, "repo.Update")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toUpdateStorageMap(&track)
 
@@ -131,6 +145,9 @@ func (r *repo) Update(ctx context.Context, track model.Track) error {
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {
+	_, span := tracer.Start(ctx, "repo.Delete")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := r.queryBuilder.
 		Delete(table).

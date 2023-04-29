@@ -7,6 +7,11 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
+	"go.opentelemetry.io/otel"
+)
+
+var (
+	tracer = otel.Tracer("album-policy")
 )
 
 type albumPolicy struct {
@@ -26,6 +31,9 @@ func NewAlbumPolicy(
 }
 
 func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
+	_, span := tracer.Start(ctx, "policy.GetAll")
+	defer span.End()
+
 	products, err := p.albumService.GetAll(ctx, filtering, sorting)
 	if err != nil {
 		return nil, errors.Wrap(err, "albumService.All")
@@ -35,18 +43,30 @@ func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, s
 }
 
 func (p *albumPolicy) Delete(ctx context.Context, id string) error {
+	_, span := tracer.Start(ctx, "policy.Delete")
+	defer span.End()
+
 	return p.albumService.Delete(ctx, id)
 }
 
 func (p *albumPolicy) Update(ctx context.Context, album model.AlbumView) error {
+	_, span := tracer.Start(ctx, "policy.Update")
+	defer span.End()
+
 	return p.albumService.Update(ctx, album)
 }
 
 func (p *albumPolicy) Create(ctx context.Context, album model.Album) error {
+	_, span := tracer.Start(ctx, "policy.Create")
+	defer span.End()
+
 	return p.albumService.Create(ctx, album)
 }
 
 func (p *albumPolicy) GetOne(ctx context.Context, albumID string) (model.FullAlbum, error) {
+	_, span := tracer.Start(ctx, "policy.GetOne")
+	defer span.End()
+
 	album, err := p.albumService.GetOne(ctx, albumID)
 	if err != nil {
 		return model.FullAlbum{}, err

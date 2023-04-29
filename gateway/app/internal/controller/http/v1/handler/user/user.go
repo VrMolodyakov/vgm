@@ -17,6 +17,10 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
+var (
+	tracer = otel.Tracer("user-http")
+)
+
 const (
 	link        string        = "http://localhost:3000/home"
 	sendTimeout time.Duration = 30 * time.Second
@@ -96,8 +100,7 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 	var req dto.SignInRequest
 	defer r.Body.Close()
 
-	tr := otel.Tracer("http")
-	_, span := tr.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -182,6 +185,9 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *userHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
+	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
+
 	refreshTokenCookie, err := r.Cookie("refresh_token")
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
@@ -249,6 +255,8 @@ func (u *userHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 }
 
 func (u *userHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
 	refreshTokenCookie, err := r.Cookie("refresh_token")
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
@@ -317,6 +325,8 @@ func (u *userHandler) Logout(w http.ResponseWriter, r *http.Request) {
 //TODO: change To
 func (u *userHandler) sendEmail(user umodel.User) {
 	ctx, cancel := context.WithTimeout(context.Background(), sendTimeout)
+	_, span := tracer.Start(ctx, "send email")
+	defer span.End()
 	defer cancel()
 	logger := logging.GetLogger()
 	t := templates.NewTemplate(link)

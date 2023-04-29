@@ -7,11 +7,19 @@ import (
 	albumModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
 	personModel "github.com/VrMolodyakov/vgm/music/app/internal/domain/person/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
+var (
+	tracer = otel.Tracer("music-grpc-server")
+)
+
 func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
+	_, span := tracer.Start(ctx, "server.FindAllAlbums")
+	defer span.End()
+
 	sort := albumModel.AlbumSort(request)
 	filter := albumModel.AlbumFilter(request)
 
@@ -35,6 +43,9 @@ func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbu
 }
 
 func (s *server) DeleteAlbum(ctx context.Context, request *albumPb.DeleteAlbumRequest) (*albumPb.DeleteAlbumResponse, error) {
+	_, span := tracer.Start(ctx, "server.DeleteAlbum")
+	defer span.End()
+
 	err := s.albumPolicy.Delete(ctx, request.GetId())
 	if err != nil {
 		return nil, err
@@ -43,6 +54,9 @@ func (s *server) DeleteAlbum(ctx context.Context, request *albumPb.DeleteAlbumRe
 }
 
 func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRequest) (*albumPb.UpdateAlbumResponse, error) {
+	_, span := tracer.Start(ctx, "server.UpdateAlbum")
+	defer span.End()
+
 	album := albumModel.UpdateModelFromPB(request)
 	err := s.albumPolicy.Update(ctx, album)
 	if err != nil {
@@ -52,6 +66,9 @@ func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRe
 }
 
 func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
+	_, span := tracer.Start(ctx, "server.CreateAlbum")
+	defer span.End()
+
 	album := albumModel.NewAlbumFromPB(request)
 	err := s.albumPolicy.Create(ctx, *album)
 	if err != nil {
@@ -66,6 +83,9 @@ func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRe
 }
 
 func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
+	_, span := tracer.Start(ctx, "server.FindFullAlbum")
+	defer span.End()
+
 	fullAlbum, err := s.albumPolicy.GetOne(context.Background(), request.GetAlbumId())
 	if err != nil {
 		return &albumPb.FindFullAlbumResponse{}, err
@@ -95,11 +115,10 @@ func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlb
 	}, nil
 }
 
-func (s *server) FindAlbum(context.Context, *albumPb.FindAlbumRequest) (*albumPb.FindAlbumResponse, error) {
-	return nil, nil
-}
-
 func (s *server) CreatePerson(ctx context.Context, request *albumPb.CreatePersonRequest) (*albumPb.CreatePersonResponse, error) {
+	_, span := tracer.Start(ctx, "server.CreatePerson")
+	defer span.End()
+
 	personModel := personModel.NewPersonFromPB(request)
 	person, err := s.personPolicy.Create(ctx, personModel)
 

@@ -6,6 +6,11 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
+	"go.opentelemetry.io/otel"
+)
+
+var (
+	tracer = otel.Tracer("credit-service")
 )
 
 type CreditRepo interface {
@@ -23,6 +28,9 @@ func NewCreditService(dao CreditRepo) *creditService {
 }
 
 func (c *creditService) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
+	_, span := tracer.Start(ctx, "service.GetAll")
+	defer span.End()
+
 	if albumID == "" {
 		err := errors.New("id must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())
@@ -36,6 +44,9 @@ func (c *creditService) GetAll(ctx context.Context, albumID string) ([]model.Cre
 }
 
 func (c *creditService) Delete(ctx context.Context, albumID string) error {
+	_, span := tracer.Start(ctx, "service.Delete")
+	defer span.End()
+
 	if albumID == "" {
 		err := errors.New("id must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())
@@ -45,6 +56,9 @@ func (c *creditService) Delete(ctx context.Context, albumID string) error {
 }
 
 func (c *creditService) Update(ctx context.Context, albumId string, role string) error {
+	_, span := tracer.Start(ctx, "service.Update")
+	defer span.End()
+
 	if albumId == "" || role == "" {
 		err := errors.New("id/role must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())

@@ -30,6 +30,7 @@ import (
 	tracklistService "github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/service"
 
 	"github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
+	"github.com/VrMolodyakov/vgm/music/app/pkg/jaeger"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -42,6 +43,10 @@ const (
 	serverCertFile   string = "cert/server-cert.pem"
 	serverKeyFile    string = "cert/server-key.pem"
 	clientCACertFile string = "cert/ca-cert.pem"
+)
+
+const (
+	serviceName string = "music"
 )
 
 type app struct {
@@ -107,6 +112,11 @@ func (a *app) startGrpc(ctx context.Context) {
 	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(
 		interceptor.NewLoggerInterceptor(logging.GetLogger().Logger),
 	))
+
+	err = jaeger.SetGlobalTracer(serviceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 
 	a.grpcServer = grpc.NewServer(serverOptions...)
 

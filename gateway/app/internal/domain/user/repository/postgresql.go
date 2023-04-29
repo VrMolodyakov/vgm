@@ -10,12 +10,17 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"github.com/jackc/pgx/v4"
+	"go.opentelemetry.io/otel"
 )
 
 const (
 	userTable      string = "users"
 	userRolesTable string = "user_roles"
 	rolesTable     string = "roles"
+)
+
+var (
+	tracer = otel.Tracer("user-repo")
 )
 
 type repo struct {
@@ -31,6 +36,9 @@ func NewUserRepo(client postgresql.PostgreSQLClient) *repo {
 }
 
 func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
+	_, span := tracer.Start(ctx, "repo.Create")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	tx, err := r.client.Begin(ctx)
 	defer func() {
@@ -120,6 +128,9 @@ func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
 }
 
 func (r *repo) GetByUsername(ctx context.Context, username string) (model.User, error) {
+	_, span := tracer.Start(ctx, "repo.GetByUsername")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
 		Select(
@@ -165,6 +176,9 @@ func (r *repo) GetByUsername(ctx context.Context, username string) (model.User, 
 }
 
 func (r *repo) GetByID(ctx context.Context, ID int) (model.User, error) {
+	_, span := tracer.Start(ctx, "repo.GetByID")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
 		Select(
@@ -209,6 +223,9 @@ func (r *repo) GetByID(ctx context.Context, ID int) (model.User, error) {
 }
 
 func (r *repo) Delete(ctx context.Context, username string) error {
+	_, span := tracer.Start(ctx, "repo.Delete")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, err := r.queryBuilder.
 		Delete(userTable).
@@ -236,6 +253,9 @@ func (r *repo) Delete(ctx context.Context, username string) error {
 }
 
 func (r *repo) Update(ctx context.Context, user model.User) error {
+	_, span := tracer.Start(ctx, "repo.Update")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toUpdateStorageMap(user)
 

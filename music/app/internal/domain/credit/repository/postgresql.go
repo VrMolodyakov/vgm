@@ -8,6 +8,7 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/credit/model"
 	db "github.com/VrMolodyakov/vgm/music/app/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
+	"go.opentelemetry.io/otel"
 )
 
 type repo struct {
@@ -19,6 +20,10 @@ const (
 	table = "credit"
 )
 
+var (
+	tracer = otel.Tracer("credit-repo")
+)
+
 func NewCreditRepo(client db.PostgreSQLClient) *repo {
 	return &repo{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
@@ -27,6 +32,9 @@ func NewCreditRepo(client db.PostgreSQLClient) *repo {
 }
 
 func (c *repo) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
+	_, span := tracer.Start(ctx, "repo.GetAll")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 
 	query := c.queryBuilder.
@@ -72,6 +80,9 @@ func (c *repo) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, 
 }
 
 func (c *repo) Delete(ctx context.Context, albumID string) error {
+	_, span := tracer.Start(ctx, "repo.Delete")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := c.queryBuilder.
 		Delete(table).
@@ -101,6 +112,9 @@ func (c *repo) Delete(ctx context.Context, albumID string) error {
 }
 
 func (r *repo) Update(ctx context.Context, albumId string, role string) error {
+	_, span := tracer.Start(ctx, "repo.Update")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 
 	sql, args, buildErr := r.queryBuilder.

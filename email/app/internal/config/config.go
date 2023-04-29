@@ -49,6 +49,11 @@ type Nats struct {
 	Port int    `env:"NATS_PORT"`
 }
 
+type Jaeger struct {
+	Address string `env:"JAEGER_ADDRESS"`
+	Port    string `env:"JAEGER_PORT"`
+}
+
 type Logger struct {
 	DisableCaller     bool   `yaml:"disable_caller"`
 	Development       bool   `yaml:"development"`
@@ -60,6 +65,7 @@ type Logger struct {
 type Config struct {
 	Logger     Logger     `yaml:"logger"`
 	Subscriber Subscriber `yaml:"subscriber"`
+	Jaeger     Jaeger
 	Mail       Mail
 	Nats       Nats
 	GRPC       GRPC

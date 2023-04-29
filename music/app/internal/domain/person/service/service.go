@@ -7,6 +7,11 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
+	"go.opentelemetry.io/otel"
+)
+
+var (
+	tracer = otel.Tracer("person-service")
 )
 
 type PersonRepo interface {
@@ -25,6 +30,9 @@ func NewPersonService(dao PersonRepo) *personService {
 }
 
 func (p *personService) GetAll(ctx context.Context, filter filter.Filterable) ([]model.Person, error) {
+	_, span := tracer.Start(ctx, "service.GetAll")
+	defer span.End()
+
 	persons, err := p.personRepo.GetAll(ctx, filter)
 	if err != nil {
 		return nil, errors.Wrap(err, "personService.All")
@@ -34,6 +42,9 @@ func (p *personService) GetAll(ctx context.Context, filter filter.Filterable) ([
 }
 
 func (p *personService) Create(ctx context.Context, person model.Person) (model.Person, error) {
+	_, span := tracer.Start(ctx, "service.Create")
+	defer span.End()
+
 	if !person.IsValid() {
 		return model.Person{}, model.ErrValidation
 	}
@@ -46,6 +57,9 @@ func (p *personService) Create(ctx context.Context, person model.Person) (model.
 }
 
 func (p *personService) Update(ctx context.Context, person model.Person) error {
+	_, span := tracer.Start(ctx, "service.Update")
+	defer span.End()
+
 	if !person.IsValid() {
 		err := errors.New("id must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())
@@ -59,6 +73,9 @@ func (p *personService) Update(ctx context.Context, person model.Person) error {
 }
 
 func (p *personService) Delete(ctx context.Context, id string) error {
+	_, span := tracer.Start(ctx, "service.Delete")
+	defer span.End()
+
 	if id == "" {
 		err := errors.New("id must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())

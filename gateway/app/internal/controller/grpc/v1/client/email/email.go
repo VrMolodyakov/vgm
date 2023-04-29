@@ -1,14 +1,20 @@
-package client
+package email
 
 import (
 	"context"
 	"log"
 
 	emailPb "github.com/VrMolodyakov/vgm/email/app/gen/go/proto/email/v1"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/email/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+var (
+	tracer = otel.Tracer("email-grpc-client")
 )
 
 type emailClient struct {
@@ -33,9 +39,8 @@ func (e *emailClient) Start() {
 	e.client = emailPb.NewEmailServiceClient(conn)
 }
 
-func (e *emailClient) StartWithTSL(certs ClientCerts) {
-
-	tlsCredentials, err := certs.loadTLSCredentials()
+func (e *emailClient) StartWithTSL(certs client.ClientCerts) {
+	tlsCredentials, err := certs.LoadTLSCredentials()
 	if err != nil {
 		log.Fatal("cannot load TLS credentials: ", err)
 	}
@@ -50,6 +55,9 @@ func (e *emailClient) StartWithTSL(certs ClientCerts) {
 }
 
 func (e *emailClient) Send(ctx context.Context, email model.Email) error {
+	_, span := tracer.Start(ctx, "client.Send")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	req := emailPb.CreateEmailRequest{
 		Subject: email.Subject,

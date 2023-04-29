@@ -32,7 +32,7 @@ func NewClientCerts(
 	}
 }
 
-func (c *ClientCerts) loadTLSCredentials() (credentials.TransportCredentials, error) {
+func (c *ClientCerts) LoadTLSCredentials() (credentials.TransportCredentials, error) {
 	// Load certificate of the CA who signed server's certificate
 	dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 	containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))

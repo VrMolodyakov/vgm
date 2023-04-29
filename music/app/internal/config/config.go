@@ -28,8 +28,14 @@ type GRPC struct {
 	Port int    `env:"MUSIC_GRPC_PORT"`
 }
 
+type Jaeger struct {
+	Address string `env:"JAEGER_ADDRESS"`
+	Port    string `env:"JAEGER_PORT"`
+}
+
 type Config struct {
 	Postgres Postgres
+	Jaeger   Jaeger
 	GRPC     GRPC
 }
 

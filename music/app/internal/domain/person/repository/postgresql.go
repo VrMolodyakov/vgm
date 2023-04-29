@@ -11,6 +11,7 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"github.com/jackc/pgx"
+	"go.opentelemetry.io/otel"
 )
 
 type repo struct {
@@ -22,6 +23,10 @@ const (
 	table = "person"
 )
 
+var (
+	tracer = otel.Tracer("person-repo")
+)
+
 func NewPersonStorage(client db.PostgreSQLClient) *repo {
 	return &repo{
 		queryBuilder: sq.StatementBuilder.PlaceholderFormat(sq.Dollar),
@@ -30,6 +35,9 @@ func NewPersonStorage(client db.PostgreSQLClient) *repo {
 }
 
 func (r *repo) Create(ctx context.Context, person model.Person) (model.Person, error) {
+	_, span := tracer.Start(ctx, "repo.Create")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	personStorageMap := toStorageMap(person)
 	sql, args, err := r.queryBuilder.
@@ -67,6 +75,9 @@ func (r *repo) Create(ctx context.Context, person model.Person) (model.Person, e
 }
 
 func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model.Person, error) {
+	_, span := tracer.Start(ctx, "repo.GetAll")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	query := r.queryBuilder.
@@ -110,6 +121,9 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model
 }
 
 func (r *repo) GetOne(ctx context.Context, personID string) (model.Person, error) {
+	_, span := tracer.Start(ctx, "repo.GetOne")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 
 	query := r.queryBuilder.
@@ -146,6 +160,9 @@ func (r *repo) GetOne(ctx context.Context, personID string) (model.Person, error
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {
+	_, span := tracer.Start(ctx, "repo.Delete")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := r.queryBuilder.
 		Delete(table).
@@ -175,6 +192,9 @@ func (r *repo) Delete(ctx context.Context, id string) error {
 }
 
 func (r *repo) Update(ctx context.Context, person model.Person) error {
+	_, span := tracer.Start(ctx, "repo.Update")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toUpdateStorageMap(person)
 

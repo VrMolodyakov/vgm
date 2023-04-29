@@ -13,8 +13,13 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"github.com/go-chi/chi"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+var (
+	tracer = otel.Tracer("album-http")
 )
 
 type AlbumService interface {
@@ -40,6 +45,9 @@ func NewAlbumHandler(service AlbumService) *albumHandler {
 }
 
 func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
+	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
+
 	var album dto.AlbumReq
 	logger := logging.LoggerFromContext(r.Context())
 	if err := json.NewDecoder(r.Body).Decode(&album); err != nil {
@@ -67,6 +75,8 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 
 //TODO:return person?
 func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
+	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
 	var person dto.Person
 	logger := logging.LoggerFromContext(r.Context())
 	if err := json.NewDecoder(r.Body).Decode(&person); err != nil {
@@ -93,6 +103,9 @@ func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
+	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
+
 	logger := logging.LoggerFromContext(r.Context())
 	sortBy := r.URL.Query().Get("sort_by")
 	sortBy, err := validateSortQuery(sortBy)
@@ -171,6 +184,9 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
+	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
+
 	albumID := chi.URLParam(r, "albumID")
 	logger := logging.LoggerFromContext(r.Context())
 	fullAlbum, err := a.service.FindFullAlbum(r.Context(), albumID)

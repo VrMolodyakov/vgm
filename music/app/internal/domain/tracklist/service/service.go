@@ -6,6 +6,11 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/tracklist/model"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
+	"go.opentelemetry.io/otel"
+)
+
+var (
+	tracer = otel.Tracer("track-service")
 )
 
 type TrackRepo interface {
@@ -24,6 +29,9 @@ func NewTrackService(dao TrackRepo) *trackService {
 }
 
 func (t *trackService) Create(ctx context.Context, tracklist []model.Track) error {
+	_, span := tracer.Start(ctx, "service.Create")
+	defer span.End()
+
 	for _, t := range tracklist {
 		if !t.IsValid() {
 			return model.ErrValidation
@@ -39,6 +47,9 @@ func (t *trackService) Create(ctx context.Context, tracklist []model.Track) erro
 }
 
 func (t *trackService) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
+	_, span := tracer.Start(ctx, "service.GetAll")
+	defer span.End()
+
 	if albumID == "" {
 		err := errors.New("id must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())
@@ -52,6 +63,9 @@ func (t *trackService) GetAll(ctx context.Context, albumID string) ([]model.Trac
 }
 
 func (t *trackService) Update(ctx context.Context, track model.Track) error {
+	_, span := tracer.Start(ctx, "service.Update")
+	defer span.End()
+
 	if !track.IsValid() {
 		err := errors.New("id must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())
@@ -65,6 +79,9 @@ func (t *trackService) Update(ctx context.Context, track model.Track) error {
 }
 
 func (t *trackService) Delete(ctx context.Context, id string) error {
+	_, span := tracer.Start(ctx, "service.Delete")
+	defer span.End()
+
 	if id == "" {
 		err := errors.New("id must not be empty")
 		logging.LoggerFromContext(ctx).Error(err.Error())

@@ -12,6 +12,8 @@ import (
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client/email"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client/music"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
@@ -95,8 +97,8 @@ func (a *app) startHTTP(ctx context.Context) error {
 		a.cfg.MusicClientCert.ClientKeyFile,
 		a.cfg.MusicClientCert.ClientCACertFile,
 	)
-	grpcMusicClient := client.NewMusicClient(musicAddress)
-	grpcEmailClient := client.NewEmailClient(emailAddress)
+	grpcMusicClient := music.NewMusicClient(musicAddress)
+	grpcEmailClient := email.NewEmailClient(emailAddress)
 	grpcMusicClient.StartWithTSL(musicCerts)
 	grpcEmailClient.StartWithTSL(emailCerts)
 

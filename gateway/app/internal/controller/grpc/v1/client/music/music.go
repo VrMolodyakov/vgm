@@ -1,15 +1,21 @@
-package client
+package music
 
 import (
 	"context"
 	"log"
 
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"go.opentelemetry.io/otel"
 
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+var (
+	tracer = otel.Tracer("music-grpc-client")
 )
 
 type musicClient struct {
@@ -35,9 +41,9 @@ func (m *musicClient) Start() {
 	m.client = albumPb.NewMusicServiceClient(conn)
 }
 
-func (m *musicClient) StartWithTSL(certs ClientCerts) {
+func (m *musicClient) StartWithTSL(certs client.ClientCerts) {
 
-	tlsCredentials, err := certs.loadTLSCredentials()
+	tlsCredentials, err := certs.LoadTLSCredentials()
 	if err != nil {
 		log.Fatal("cannot load TLS credentials: ", err)
 	}
@@ -52,6 +58,9 @@ func (m *musicClient) StartWithTSL(certs ClientCerts) {
 }
 
 func (m *musicClient) CreateAlbum(ctx context.Context, album model.Album) error {
+	_, span := tracer.Start(ctx, "client.CreateAlbum")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	tracklist := make([]*albumPb.Track, len(album.Tracklist))
 	for i := 0; i < len(album.Tracklist); i++ {
@@ -87,6 +96,9 @@ func (m *musicClient) CreateAlbum(ctx context.Context, album model.Album) error 
 }
 
 func (m *musicClient) CreatePerson(ctx context.Context, person model.Person) error {
+	_, span := tracer.Start(ctx, "client.CreatePerson")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	request := albumPb.CreatePersonRequest{
 		FirstName: person.FirstName,
@@ -109,6 +121,9 @@ func (m *musicClient) FindAll(
 	sort model.Sort,
 ) ([]model.AlbumView, error) {
 
+	_, span := tracer.Start(ctx, "client.FindAll")
+	defer span.End()
+
 	request := albumPb.FindAllAlbumsRequest{
 		Pagination: pagination.PbFromModel(),
 		Title:      titleView.PbFromModel(),
@@ -129,6 +144,9 @@ func (m *musicClient) FindAll(
 }
 
 func (m *musicClient) FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
+	_, span := tracer.Start(ctx, "client.FindFullAlbum")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	request := albumPb.FindFullAlbumRequest{
 		AlbumId: id,

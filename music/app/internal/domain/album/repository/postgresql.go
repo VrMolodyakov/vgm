@@ -13,6 +13,11 @@ import (
 	"github.com/VrMolodyakov/vgm/music/app/pkg/filter"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/logging"
 	"github.com/VrMolodyakov/vgm/music/app/pkg/sort"
+	"go.opentelemetry.io/otel"
+)
+
+var (
+	tracer = otel.Tracer("album-repo")
 )
 
 type Album interface {
@@ -45,6 +50,9 @@ func NewAlbumRepository(client db.PostgreSQLClient) Album {
 }
 
 func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
+	_, span := tracer.Start(ctx, "repo.GetAll")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	filter := dbFIlter.NewFilters(filtering)
 	sort := dbSort.NewSortOptions(sorting)
@@ -89,6 +97,9 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting 
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {
+	_, span := tracer.Start(ctx, "repo.Delete")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := r.queryBuilder.
 		Delete(table).
@@ -118,6 +129,9 @@ func (r *repo) Delete(ctx context.Context, id string) error {
 }
 
 func (r *repo) DeleteInfo(ctx context.Context, id string) error {
+	_, span := tracer.Start(ctx, "repo.DeleteInfo")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	sql, args, buildErr := r.queryBuilder.
 		Delete(table).
@@ -147,6 +161,9 @@ func (r *repo) DeleteInfo(ctx context.Context, id string) error {
 }
 
 func (r *repo) Update(ctx context.Context, album model.AlbumView) error {
+	_, span := tracer.Start(ctx, "repo.Update")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := ToUpdateStorageMap(album)
 	sql, args, buildErr := r.queryBuilder.
@@ -178,6 +195,9 @@ func (r *repo) Update(ctx context.Context, album model.AlbumView) error {
 }
 
 func (r *repo) UpdateInfo(ctx context.Context, info model.Info) error {
+	_, span := tracer.Start(ctx, "repo.UpdateInfo")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	infoStorageMap := toUpdateStorageMap(&info)
 
@@ -210,6 +230,9 @@ func (r *repo) UpdateInfo(ctx context.Context, info model.Info) error {
 }
 
 func (r *repo) GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, error) {
+	_, span := tracer.Start(ctx, "repo.GetInfo")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
 		Select(
@@ -267,6 +290,9 @@ func (r *repo) GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, er
 }
 
 func (r *repo) Tx(ctx context.Context, action func(txRepo Album) error) error {
+	_, span := tracer.Start(ctx, "repo.Tx")
+	defer span.End()
+
 	return r.WithinTransaction(
 		ctx,
 		func(client db.PostgreSQLClient) psqltx.Transactor { return NewAlbumRepository(client) },
@@ -275,6 +301,9 @@ func (r *repo) Tx(ctx context.Context, action func(txRepo Album) error) error {
 }
 
 func (r *repo) Create(ctx context.Context, album model.Album) error {
+	_, span := tracer.Start(ctx, "repo.Create")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	albumStorageMap := ToStorageMap(album.Album)
 	tx, err := r.Conn().Begin(ctx)

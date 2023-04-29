@@ -6,8 +6,13 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+var (
+	tracer = otel.Tracer("music-service")
 )
 
 type MusicGrpcClient interface {
@@ -33,6 +38,9 @@ func NewAlbumService(client MusicGrpcClient) *music {
 }
 
 func (a *music) CreateAlbum(ctx context.Context, album model.Album) error {
+	_, span := tracer.Start(ctx, "client.CreateAlbum")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	err := a.client.CreateAlbum(ctx, album)
 	if err != nil {
@@ -56,6 +64,9 @@ func (a *music) CreateAlbum(ctx context.Context, album model.Album) error {
 }
 
 func (a *music) CreatePerson(ctx context.Context, person model.Person) error {
+	_, span := tracer.Start(ctx, "client.CreatePerson")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	err := a.client.CreatePerson(ctx, person)
 	if err != nil {
@@ -85,6 +96,9 @@ func (m *music) FindAllAlbums(
 	releaseView model.AlbumReleasedView,
 	sort model.Sort) ([]model.AlbumView, error) {
 
+	_, span := tracer.Start(ctx, "client.FindAllAlbums")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	albums, err := m.client.FindAll(ctx, pagination, titleView, releaseView, sort)
 	if err != nil {
@@ -107,6 +121,9 @@ func (m *music) FindAllAlbums(
 }
 
 func (m *music) FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
+	_, span := tracer.Start(ctx, "client.FindFullAlbum")
+	defer span.End()
+
 	logger := logging.LoggerFromContext(ctx)
 	fullAlbum, err := m.client.FindFullAlbum(ctx, id)
 	if err != nil {
