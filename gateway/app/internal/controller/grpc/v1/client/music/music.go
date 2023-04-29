@@ -7,9 +7,9 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
-	"go.opentelemetry.io/otel"
-
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -50,7 +50,10 @@ func (m *musicClient) StartWithTSL(certs client.ClientCerts) {
 
 	transportOption := grpc.WithTransportCredentials(tlsCredentials)
 
-	conn, err := grpc.Dial(m.target, transportOption)
+	conn, err := grpc.Dial(
+		m.target,
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()),
+		transportOption)
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}

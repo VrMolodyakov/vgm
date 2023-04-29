@@ -9,7 +9,7 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/client/postgresql"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 	"go.opentelemetry.io/otel"
 )
 

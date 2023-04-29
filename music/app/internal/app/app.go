@@ -43,10 +43,7 @@ const (
 	serverCertFile   string = "cert/server-cert.pem"
 	serverKeyFile    string = "cert/server-key.pem"
 	clientCACertFile string = "cert/ca-cert.pem"
-)
-
-const (
-	serviceName string = "music"
+	serviceName      string = "music-service"
 )
 
 type app struct {
@@ -100,6 +97,11 @@ func (a *app) startGrpc(ctx context.Context) {
 
 	albumServer := album.NewServer(albumPolicy, personPolicy, albumPb.UnimplementedMusicServiceServer{})
 
+	err = jaeger.SetGlobalTracer(serviceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
+
 	serverOptions := []grpc.ServerOption{}
 	if enableTLS {
 		tlsCredentials, err := loadTLSCredentials()
@@ -109,6 +111,7 @@ func (a *app) startGrpc(ctx context.Context) {
 
 		serverOptions = append(serverOptions, grpc.Creds(tlsCredentials))
 	}
+
 	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(
 		interceptor.NewLoggerInterceptor(logging.GetLogger().Logger),
 	))
