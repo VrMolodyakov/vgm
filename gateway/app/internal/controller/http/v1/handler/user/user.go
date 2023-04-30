@@ -11,6 +11,7 @@ import (
 	emodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/email/model"
 	umodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/email/templates"
+
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/hashing"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
@@ -55,13 +56,13 @@ func NewUserHandler(
 
 func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	var req dto.SignUpRequest
-
 	defer r.Body.Close()
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
+
 	hashedPassword, err := hashing.HashPassword(req.Password)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -97,12 +98,11 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
-	var req dto.SignInRequest
-	defer r.Body.Close()
-
 	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
+	var req dto.SignInRequest
+	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return

@@ -8,15 +8,15 @@ type AlbumReq struct {
 }
 
 type Person struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	BirthDate int64  `json:"birth_date"`
+	FirstName string `json:"first_name" validate:"required"`
+	LastName  string `json:"last_name" validate:"required"`
+	BirthDate int64  `json:"birth_date" validate:"required"`
 }
 
 type AlbumViewReq struct {
-	Title      string `json:"title"`
-	ReleasedAt int64  `json:"released_at"`
-	CreatedAt  int64  `json:"created_at"`
+	Title      string `json:"title" validate:"required"`
+	ReleasedAt int64  `json:"released_at" validate:"gt=0,required,numeric"`
+	CreatedAt  int64  `json:"created_at" validate:"required"`
 }
 
 type AlbumViewRes struct {
@@ -27,15 +27,15 @@ type AlbumViewRes struct {
 }
 
 type InfoReq struct {
-	CatalogNumber  string  `json:"catalog_number"`
+	CatalogNumber  string  `json:"catalog_number" validate:"required"`
 	FullImageSrc   string  `json:"full_image_src"`
 	SmallImageSrc  string  `json:"small_image_src"`
-	Barcode        string  `json:"barcode"`
-	CurrencyCode   string  `json:"currency_code"`
-	MediaFormat    string  `json:"media_format"`
-	Classification string  `json:"classification"`
-	Publisher      string  `json:"publisher"`
-	Price          float64 `json:"price"`
+	Barcode        string  `json:"barcode" validate:"required"`
+	CurrencyCode   string  `json:"currency_code" validate:"required"`
+	MediaFormat    string  `json:"media_format" validate:"required"`
+	Classification string  `json:"classification" validate:"required"`
+	Publisher      string  `json:"publisher" validate:"required"`
+	Price          float64 `json:"price" validate:"gt=0,required"`
 }
 
 type InfoRes struct {
@@ -51,8 +51,8 @@ type InfoRes struct {
 }
 
 type TrackReq struct {
-	Title    string `json:"title"`
-	Duration string `json:"duration"`
+	Title    string `json:"title" validate:"required,min=1"`
+	Duration string `json:"duration" validate:"required,min=3"`
 }
 
 type TrackRes struct {
@@ -63,8 +63,8 @@ type TrackRes struct {
 }
 
 type CreditReq struct {
-	PersonID   int64  `json:"person_id"`
-	Profession string `json:"profession"`
+	PersonID   int64  `json:"person_id" validate:"gt=0,required"`
+	Profession string `json:"profession" validate:"required,min=3"`
 }
 
 type CreditInfoRes struct {
@@ -74,7 +74,7 @@ type CreditInfoRes struct {
 }
 
 type FullAlbumReq struct {
-	Id string `json:"album_id"`
+	Id string `json:"album_id"  validate:"required"`
 }
 
 type FullAlbumRes struct {
