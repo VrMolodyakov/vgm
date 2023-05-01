@@ -1,0 +1,13 @@
+scrape_configs:
+  - job_name: gateway
+    scrape_interval: 15s
+    metrics_path: /api/metrics/gateway
+    static_configs:
+      - targets:
+        - gateway:8080
+  - job_name: email
+    scrape_interval: 15s
+    metrics_path: /api/metrics/email
+    static_configs:
+      - targets:
+        - email:30001  

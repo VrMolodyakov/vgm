@@ -16,7 +16,7 @@ type Person struct {
 type AlbumViewReq struct {
 	Title      string `json:"title" validate:"required"`
 	ReleasedAt int64  `json:"released_at" validate:"gt=0,required,numeric"`
-	CreatedAt  int64  `json:"created_at" validate:"required"`
+	CreatedAt  int64  `json:"created_at"`
 }
 
 type AlbumViewRes struct {

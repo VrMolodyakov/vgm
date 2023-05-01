@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album/dto"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/dto"
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 )
 

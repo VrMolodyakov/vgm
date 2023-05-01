@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user/dto"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/dto"
 	emodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/email/model"
 	umodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/email/templates"
@@ -63,17 +63,26 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	errs := dto.Validate(req)
+	if errs != nil {
+		jsonErr, _ := json.Marshal(errs)
+		http.Error(w, string(jsonErr), http.StatusBadRequest)
+		return
+	}
+
 	hashedPassword, err := hashing.HashPassword(req.Password)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	user := umodel.User{
 		Username: req.Username,
 		Password: hashedPassword,
 		Email:    req.Email,
 		Role:     req.Role,
 	}
+
 	userID, err := u.user.Create(r.Context(), user)
 	if err != nil {
 		if _, ok := errors.IsInternal(err); ok {
@@ -92,6 +101,7 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonResponse)
@@ -107,6 +117,14 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
+
+	errs := dto.Validate(req)
+	if errs != nil {
+		jsonErr, _ := json.Marshal(errs)
+		http.Error(w, string(jsonErr), http.StatusBadRequest)
+		return
+	}
+
 	user, err := u.user.GetByUsername(context.Background(), req.Username)
 	if err != nil {
 		if _, ok := errors.IsInternal(err); ok {
@@ -116,26 +134,31 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	err = hashing.ComparePassword(user.Password, req.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	accessToken, err := u.tokenHandler.CreateAccessToken(time.Duration(u.accessTtl)*time.Minute, user.Id, user.Role)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	refreshToken, err := u.tokenHandler.CreateRefreshToken(time.Duration(u.refreshTtl)*time.Minute, user.Id)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	err = u.tokenService.Save(r.Context(), refreshToken, user.Id, time.Duration(u.refreshTtl)*time.Minute)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	accessCookie := http.Cookie{
 		Name:     "access_token",
 		Value:    accessToken,

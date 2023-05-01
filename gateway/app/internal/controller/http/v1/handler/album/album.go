@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album/dto"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/dto"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
@@ -54,6 +54,14 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
+
+	errs := dto.Validate(album)
+	if errs != nil {
+		jsonErr, _ := json.Marshal(errs)
+		http.Error(w, string(jsonErr), http.StatusBadRequest)
+		return
+	}
+
 	err := a.service.CreateAlbum(r.Context(), model.AlbumFromDto(album))
 	if err != nil {
 		logger.Error(err.Error())
@@ -77,12 +85,21 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
+
 	var person dto.Person
 	logger := logging.LoggerFromContext(r.Context())
 	if err := json.NewDecoder(r.Body).Decode(&person); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
+
+	errs := dto.Validate(person)
+	if errs != nil {
+		jsonErr, _ := json.Marshal(errs)
+		http.Error(w, string(jsonErr), http.StatusBadRequest)
+		return
+	}
+
 	err := a.service.CreatePerson(r.Context(), model.PersonFromDto(person))
 	if err != nil {
 		logger.Error(err.Error())
@@ -97,6 +114,7 @@ func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("the person was created"))
