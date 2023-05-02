@@ -7,17 +7,23 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 )
 
+type AuthMiddleware struct {
+	userService  UserService
+	tokenHandler TokenHandler
+	tokenService TokenService
+}
+
 func NewAuthMiddleware(
 	userService UserService,
 	tokenService TokenService,
-	tokenHandler TokenHandler) *authMiddleware {
-	return &authMiddleware{
+	tokenHandler TokenHandler) *AuthMiddleware {
+	return &AuthMiddleware{
 		userService:  userService,
 		tokenService: tokenService,
 		tokenHandler: tokenHandler}
 }
 
-func (a *authMiddleware) Auth(next http.Handler) http.Handler {
+func (a *AuthMiddleware) Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var accessToken string
 		coockie, err := r.Cookie("access_token")

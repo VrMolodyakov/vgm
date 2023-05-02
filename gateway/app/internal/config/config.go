@@ -41,20 +41,28 @@ type Postgres struct {
 	PoolSize string `env:"USERDB_POSTGRES_POOL_SIZE"       env-required:""`
 }
 
-type HTTP struct {
-	IP           string        `env:"GATEWAY_IP"`
-	Port         int           `env:"GATEWAY_PORT"`
+type UserServer struct {
+	IP           string        `env:"USER_SERVER_IP"`
+	Port         int           `env:"USER_SERVER_PORT"`
 	ReadTimeout  time.Duration `yaml:"read_timeout"`
 	WriteTimeout time.Duration `yaml:"write_timeout"`
-	CORS         struct {
-		AllowedMethods     []string `yaml:"allowed_methods"`
-		AllowedOrigins     []string `yaml:"allowed_origins"`
-		AllowCredentials   bool     `yaml:"allow_credentials"`
-		AllowedHeaders     []string `yaml:"allowed_headers"`
-		OptionsPassthrough bool     `yaml:"options_passthrough"`
-		ExposedHeaders     []string `yaml:"exposed_headers"`
-		Debug              bool     `yaml:"debug"`
-	} `yaml:"cors"`
+}
+
+type MusicServer struct {
+	IP           string        `env:"MUSIC_SERVER_IP"`
+	Port         int           `env:"MUSIC_SERVER_PORT"`
+	ReadTimeout  time.Duration `yaml:"read_timeout"`
+	WriteTimeout time.Duration `yaml:"write_timeout"`
+}
+
+type CORS struct {
+	AllowedMethods     []string `yaml:"allowed_methods"`
+	AllowedOrigins     []string `yaml:"allowed_origins"`
+	AllowCredentials   bool     `yaml:"allow_credentials"`
+	AllowedHeaders     []string `yaml:"allowed_headers"`
+	OptionsPassthrough bool     `yaml:"options_passthrough"`
+	ExposedHeaders     []string `yaml:"exposed_headers"`
+	Debug              bool     `yaml:"debug"`
 }
 
 type MusicGRPC struct {
@@ -87,7 +95,9 @@ type Jaeger struct {
 }
 
 type Config struct {
-	HTTP            HTTP `yaml:"http"`
+	CORS            CORS        `yaml:"cors"`
+	MusicServer     MusicServer `yaml:"music_server"`
+	UserServer      UserServer  `yaml:"user_server"`
 	Postgres        Postgres
 	MusicGRPC       MusicGRPC
 	EmailGRPC       EmailGRPC

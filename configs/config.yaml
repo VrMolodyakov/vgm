@@ -1,45 +1,51 @@
+cors:
+  allowed_methods: ["GET", "POST", "PATCH", "PUT", "OPTIONS", "DELETE"]
+  allowed_origins:
+    - "http://localhost:3000"
+  allow_credentials: true
+  allowed_headers:
+    - "Authorization"
+    - "Location"
+    - "Charset"
+    - "Access-Control-Allow-Origin"
+    - "Content-Type"
+    - "Origin"
+    - "Accept"
+    - "Content-Length"
+    - "Accept-Encoding"
+    - "X-CSRF-Token"
+  options_passthrough: true
+  exposed_headers:
+    - "Location"
+    - "Authorization"
+    - "Content-Disposition"
 
-http:
-  cors:
-    allowed_methods: ["GET", "POST", "PATCH", "PUT", "OPTIONS", "DELETE"]
-    allowed_origins:
-      - "http://localhost:3000"
-    allow_credentials: true
-    allowed_headers:
-      - "Authorization"
-      - "Location"
-      - "Charset"
-      - "Access-Control-Allow-Origin"
-      - "Content-Type"
-      - "Origin"
-      - "Accept"
-      - "Content-Length"
-      - "Accept-Encoding"
-      - "X-CSRF-Token"
-    options_passthrough: true
-    exposed_headers:
-      - "Location"
-      - "Authorization"
-      - "Content-Disposition"
+user_server:
+  read_timeout: 15
+  write_timeout: 15
+
+music_server:
+  read_timeout: 15
+  write_timeout: 15
 
 logger:
   disable_caller: false
   development: true
   disable_stacktrace: false
   encoding: console
-  level: info  
+  level: info
 
 subscriber:
   main_subject_name: email
-  main_subjects: 
+  main_subjects:
     - "email.*"
   durable_name: emailservice-dur
   email_group_name: email_service
   dead_message_subject: email.errors
   send_subject: email.send
-  ack_wait: 60 
-  max_inflight: 30 
-  max_deliver: 3 
+  ack_wait: 60
+  max_inflight: 30
+  max_deliver: 3
   workers: 3
 
 music_client:
@@ -47,10 +53,9 @@ music_client:
   client_cert_file: cert/client-cert.pem
   client_key_file: cert/client-key.pem
   client_CAcert_file: cert/ca-cert.pem
-  
+
 email_client:
   enable_tls: true
   client_cert_file: cert/client-cert.pem
   client_key_file: cert/client-key.pem
   client_CAcert_file: cert/ca-cert.pem
-  

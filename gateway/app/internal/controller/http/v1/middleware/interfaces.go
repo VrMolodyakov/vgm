@@ -17,9 +17,3 @@ type TokenHandler interface {
 type TokenService interface {
 	Find(ctx context.Context, refreshToken string) (int, error)
 }
-
-type authMiddleware struct {
-	userService  UserService
-	tokenHandler TokenHandler
-	tokenService TokenService
-}

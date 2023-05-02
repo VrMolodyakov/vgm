@@ -39,7 +39,7 @@ func (e *emailClient) Start() {
 	e.client = emailPb.NewEmailServiceClient(conn)
 }
 
-func (e *emailClient) StartWithTSL(certs client.ClientCerts) {
+func (e *emailClient) StartWithTLS(certs client.ClientCerts) {
 	tlsCredentials, err := certs.LoadTLSCredentials()
 	if err != nil {
 		log.Fatal("cannot load TLS credentials: ", err)

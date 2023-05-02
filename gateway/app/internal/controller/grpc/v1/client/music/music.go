@@ -41,7 +41,7 @@ func (m *musicClient) Start() {
 	m.client = albumPb.NewMusicServiceClient(conn)
 }
 
-func (m *musicClient) StartWithTSL(certs client.ClientCerts) {
+func (m *musicClient) StartWithTLS(certs client.ClientCerts) {
 
 	tlsCredentials, err := certs.LoadTLSCredentials()
 	if err != nil {

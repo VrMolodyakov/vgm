@@ -52,7 +52,7 @@ func (a *app) Run(ctx context.Context) {
 func (a *app) startHTTP(ctx context.Context) error {
 	logger := logging.LoggerFromContext(ctx)
 	logger.Sugar().Infow("http config:", "port", a.cfg.HTTP.Port, "ip", a.cfg.HTTP.IP)
-	logger.Info("HTTP Server initializing")
+	logger.Info("HTTP Server initializing...")
 
 	pgConfig := postgresql.NewPgConfig(
 		a.cfg.Postgres.User,
@@ -80,7 +80,7 @@ func (a *app) startHTTP(ctx context.Context) error {
 	}
 	accessKeyPair, refreshKeyPair := a.loadKeyPairs()
 
-	tokenHandler := token.NewTokenHandler(accessKeyPair, refreshKeyPair)
+	tokenManager := token.NewTokenManager(accessKeyPair, refreshKeyPair)
 
 	musicAddress := fmt.Sprintf("%s:%d", a.cfg.MusicGRPC.HostName, a.cfg.MusicGRPC.Port)
 	logger.Info(musicAddress)
@@ -100,8 +100,8 @@ func (a *app) startHTTP(ctx context.Context) error {
 	)
 	grpcMusicClient := music.NewMusicClient(musicAddress)
 	grpcEmailClient := email.NewEmailClient(emailAddress)
-	grpcMusicClient.StartWithTSL(musicCerts)
-	grpcEmailClient.StartWithTSL(emailCerts)
+	grpcMusicClient.StartWithTLS(musicCerts)
+	grpcEmailClient.StartWithTLS(emailCerts)
 
 	userRepo := userRepo.NewUserRepo(pgClient)
 	tokenRepo := tokenRepo.NewTokenRepo(rdClient)
@@ -110,14 +110,14 @@ func (a *app) startHTTP(ctx context.Context) error {
 
 	userHandler := user.NewUserHandler(
 		userService,
-		tokenHandler,
+		tokenManager,
 		tokenService,
 		grpcEmailClient,
 		a.cfg.KeyPairs.AccessTtl,
 		a.cfg.KeyPairs.RefreshTtl,
 	)
 
-	userAuth := middleware.NewAuthMiddleware(userService, tokenService, tokenHandler)
+	userAuth := middleware.NewAuthMiddleware(userService, tokenService, tokenManager)
 	origins := strings.Join(a.cfg.HTTP.CORS.AllowedOrigins[:], ", ")
 	headers := strings.Join(a.cfg.HTTP.CORS.AllowedHeaders[:], ", ")
 	methods := strings.Join(a.cfg.HTTP.CORS.AllowedMethods[:], ", ")
@@ -161,8 +161,6 @@ func (a *app) startHTTP(ctx context.Context) error {
 	})
 
 	addr := fmt.Sprintf("%s:%d", a.cfg.HTTP.IP, a.cfg.HTTP.Port)
-	fmt.Println(addr)
-
 	a.httpServer = &http.Server{
 		Addr:         addr,
 		Handler:      router,

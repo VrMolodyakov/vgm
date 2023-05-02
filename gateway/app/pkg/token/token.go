@@ -18,7 +18,7 @@ type tokenHandler struct {
 	refreshPair KeyPair
 }
 
-func NewTokenHandler(accessPair KeyPair, refreshPair KeyPair) *tokenHandler {
+func NewTokenManager(accessPair KeyPair, refreshPair KeyPair) *tokenHandler {
 	return &tokenHandler{accessPair: accessPair, refreshPair: refreshPair}
 }
 
