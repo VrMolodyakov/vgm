@@ -70,6 +70,7 @@ services:
             - ./cert:/cert
         ports:
           - 8080:8080    
+          - 8081:8081    
         depends_on:
           - user-db
           - gateway-redis 

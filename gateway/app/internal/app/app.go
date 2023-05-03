@@ -2,204 +2,129 @@ package app
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
-	"fmt"
-	"log"
 	"net/http"
-	"strings"
-	"time"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client/email"
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client/music"
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/album"
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/handler/user"
-	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
-	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/service"
-	tokenRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/repository"
-	tokenService "github.com/VrMolodyakov/vgm/gateway/internal/domain/token/service"
-	userRepo "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/repository"
-	userService "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/service"
-	"github.com/VrMolodyakov/vgm/gateway/pkg/client/postgresql"
-	"github.com/VrMolodyakov/vgm/gateway/pkg/client/redis"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/jaeger"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
-	"github.com/VrMolodyakov/vgm/gateway/pkg/token"
-	"github.com/go-chi/chi/v5"
-	chiMiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/riandyrn/otelchi"
-)
-
-const (
-	serviceName string = "gateway"
 )
 
 type app struct {
-	cfg        *config.Config
-	httpServer *http.Server
+	cfg  *config.Config
+	deps Deps
 }
 
-func NewApp(cfg *config.Config) *app {
-	return &app{cfg: cfg}
+func New() *app {
+	logging.Init("info", "log.txt")
+	logger := logging.GetLogger()
+	logger.Info("New app")
+
+	return &app{}
 }
 
-func (a *app) Run(ctx context.Context) {
-	a.startHTTP(ctx)
+func (a *app) Close(ctx context.Context) {
+	a.deps.Close(ctx)
 }
 
-func (a *app) startHTTP(ctx context.Context) error {
-	logger := logging.LoggerFromContext(ctx)
-	logger.Sugar().Infow("http config:", "port", a.cfg.HTTP.Port, "ip", a.cfg.HTTP.IP)
-	logger.Info("HTTP Server initializing...")
+func (a *app) Setup(ctx context.Context) error {
+	return a.deps.Setup(ctx, a.cfg)
+}
 
-	pgConfig := postgresql.NewPgConfig(
-		a.cfg.Postgres.User,
-		a.cfg.Postgres.Password,
-		a.cfg.Postgres.IP,
-		a.cfg.Postgres.Port,
-		a.cfg.Postgres.Database,
-		a.cfg.Postgres.PoolSize,
-	)
-
-	rdCfg := redis.NewRdConfig(
-		a.cfg.Redis.Password,
-		a.cfg.Redis.Host,
-		a.cfg.Redis.Port,
-		a.cfg.Redis.DbNumber,
-	)
-
-	rdClient, err := redis.NewClient(ctx, &rdCfg)
+func (a *app) ReadConfig() error {
+	cfg, err := config.GetConfig()
 	if err != nil {
-		logger.Fatal(err.Error())
+		return err
 	}
-	pgClient, err := postgresql.NewClient(ctx, 5, time.Second*5, pgConfig)
+	a.cfg = cfg
+	return nil
+}
+
+func (a *app) InitTracer() error {
+	err := jaeger.SetGlobalTracer(a.cfg.Jaeger.ServiceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
 	if err != nil {
-		logger.Fatal(err.Error())
+		return err
 	}
-	accessKeyPair, refreshKeyPair := a.loadKeyPairs()
+	return nil
+}
 
-	tokenManager := token.NewTokenManager(accessKeyPair, refreshKeyPair)
+func (a *app) Start() {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Kill, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	defer stop()
 
-	musicAddress := fmt.Sprintf("%s:%d", a.cfg.MusicGRPC.HostName, a.cfg.MusicGRPC.Port)
-	logger.Info(musicAddress)
-	emailAddress := fmt.Sprintf("%s:%d", a.cfg.EmailGRPC.HostName, a.cfg.EmailGRPC.Port)
-	logger.Info(emailAddress)
-	emailCerts := client.NewClientCerts(
-		a.cfg.EmailClientCert.EnableTLS,
-		a.cfg.EmailClientCert.ClientCertFile,
-		a.cfg.EmailClientCert.ClientKeyFile,
-		a.cfg.EmailClientCert.ClientCACertFile,
-	)
-	musicCerts := client.NewClientCerts(
-		a.cfg.MusicClientCert.EnableTLS,
-		a.cfg.MusicClientCert.ClientCertFile,
-		a.cfg.MusicClientCert.ClientKeyFile,
-		a.cfg.MusicClientCert.ClientCACertFile,
-	)
-	grpcMusicClient := music.NewMusicClient(musicAddress)
-	grpcEmailClient := email.NewEmailClient(emailAddress)
-	grpcMusicClient.StartWithTLS(musicCerts)
-	grpcEmailClient.StartWithTLS(emailCerts)
-
-	userRepo := userRepo.NewUserRepo(pgClient)
-	tokenRepo := tokenRepo.NewTokenRepo(rdClient)
-	userService := userService.NewUserService(userRepo)
-	tokenService := tokenService.NewTokenService(tokenRepo)
-
-	userHandler := user.NewUserHandler(
-		userService,
-		tokenManager,
-		tokenService,
-		grpcEmailClient,
-		a.cfg.KeyPairs.AccessTtl,
-		a.cfg.KeyPairs.RefreshTtl,
-	)
-
-	userAuth := middleware.NewAuthMiddleware(userService, tokenService, tokenManager)
-	origins := strings.Join(a.cfg.HTTP.CORS.AllowedOrigins[:], ", ")
-	headers := strings.Join(a.cfg.HTTP.CORS.AllowedHeaders[:], ", ")
-	methods := strings.Join(a.cfg.HTTP.CORS.AllowedMethods[:], ", ")
-
-	cors := middleware.NewCors(origins, headers, methods)
-
-	router := chi.NewRouter()
-	router.Use(chiMiddleware.Logger)
-	router.Use(cors.CORS)
-	router.Use(chiMiddleware.Recoverer)
-	router.Use(otelchi.Middleware("gateway-http", otelchi.WithChiRoutes(router)))
-
-	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
-	})
-
-	err = jaeger.SetGlobalTracer(serviceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-
-	albumService := service.NewAlbumService(grpcMusicClient)
-	albumHandler := album.NewAlbumHandler(albumService)
-
-	router.Route("/auth", func(r chi.Router) {
-		r.Post("/register", userHandler.SignUpUser)
-		r.Post("/login", userHandler.SignInUser)
-		r.Get("/refresh", userHandler.RefreshAccessToken)
-		r.Group(func(r chi.Router) {
-			r.Use(userAuth.Auth)
-			r.Get("/logout", userHandler.Logout)
-		})
-	})
-	//TODO:change
-	router.Route("/music", func(r chi.Router) {
-		r.Use(userAuth.Auth)
-		r.Post("/create", albumHandler.CreateAlbum)
-		r.Post("/person", albumHandler.CreatePerson)
-		r.Get("/albums", albumHandler.FindAllAlbums)
-		r.Get("/album/{albumID}", albumHandler.FindFullAlbums)
-	})
-
-	addr := fmt.Sprintf("%s:%d", a.cfg.HTTP.IP, a.cfg.HTTP.Port)
-	a.httpServer = &http.Server{
-		Addr:         addr,
-		Handler:      router,
-		WriteTimeout: a.cfg.HTTP.WriteTimeout,
-		ReadTimeout:  a.cfg.HTTP.ReadTimeout,
-	}
-	if err = a.httpServer.ListenAndServe(); err != nil {
-		switch {
-		case errors.Is(err, http.ErrServerClosed):
-			logger.Warn("server shutdown")
-		default:
+	go func() {
+		logger := logging.GetLogger()
+		logger.Sugar().Info("music server started on ", " addr ", a.cfg.MusicServer.Port)
+		if err := a.deps.musicServer.ListenAndServe(); err != nil {
+			switch {
+			case errors.Is(err, http.ErrServerClosed):
+				logger.Warn("server shutdown")
+			default:
+				logger.Fatal(err.Error())
+			}
+		}
+		err := a.deps.musicServer.Shutdown(ctx)
+		if err != nil {
 			logger.Fatal(err.Error())
 		}
-	}
-	err = a.httpServer.Shutdown(ctx)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-	return err
+	}()
+
+	go func() {
+		logger := logging.GetLogger()
+		logger.Sugar().Info("user server started on ", " addr ", a.cfg.UserServer.Port)
+		if err := a.deps.userServer.ListenAndServe(); err != nil {
+			switch {
+			case errors.Is(err, http.ErrServerClosed):
+				logger.Warn("server shutdown")
+			default:
+				logger.Fatal(err.Error())
+			}
+		}
+		err := a.deps.userServer.Shutdown(ctx)
+		if err != nil {
+			logger.Fatal(err.Error())
+		}
+	}()
+
+	<-ctx.Done()
 }
 
-func (a *app) loadKeyPairs() (token.KeyPair, token.KeyPair) {
-	aprk, err := base64.StdEncoding.DecodeString(a.cfg.KeyPairs.AccessPrivate)
-	if err != nil {
-		log.Fatal(err)
-	}
-	apbk, err := base64.StdEncoding.DecodeString(a.cfg.KeyPairs.AccessPublic)
-	if err != nil {
-		log.Fatal(err)
-	}
-	rprk, err := base64.StdEncoding.DecodeString(a.cfg.KeyPairs.RefreshPrivate)
-	if err != nil {
-		log.Fatal(err)
-	}
-	rpbk, err := base64.StdEncoding.DecodeString(a.cfg.KeyPairs.RefreshPublic)
-	if err != nil {
-		log.Fatal(err)
-	}
-	apair := token.KeyPair{PrivateKey: aprk, PublicKey: apbk}
-	rpair := token.KeyPair{PrivateKey: rprk, PublicKey: rpbk}
-	return apair, rpair
+func (a *app) LogConfig() {
+	logger := logging.GetLogger()
+	logger.Sugar().Infow(
+		"psql config",
+		"database", a.cfg.Postgres.Database,
+		"IP", a.cfg.Postgres.IP,
+		"Password", a.cfg.Postgres.Password,
+		"Pool size", a.cfg.Postgres.PoolSize,
+		"Port", a.cfg.Postgres.Port,
+		"User", a.cfg.Postgres.User,
+	)
+
+	logger.Sugar().Infow(
+		"redis config",
+		"Host", a.cfg.Redis.Host,
+		"Password", a.cfg.Redis.Password,
+		"Port", a.cfg.Redis.Port,
+		"Db number", a.cfg.Redis.DbNumber,
+	)
+
+	logger.Sugar().Infow(
+		"jaeger",
+		"Address", a.cfg.Jaeger.Address,
+		"Port", a.cfg.Jaeger.Port,
+	)
+
+	logger.Sugar().Infow(
+		"keys config",
+		"Access private key", a.cfg.KeyPairs.AccessPrivate,
+		"Access public key", a.cfg.KeyPairs.AccessPublic,
+		"Refresh private key", a.cfg.KeyPairs.RefreshPrivate,
+		"Refresh public key", a.cfg.KeyPairs.RefreshPublic,
+		"Access TTL", a.cfg.KeyPairs.AccessTtl,
+		"Refresh TTL", a.cfg.KeyPairs.RefreshTtl,
+	)
 }

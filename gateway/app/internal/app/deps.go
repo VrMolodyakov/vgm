@@ -25,14 +25,18 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/pkg/client/redis"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/token"
+	rdClient "github.com/go-redis/redis"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Deps struct {
-	userServer  *http.Server
-	musicServer *http.Server
+	userServer   *http.Server
+	musicServer  *http.Server
+	postgresPool *pgxpool.Pool
+	redis        *rdClient.Client
 }
 
-func (d *Deps) Setup(ctx context.Context, cfg config.Config) {
+func (d *Deps) Setup(ctx context.Context, cfg *config.Config) error {
 	logger := logging.LoggerFromContext(ctx)
 	logger.Info("Setup...")
 
@@ -54,15 +58,15 @@ func (d *Deps) Setup(ctx context.Context, cfg config.Config) {
 
 	rdClient, err := redis.NewClient(ctx, &rdCfg)
 	if err != nil {
-		logger.Fatal(err.Error())
+		return err
 	}
 
-	pgClient, err := postgresql.NewClient(ctx, 5, time.Second*5, pgConfig)
+	d.postgresPool, err = postgresql.NewClient(ctx, 5, time.Second*5, pgConfig)
 	if err != nil {
-		logger.Fatal(err.Error())
+		return err
 	}
-	accessKeyPair, refreshKeyPair := d.loadKeyPairs(cfg.KeyPairs)
 
+	accessKeyPair, refreshKeyPair := d.loadKeyPairs(cfg.KeyPairs)
 	tokenManager := token.NewTokenManager(accessKeyPair, refreshKeyPair)
 
 	musicAddress := fmt.Sprintf("%s:%d", cfg.MusicGRPC.HostName, cfg.MusicGRPC.Port)
@@ -76,7 +80,7 @@ func (d *Deps) Setup(ctx context.Context, cfg config.Config) {
 	grpcMusicClient.StartWithTLS(musicCerts)
 	grpcEmailClient.StartWithTLS(emailCerts)
 
-	userRepo := userRepo.NewUserRepo(pgClient)
+	userRepo := userRepo.NewUserRepo(d.postgresPool)
 	tokenRepo := tokenRepo.NewTokenRepo(rdClient)
 	userService := userService.NewUserService(userRepo)
 	tokenService := tokenService.NewTokenService(tokenRepo)
@@ -102,6 +106,31 @@ func (d *Deps) Setup(ctx context.Context, cfg config.Config) {
 		auth,
 		albumService,
 	)
+
+	return nil
+}
+
+func (d *Deps) Close(ctx context.Context) {
+	logger := logging.LoggerFromContext(ctx)
+	if d.userServer != nil {
+		if err := d.userServer.Shutdown(ctx); err != nil {
+			logger.Sugar().Error(err, "shutdown user server")
+		}
+	}
+
+	if d.musicServer != nil {
+		if err := d.musicServer.Shutdown(ctx); err != nil {
+			logger.Sugar().Error(err, "shutdown music server")
+		}
+	}
+
+	if d.postgresPool != nil {
+		d.postgresPool.Close()
+	}
+
+	if d.redis != nil {
+		d.redis.Close()
+	}
 }
 
 func (d *Deps) loadKeyPairs(cfg config.KeyPairs) (token.KeyPair, token.KeyPair) {

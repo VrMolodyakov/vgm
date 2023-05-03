@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
@@ -48,7 +49,7 @@ func NewServer(
 	return &http.Server{
 		Addr:         addr,
 		Handler:      router,
-		WriteTimeout: serverCfg.WriteTimeout,
-		ReadTimeout:  serverCfg.ReadTimeout,
+		WriteTimeout: time.Duration(serverCfg.WriteTimeout) * time.Second,
+		ReadTimeout:  time.Duration(serverCfg.ReadTimeout) * time.Second,
 	}
 }

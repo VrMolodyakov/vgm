@@ -26,7 +26,6 @@ func SetGlobalTracer(serviceName string, exporterAddress string, exporterPort st
 			semconv.ServiceNameKey.String(serviceName),
 		)),
 	)
-
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}))
 	return nil

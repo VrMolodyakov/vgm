@@ -3,6 +3,7 @@ package music
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/VrMolodyakov/vgm/gateway/internal/config"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
@@ -25,17 +26,17 @@ func NewServer(
 
 	router.Route("/music", func(r chi.Router) {
 		r.Use(auth.Auth)
-		r.Post("/create", handler.CreateAlbum)
+		r.Post("/album", handler.CreateAlbum)
 		r.Post("/person", handler.CreatePerson)
 		r.Get("/albums", handler.FindAllAlbums)
-		r.Get("/album/{albumID}", handler.FindFullAlbums)
+		r.Get("/albums/{albumID}", handler.FindFullAlbums)
 	})
 
 	addr := fmt.Sprintf("%s:%d", cfg.IP, cfg.Port)
 	return &http.Server{
 		Addr:         addr,
 		Handler:      router,
-		WriteTimeout: cfg.WriteTimeout,
-		ReadTimeout:  cfg.ReadTimeout,
+		WriteTimeout: time.Duration(cfg.WriteTimeout) * time.Second,
+		ReadTimeout:  time.Duration(cfg.ReadTimeout) * time.Second,
 	}
 }

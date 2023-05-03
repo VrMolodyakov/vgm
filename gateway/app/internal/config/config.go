@@ -2,18 +2,11 @@ package config
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sync"
-	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
-)
-
-const (
-	configPath = "\\configs\\config.yaml"
 )
 
 type Redis struct {
@@ -42,17 +35,17 @@ type Postgres struct {
 }
 
 type UserServer struct {
-	IP           string        `env:"USER_SERVER_IP"`
-	Port         int           `env:"USER_SERVER_PORT"`
-	ReadTimeout  time.Duration `yaml:"read_timeout"`
-	WriteTimeout time.Duration `yaml:"write_timeout"`
+	IP           string `env:"USER_SERVER_IP"`
+	Port         int    `env:"USER_SERVER_PORT"`
+	ReadTimeout  int    `yaml:"read_timeout"`
+	WriteTimeout int    `yaml:"write_timeout"`
 }
 
 type MusicServer struct {
-	IP           string        `env:"MUSIC_SERVER_IP"`
-	Port         int           `env:"MUSIC_SERVER_PORT"`
-	ReadTimeout  time.Duration `yaml:"read_timeout"`
-	WriteTimeout time.Duration `yaml:"write_timeout"`
+	IP           string `env:"MUSIC_SERVER_IP"`
+	Port         int    `env:"MUSIC_SERVER_PORT"`
+	ReadTimeout  int    `yaml:"read_timeout"`
+	WriteTimeout int    `yaml:"write_timeout"`
 }
 
 type CORS struct {
@@ -90,8 +83,9 @@ type MusicClientCert struct {
 }
 
 type Jaeger struct {
-	Address string `env:"JAEGER_ADDRESS"`
-	Port    string `env:"JAEGER_PORT"`
+	ServiceName string `env:"GATEWAY_SERVICE_NAME"`
+	Address     string `env:"JAEGER_ADDRESS"`
+	Port        string `env:"JAEGER_PORT"`
 }
 
 type Config struct {
@@ -111,19 +105,20 @@ type Config struct {
 var instance *Config
 var once sync.Once
 
-func GetConfig() *Config {
+//TODO: put config here?
+func GetConfig() (*Config, error) {
+	var cfgErr error
 	once.Do(func() {
 		instance = &Config{}
 		dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 		containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
 		if exist, _ := Exists(containerConfigPath + "/configs/config.yaml"); exist {
-			fmt.Println("inside docker path")
 			if err := cleanenv.ReadConfig(containerConfigPath+"/configs/config.yaml", instance); err != nil {
-				log.Fatal(err)
+				cfgErr = err
 			}
 		}
 	})
-	return instance
+	return instance, cfgErr
 }
 
 func Exists(name string) (bool, error) {
