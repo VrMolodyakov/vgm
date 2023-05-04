@@ -58,7 +58,7 @@ func NewSubscriberCfg(
 	}
 }
 
-type subscriber struct {
+type Subscriber struct {
 	stream       nats.JetStreamContext
 	emailUseCase EmailUseCase
 	logger       logging.Logger
@@ -69,9 +69,9 @@ func NewSubscriber(
 	stream nats.JetStreamContext,
 	emailUseCase EmailUseCase,
 	subscriberCfg SubscriberCfg,
-	logger logging.Logger) *subscriber {
+	logger logging.Logger) *Subscriber {
 
-	return &subscriber{
+	return &Subscriber{
 		stream:       stream,
 		cfg:          subscriberCfg,
 		emailUseCase: emailUseCase,
@@ -80,7 +80,7 @@ func NewSubscriber(
 
 }
 
-func (s *subscriber) Subscribe(
+func (s *Subscriber) Subscribe(
 	subject string,
 	qgroup string,
 	durableName string,
@@ -93,7 +93,7 @@ func (s *subscriber) Subscribe(
 	wg := &sync.WaitGroup{}
 	for i := 0; i < workersNum; i++ {
 		wg.Add(1)
-		s.runWorker(
+		go s.runWorker(
 			wg,
 			i,
 			subject,
@@ -109,7 +109,7 @@ func (s *subscriber) Subscribe(
 	wg.Wait()
 }
 
-func (s *subscriber) Run(ctx context.Context) {
+func (s *Subscriber) Run(ctx context.Context) {
 	go s.Subscribe(
 		s.cfg.SendEmailSubject,
 		s.cfg.EmailGroupName,
@@ -122,7 +122,7 @@ func (s *subscriber) Run(ctx context.Context) {
 	)
 }
 
-func (s *subscriber) runWorker(
+func (s *Subscriber) runWorker(
 	wg *sync.WaitGroup,
 	workerID int,
 	subject string,
@@ -142,7 +142,7 @@ func (s *subscriber) runWorker(
 	}
 }
 
-func (s *subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
+func (s *Subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 	return func(msg *nats.Msg) {
 		s.logger.Infof("subscriber process Send Email: %s", msg.Subject)
 		var m model.Email
@@ -176,7 +176,7 @@ func (s *subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 	}
 }
 
-func (s *subscriber) publishErrorMessage(ctx context.Context, msg *nats.Msg, err error) error {
+func (s *Subscriber) publishErrorMessage(ctx context.Context, msg *nats.Msg, err error) error {
 	s.logger.Infof("publish dead letter queue message: %v", msg)
 	errMsg := model.EmailErrorMsg{
 		Subject: msg.Subject,

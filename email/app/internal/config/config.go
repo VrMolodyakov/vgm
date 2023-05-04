@@ -2,8 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -50,8 +48,9 @@ type Nats struct {
 }
 
 type Jaeger struct {
-	Address string `env:"JAEGER_ADDRESS"`
-	Port    string `env:"JAEGER_PORT"`
+	ServiceName string `env:"EMAIL_SERVICE_NAME"`
+	Address     string `env:"JAEGER_ADDRESS"`
+	Port        string `env:"JAEGER_PORT"`
 }
 
 type Logger struct {
@@ -71,19 +70,19 @@ type Config struct {
 	GRPC       GRPC
 }
 
-func GetConfig() *Config {
+func GetConfig() (*Config, error) {
+	var cfgErr error
 	once.Do(func() {
 		instance = &Config{}
 		dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 		containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
 		if exist, _ := Exists(containerConfigPath + "/configs/config.yaml"); exist {
-			fmt.Println("inside docker path")
 			if err := cleanenv.ReadConfig(containerConfigPath+"/configs/config.yaml", instance); err != nil {
-				log.Fatal(err)
+				cfgErr = err
 			}
 		}
 	})
-	return instance
+	return instance, cfgErr
 }
 
 func Exists(name string) (bool, error) {

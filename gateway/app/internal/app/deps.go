@@ -39,6 +39,7 @@ type Deps struct {
 func (d *Deps) Setup(ctx context.Context, cfg *config.Config) error {
 	logger := logging.LoggerFromContext(ctx)
 	logger.Info("Setup...")
+	var err error
 
 	pgConfig := postgresql.NewPgConfig(
 		cfg.Postgres.User,
@@ -56,7 +57,7 @@ func (d *Deps) Setup(ctx context.Context, cfg *config.Config) error {
 		cfg.Redis.DbNumber,
 	)
 
-	rdClient, err := redis.NewClient(ctx, &rdCfg)
+	d.redis, err = redis.NewClient(ctx, &rdCfg)
 	if err != nil {
 		return err
 	}
@@ -81,7 +82,7 @@ func (d *Deps) Setup(ctx context.Context, cfg *config.Config) error {
 	grpcEmailClient.StartWithTLS(emailCerts)
 
 	userRepo := userRepo.NewUserRepo(d.postgresPool)
-	tokenRepo := tokenRepo.NewTokenRepo(rdClient)
+	tokenRepo := tokenRepo.NewTokenRepo(d.redis)
 	userService := userService.NewUserService(userRepo)
 	tokenService := tokenService.NewTokenService(tokenRepo)
 	albumService := service.NewAlbumService(grpcMusicClient)

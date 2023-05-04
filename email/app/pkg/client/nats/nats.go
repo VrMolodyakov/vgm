@@ -2,7 +2,6 @@ package nats
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/avast/retry-go"
@@ -20,18 +19,19 @@ func NewStreamContext(
 	subjectName string,
 	subjects []string,
 
-) nats.JetStreamContext {
+) (*nats.Conn, nats.JetStreamContext, error) {
 
 	address := fmt.Sprintf("nats://%s:%d", host, port)
 	var streamContext nats.JetStreamContext
+	var connection *nats.Conn
 	if err := retry.Do(func() error {
 		fmt.Println("start attempt to get connection")
-		n, err := nats.Connect(address)
+		connection, err := nats.Connect(address)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		streamContext, err = n.JetStream(nats.PublishAsyncMaxPending(256))
+		streamContext, err = connection.JetStream(nats.PublishAsyncMaxPending(256))
 		if err != nil {
 			return err
 		}
@@ -45,7 +45,7 @@ func NewStreamContext(
 		return nil
 
 	}, retry.Delay(maxDelay), retry.Attempts(attempts)); err != nil {
-		log.Fatal(err)
+		return nil, nil, err
 	}
-	return streamContext
+	return connection, streamContext, nil
 }

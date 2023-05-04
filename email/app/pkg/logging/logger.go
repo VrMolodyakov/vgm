@@ -29,12 +29,12 @@ type Logger interface {
 
 // Logger
 type apiLogger struct {
-	cfg         *config.Config
+	cfg         config.Logger
 	sugarLogger *zap.SugaredLogger
 }
 
 // NewApiLogger App Logger constructor
-func NewLogger(cfg *config.Config) *apiLogger {
+func NewLogger(cfg config.Logger) *apiLogger {
 	return &apiLogger{cfg: cfg}
 }
 
@@ -49,8 +49,8 @@ var loggerLevelMap = map[string]zapcore.Level{
 	"fatal":  zapcore.FatalLevel,
 }
 
-func (l *apiLogger) getLoggerLevel(cfg *config.Config) zapcore.Level {
-	level, exist := loggerLevelMap[cfg.Logger.Level]
+func (l *apiLogger) getLoggerLevel(cfg config.Logger) zapcore.Level {
+	level, exist := loggerLevelMap[cfg.Level]
 	if !exist {
 		return zapcore.DebugLevel
 	}
@@ -65,7 +65,7 @@ func (l *apiLogger) InitLogger() {
 	logWriter := zapcore.AddSync(os.Stderr)
 
 	var encoderCfg zapcore.EncoderConfig
-	if l.cfg.Logger.Development {
+	if l.cfg.Development {
 		encoderCfg = zap.NewDevelopmentEncoderConfig()
 	} else {
 		encoderCfg = zap.NewProductionEncoderConfig()
@@ -78,7 +78,7 @@ func (l *apiLogger) InitLogger() {
 	encoderCfg.NameKey = "NAME"
 	encoderCfg.MessageKey = "MESSAGE"
 
-	if l.cfg.Logger.Encoding == "console" {
+	if l.cfg.Encoding == "console" {
 		encoder = zapcore.NewConsoleEncoder(encoderCfg)
 	} else {
 		encoder = zapcore.NewJSONEncoder(encoderCfg)

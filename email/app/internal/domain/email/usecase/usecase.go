@@ -25,7 +25,7 @@ type EmailClient interface {
 		files []string) error
 }
 
-type emailUseCase struct {
+type EmailUseCase struct {
 	logger      logging.Logger
 	sendSubject string
 	publisher   Publisher
@@ -37,8 +37,8 @@ func NewEmailUseCase(
 	publisher Publisher,
 	subject string,
 	emailClient EmailClient,
-) *emailUseCase {
-	return &emailUseCase{
+) *EmailUseCase {
+	return &EmailUseCase{
 		logger:      logger,
 		sendSubject: subject,
 		publisher:   publisher,
@@ -46,7 +46,7 @@ func NewEmailUseCase(
 	}
 }
 
-func (e *emailUseCase) Publush(ctx context.Context, email *model.Email) error {
+func (e *EmailUseCase) Publush(ctx context.Context, email *model.Email) error {
 	mailBytes, err := json.Marshal(email)
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal")
@@ -54,7 +54,7 @@ func (e *emailUseCase) Publush(ctx context.Context, email *model.Email) error {
 	return e.publisher.Publish(e.sendSubject, mailBytes)
 }
 
-func (e *emailUseCase) Send(ctx context.Context, email *model.Email) error {
+func (e *EmailUseCase) Send(ctx context.Context, email *model.Email) error {
 	if err := e.emailClient.SendEmail(
 		email.Subject,
 		email.Content,

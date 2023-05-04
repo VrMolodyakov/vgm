@@ -2,31 +2,18 @@ package app
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"os"
-	"path/filepath"
-	"time"
+	"os/signal"
+	"syscall"
 
 	"net"
 
 	"github.com/VrMolodyakov/vgm/email/app/internal/config"
-	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/email"
-	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/interceptor"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
-	emailPb "github.com/VrMolodyakov/vgm/email/app/gen/go/proto/email/v1"
-	jet "github.com/VrMolodyakov/vgm/email/app/internal/controller/nats"
-	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/usecase"
-	"github.com/VrMolodyakov/vgm/email/app/pkg/client/gmail"
-	"github.com/VrMolodyakov/vgm/email/app/pkg/client/nats"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/jaeger"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -40,113 +27,103 @@ const (
 )
 
 type app struct {
-	cfg        *config.Config
-	logger     logging.Logger
-	grpcServer *grpc.Server
+	cfg    *config.Config
+	logger logging.Logger
+	deps   Deps
 }
 
-func NewApp(cfg *config.Config, logger logging.Logger) *app {
-	return &app{cfg: cfg, logger: logger}
+func New() *app {
+	return &app{}
 }
 
-func (a *app) Run(ctx context.Context) {
-	streamCtx := nats.NewStreamContext(
-		a.cfg.Nats.Host,
-		a.cfg.Nats.Port,
-		a.cfg.Subscriber.MainSubjectName,
-		a.cfg.Subscriber.MainSubjects,
-	)
-	info, err := streamCtx.StreamInfo("email")
+func (a *app) Setup() error {
+	return a.deps.Setup(a.cfg, a.logger)
+}
+
+func (a *app) InitLogger() {
+	logger := logging.NewLogger(a.cfg.Logger)
+	logger.InitLogger()
+}
+
+func (a *app) InitTracer() error {
+	err := jaeger.SetGlobalTracer(a.cfg.Jaeger.ServiceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
 	if err != nil {
-		a.logger.Fatal(err)
+		return err
 	}
-	a.logger.Info("cluster", info.Cluster)
-	a.logger.Info("config", info.Config)
-	a.logger.Info("config", info.Sources)
-	pub := jet.NewPublisher(streamCtx)
-	emailClient := gmail.NewMailClient(
-		a.cfg.Mail.SmtpAuthAddress,
-		a.cfg.Mail.SmtpServerAddress,
-		a.cfg.Mail.Name,
-		a.cfg.Mail.FromAddress,
-		a.cfg.Mail.FromPassword,
-	)
-	emailUseCase := usecase.NewEmailUseCase(a.logger, pub, a.cfg.Subscriber.SendEmailSubject, emailClient)
+	return nil
+}
+
+func (a *app) Close() {
+	a.deps.Close()
+}
+
+func (a *app) ReadConfig() error {
+	cfg, err := config.GetConfig()
+	if err != nil {
+		return err
+	}
+	a.cfg = cfg
+	return nil
+}
+
+func (a *app) Start(ctx context.Context) {
+	ctx, stop := signal.NotifyContext(ctx, os.Kill, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	defer stop()
+
+	a.logger.Infow("grpc cfg ", "gprc ip : ", a.cfg.GRPC.IP, "gprc port :", a.cfg.GRPC.Port)
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	go func() {
-		subCfg := jet.NewSubscriberCfg(
-			a.cfg.Subscriber.DurableName,
-			a.cfg.Subscriber.DeadMessageSubject,
-			a.cfg.Subscriber.SendEmailSubject,
-			a.cfg.Subscriber.EmailGroupName,
-			time.Duration(a.cfg.Subscriber.AckWait)*time.Second,
-			a.cfg.Subscriber.Workers,
-			a.cfg.Subscriber.MaxInflight,
-			a.cfg.Subscriber.MaxDeliver,
-		)
-		sub := jet.NewSubscriber(streamCtx, emailUseCase, subCfg, a.logger)
-		sub.Run(ctx)
+		reflection.Register(a.deps.server)
+		a.logger.Info("music grpc server started...")
+		a.deps.server.Serve(listener)
+		a.logger.Info("end of music gprc server")
+
 	}()
 
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.cfg.GRPC.IP, a.cfg.GRPC.Port))
-	fmt.Printf("print ip = %s port = %d", a.cfg.GRPC.IP, a.cfg.GRPC.Port)
-	a.logger.Info("grpc listener :=", zap.String("ip", a.cfg.GRPC.IP), zap.Int("port", a.cfg.GRPC.Port))
-	if err != nil {
-		a.logger.Error(err.Error())
-	}
-
-	err = jaeger.SetGlobalTracer(serviceName, a.cfg.Jaeger.Address, a.cfg.Jaeger.Port)
-	if err != nil {
-		a.logger.Fatal(err.Error())
-	}
-
-	emailServer := email.NewServer(emailUseCase, a.logger, emailPb.UnimplementedEmailServiceServer{})
-	serverOptions := []grpc.ServerOption{}
-	if enableTLS {
-		tlsCredentials, err := loadTLSCredentials()
-		if err != nil {
-			a.logger.Fatalf("cannot load TLS credentials: %s", err.Error())
-		}
-
-		serverOptions = append(serverOptions, grpc.Creds(tlsCredentials))
-	}
-	serverOptions = append(serverOptions, grpc.ChainUnaryInterceptor(
-		interceptor.NewLoggerInterceptor(a.logger),
-	))
-	serverOptions = append(serverOptions, grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()))
-
-	a.grpcServer = grpc.NewServer(serverOptions...)
-
-	emailPb.RegisterEmailServiceServer(a.grpcServer, emailServer)
-	reflection.Register(a.grpcServer)
-	a.logger.Info("start grpc serve")
-	a.grpcServer.Serve(listener)
-	a.logger.Info("end of email service")
+	<-ctx.Done()
 }
 
-func loadTLSCredentials() (credentials.TransportCredentials, error) {
-	dockerPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	containerConfigPath := filepath.Dir(filepath.Dir(dockerPath))
-	path := containerConfigPath + clientCACertFile
-	pemClientCA, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
+func (a *app) StartSubscriber(ctx context.Context) {
+	go a.deps.subscriber.Run(ctx)
+}
 
-	certPool := x509.NewCertPool()
-	if !certPool.AppendCertsFromPEM(pemClientCA) {
-		return nil, fmt.Errorf("failed to add client CA's certificate")
-	}
+func (a *app) PrintConfig() {
+	a.logger.Infow(
+		"grpc cfg: ",
+		"ip", a.cfg.GRPC.IP,
+		"port", a.cfg.GRPC.Port,
+	)
 
-	serverCert, err := tls.LoadX509KeyPair(containerConfigPath+serverCertFile, containerConfigPath+serverKeyFile)
-	if err != nil {
-		return nil, err
-	}
+	a.logger.Infow(
+		"mail cfg: ",
+		"from", a.cfg.Mail.FromAddress,
+		"password", a.cfg.Mail.FromPassword,
+		"name", a.cfg.Mail.Name,
+		"smtp address", a.cfg.Mail.SmtpAuthAddress,
+		"smtp server address", a.cfg.Mail.SmtpServerAddress,
+	)
 
-	config := &tls.Config{
-		Certificates: []tls.Certificate{serverCert},
-		ClientAuth:   tls.RequireAndVerifyClientCert,
-		ClientCAs:    certPool,
-	}
+	a.logger.Infow(
+		"nats cfg: ",
+		"host", a.cfg.Nats.Host,
+		"port", a.cfg.Nats.Port,
+	)
 
-	return credentials.NewTLS(config), nil
+	a.logger.Infow(
+		"subscriber cfg: ",
+		"ackWait", a.cfg.Subscriber.AckWait,
+		"deadMessageSubject", a.cfg.Subscriber.DeadMessageSubject,
+		"durableName", a.cfg.Subscriber.DurableName,
+		"emailGroupName", a.cfg.Subscriber.EmailGroupName,
+		"mainSubjectName", a.cfg.Subscriber.MainSubjectName,
+		"mainSubject", a.cfg.Subscriber.MainSubjects,
+		"maxDeliver", a.cfg.Subscriber.MaxDeliver,
+		"maxInflight", a.cfg.Subscriber.MaxInflight,
+		"sendEmailSubject", a.cfg.Subscriber.SendEmailSubject,
+		"workers", a.cfg.Subscriber.Workers,
+	)
 }
