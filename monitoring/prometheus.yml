@@ -4,7 +4,8 @@ scrape_configs:
     metrics_path: /api/metrics/gateway
     static_configs:
       - targets:
-        - gateway:8080
+        - gateway:7070
+
   - job_name: email
     scrape_interval: 15s
     metrics_path: /api/metrics/email

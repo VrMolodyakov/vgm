@@ -89,6 +89,23 @@ func (a *app) Start() {
 		}
 	}()
 
+	go func() {
+		logger := logging.GetLogger()
+		logger.Sugar().Info("metrics server started on ", " addr ", a.cfg.MetricsServer.Port)
+		if err := a.deps.metricsServer.ListenAndServe(); err != nil {
+			switch {
+			case errors.Is(err, http.ErrServerClosed):
+				logger.Warn("server shutdown")
+			default:
+				logger.Fatal(err.Error())
+			}
+		}
+		err := a.deps.metricsServer.Shutdown(ctx)
+		if err != nil {
+			logger.Fatal(err.Error())
+		}
+	}()
+
 	<-ctx.Done()
 }
 

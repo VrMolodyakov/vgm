@@ -41,8 +41,8 @@ func (a *app) Setup() error {
 }
 
 func (a *app) InitLogger() {
-	logger := logging.NewLogger(a.cfg.Logger)
-	logger.InitLogger()
+	a.logger = logging.NewLogger(a.cfg.Logger)
+	a.logger.InitLogger()
 }
 
 func (a *app) InitTracer() error {
@@ -88,7 +88,7 @@ func (a *app) Start(ctx context.Context) {
 }
 
 func (a *app) StartSubscriber(ctx context.Context) {
-	go a.deps.subscriber.Run(ctx)
+	a.deps.subscriber.Run(ctx)
 }
 
 func (a *app) PrintConfig() {

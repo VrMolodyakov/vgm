@@ -13,6 +13,7 @@ import (
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client/email"
 	musicClient "github.com/VrMolodyakov/vgm/gateway/internal/controller/grpc/v1/client/music"
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/metrics"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/middleware"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/music"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/user"
@@ -30,10 +31,11 @@ import (
 )
 
 type Deps struct {
-	userServer   *http.Server
-	musicServer  *http.Server
-	postgresPool *pgxpool.Pool
-	redis        *rdClient.Client
+	userServer    *http.Server
+	musicServer   *http.Server
+	metricsServer *http.Server
+	postgresPool  *pgxpool.Pool
+	redis         *rdClient.Client
 }
 
 func (d *Deps) Setup(ctx context.Context, cfg *config.Config) error {
@@ -108,6 +110,8 @@ func (d *Deps) Setup(ctx context.Context, cfg *config.Config) error {
 		albumService,
 	)
 
+	d.metricsServer = metrics.NewServer(cfg.MetricsServer)
+
 	return nil
 }
 
@@ -122,6 +126,12 @@ func (d *Deps) Close(ctx context.Context) {
 	if d.musicServer != nil {
 		if err := d.musicServer.Shutdown(ctx); err != nil {
 			logger.Sugar().Error(err, "shutdown music server")
+		}
+	}
+
+	if d.metricsServer != nil {
+		if err := d.metricsServer.Shutdown(ctx); err != nil {
+			logger.Sugar().Error(err, "shutdown metrics server")
 		}
 	}
 

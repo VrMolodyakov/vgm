@@ -88,10 +88,18 @@ type Jaeger struct {
 	Port        string `env:"JAEGER_PORT"`
 }
 
+type MetricsServer struct {
+	Port         int    `yaml:"port"`
+	IP           string `yaml:"ip"`
+	ReadTimeout  int    `yaml:"read_timeout"`
+	WriteTimeout int    `yaml:"write_timeout"`
+}
+
 type Config struct {
-	CORS            CORS        `yaml:"cors"`
-	MusicServer     MusicServer `yaml:"music_server"`
-	UserServer      UserServer  `yaml:"user_server"`
+	CORS            CORS          `yaml:"cors"`
+	MusicServer     MusicServer   `yaml:"music_server"`
+	UserServer      UserServer    `yaml:"user_server"`
+	MetricsServer   MetricsServer `yaml:"metrics_server"`
 	Postgres        Postgres
 	MusicGRPC       MusicGRPC
 	EmailGRPC       EmailGRPC

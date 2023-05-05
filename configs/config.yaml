@@ -59,3 +59,9 @@ email_client:
   client_cert_file: cert/client-cert.pem
   client_key_file: cert/client-key.pem
   client_CAcert_file: cert/ca-cert.pem
+
+metrics_server:
+  ip: 0.0.0.0
+  port: 7070
+  read_timeout: 15
+  write_timeout: 15
