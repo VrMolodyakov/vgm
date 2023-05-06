@@ -6,16 +6,22 @@ import (
 	"sync"
 	"time"
 
+	"github.com/VrMolodyakov/vgm/email/app/internal/controller/nats/metrics"
 	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/model"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 	"github.com/avast/retry-go"
 	"github.com/nats-io/nats.go"
+	"go.opentelemetry.io/otel"
 )
 
 const (
 	retryAttempts = 3
 	retryDelay    = 1 * time.Second
+)
+
+var (
+	tracer = otel.Tracer("subscriber")
 )
 
 type MsgHandler func(m *nats.Msg)
@@ -144,9 +150,14 @@ func (s *Subscriber) runWorker(
 
 func (s *Subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 	return func(msg *nats.Msg) {
+		_, span := tracer.Start(ctx, "subscriber.processSendEmail")
+		defer span.End()
+
 		s.logger.Infof("subscriber process Send Email: %s", msg.Subject)
+		metrics.TotalSubscribeMessages.Inc()
 		var m model.Email
 		if err := json.Unmarshal(msg.Data, &m); err != nil {
+			metrics.ErrorSubscribeMessages.Inc()
 			s.logger.Errorf("json.Unmarshal : %v", err)
 			return
 		}
@@ -157,7 +168,7 @@ func (s *Subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 			retry.Delay(retryDelay),
 			retry.Context(ctx),
 		); err != nil {
-
+			metrics.ErrorSubscribeMessages.Inc()
 			if err := s.publishErrorMessage(ctx, msg, err); err != nil {
 				s.logger.Errorf("publishErrorMessage : %v", err)
 				return
@@ -170,9 +181,11 @@ func (s *Subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 			return
 		}
 		if err := msg.Ack(); err != nil {
+			metrics.ErrorSubscribeMessages.Inc()
 			s.logger.Errorf("msg.Ack: %v", err)
 			return
 		}
+		metrics.SuccessSubscribeMessages.Inc()
 	}
 }
 

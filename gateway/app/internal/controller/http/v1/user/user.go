@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/metrics"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/user/dto"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/validator"
 	emodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/email/model"
 	umodel "github.com/VrMolodyakov/vgm/gateway/internal/domain/user/model"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/email/templates"
-
 	"github.com/VrMolodyakov/vgm/gateway/pkg/errors"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/hashing"
 	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
@@ -60,12 +60,14 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		metrics.ErrorCreateUserRequests.Inc()
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
 	errs := validator.Validate(req)
 	if errs != nil {
+		metrics.ErrorCreateUserRequests.Inc()
 		jsonErr, _ := json.Marshal(errs)
 		http.Error(w, string(jsonErr), http.StatusBadRequest)
 		return
@@ -73,6 +75,7 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 
 	hashedPassword, err := hashing.HashPassword(req.Password)
 	if err != nil {
+		metrics.ErrorCreateUserRequests.Inc()
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -90,6 +93,7 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+		metrics.ErrorCreateUserRequests.Inc()
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -102,7 +106,7 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
+	metrics.UserCounter.Inc()
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonResponse)

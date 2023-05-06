@@ -22,6 +22,7 @@ func NewServer(
 	router := chi.NewRouter()
 	router.Use(chiMiddleware.Logger)
 	router.Use(cors.CORS)
+	router.Use(middleware.DurationMiddleware)
 	router.Use(chiMiddleware.Recoverer)
 
 	router.Route("/music", func(r chi.Router) {

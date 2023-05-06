@@ -99,7 +99,7 @@ type Config struct {
 	CORS            CORS          `yaml:"cors"`
 	MusicServer     MusicServer   `yaml:"music_server"`
 	UserServer      UserServer    `yaml:"user_server"`
-	MetricsServer   MetricsServer `yaml:"metrics_server"`
+	MetricsServer   MetricsServer `yaml:"geteway_metrics_server"`
 	Postgres        Postgres
 	MusicGRPC       MusicGRPC
 	EmailGRPC       EmailGRPC

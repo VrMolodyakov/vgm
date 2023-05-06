@@ -109,7 +109,7 @@ func (d *Deps) Setup(ctx context.Context, cfg *config.Config) error {
 		auth,
 		albumService,
 	)
-
+	metrics.RegisterMetrics()
 	d.metricsServer = metrics.NewServer(cfg.MetricsServer)
 
 	return nil

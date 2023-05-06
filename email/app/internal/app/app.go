@@ -53,8 +53,8 @@ func (a *app) InitTracer() error {
 	return nil
 }
 
-func (a *app) Close() {
-	a.deps.Close()
+func (a *app) Close(ctx context.Context) {
+	a.deps.Close(ctx, a.logger)
 }
 
 func (a *app) ReadConfig() error {

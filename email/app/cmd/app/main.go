@@ -12,7 +12,7 @@ func main() {
 	a := app.New()
 
 	defer func() {
-		a.Close()
+		a.Close(ctx)
 	}()
 
 	if err := a.ReadConfig(); err != nil {

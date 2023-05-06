@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/metrics"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/music/dto"
 	"github.com/VrMolodyakov/vgm/gateway/internal/controller/http/v1/validator"
 	"github.com/VrMolodyakov/vgm/gateway/internal/domain/music/model"
@@ -214,9 +215,11 @@ func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.Internal:
+				metrics.AlbumCounter.WithLabelValues(albumID, strconv.Itoa(http.StatusInternalServerError))
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			default:
+				metrics.AlbumCounter.WithLabelValues(albumID, strconv.Itoa(http.StatusBadRequest))
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
@@ -225,9 +228,11 @@ func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
 	dto := fullAlbum.DtoFromModel()
 	jsonResponse, err := json.Marshal(dto)
 	if err != nil {
+		metrics.AlbumCounter.WithLabelValues(albumID, strconv.Itoa(http.StatusInternalServerError))
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	metrics.AlbumCounter.WithLabelValues(albumID, strconv.Itoa(http.StatusOK))
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)

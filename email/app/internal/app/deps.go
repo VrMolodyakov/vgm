@@ -1,10 +1,12 @@
 package app
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,7 +15,10 @@ import (
 	"github.com/VrMolodyakov/vgm/email/app/internal/config"
 	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/email"
 	"github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/interceptor"
+	grpcMetrics "github.com/VrMolodyakov/vgm/email/app/internal/controller/grpc/v1/metrics"
+	httpMetrics "github.com/VrMolodyakov/vgm/email/app/internal/controller/http/v1/metrics"
 	jet "github.com/VrMolodyakov/vgm/email/app/internal/controller/nats"
+	natsMetrics "github.com/VrMolodyakov/vgm/email/app/internal/controller/nats/metrics"
 	"github.com/VrMolodyakov/vgm/email/app/internal/domain/email/usecase"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/client/gmail"
 	natsStream "github.com/VrMolodyakov/vgm/email/app/pkg/client/nats"
@@ -25,9 +30,10 @@ import (
 )
 
 type Deps struct {
-	subscriber *jet.Subscriber
-	server     *grpc.Server
-	connection *nats.Conn
+	subscriber    *jet.Subscriber
+	server        *grpc.Server
+	metricsServer *http.Server
+	connection    *nats.Conn
 }
 
 func (d *Deps) Setup(cfg *config.Config, logger logging.Logger) error {
@@ -54,6 +60,10 @@ func (d *Deps) Setup(cfg *config.Config, logger logging.Logger) error {
 	emailUseCase := usecase.NewEmailUseCase(logger, pub, cfg.Subscriber.SendEmailSubject, emailClient)
 	subCfg := d.ReadSubscriberCfg(cfg.Subscriber)
 	d.subscriber = jet.NewSubscriber(streamCtx, emailUseCase, subCfg, logger)
+
+	natsMetrics.RegisterNatsMetrics()
+	grpcMetrics.RegisterGrpcMetrics()
+	d.metricsServer = httpMetrics.NewServer(cfg.MetricsServer)
 
 	emailServer := email.NewServer(emailUseCase, logger, emailPb.UnimplementedEmailServiceServer{})
 	serverOptions := []grpc.ServerOption{}
@@ -89,9 +99,15 @@ func (d *Deps) ReadSubscriberCfg(cfg config.Subscriber) jet.SubscriberCfg {
 	)
 }
 
-func (d *Deps) Close() {
+func (d *Deps) Close(ctx context.Context, logger logging.Logger) {
 	if d.server != nil {
 		d.server.Stop()
+	}
+
+	if d.metricsServer != nil {
+		if err := d.metricsServer.Shutdown(ctx); err != nil {
+			logger.Error(err, "shutdown metrics server")
+		}
 	}
 
 	if d.connection != nil {

@@ -8,6 +8,11 @@ import (
 	"github.com/VrMolodyakov/vgm/email/app/pkg/errors"
 	"github.com/VrMolodyakov/vgm/email/app/pkg/logging"
 	"github.com/nats-io/nats.go"
+	"go.opentelemetry.io/otel"
+)
+
+var (
+	tracer = otel.Tracer("email-usecase")
 )
 
 type Publisher interface {
@@ -47,6 +52,9 @@ func NewEmailUseCase(
 }
 
 func (e *EmailUseCase) Publush(ctx context.Context, email *model.Email) error {
+	_, span := tracer.Start(ctx, "emailUseCase.Publush")
+	defer span.End()
+
 	mailBytes, err := json.Marshal(email)
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal")
@@ -55,6 +63,9 @@ func (e *EmailUseCase) Publush(ctx context.Context, email *model.Email) error {
 }
 
 func (e *EmailUseCase) Send(ctx context.Context, email *model.Email) error {
+	_, span := tracer.Start(ctx, "emailUseCase.Send")
+	defer span.End()
+
 	if err := e.emailClient.SendEmail(
 		email.Subject,
 		email.Content,

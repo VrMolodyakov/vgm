@@ -24,6 +24,13 @@ type Mail struct {
 	FromPassword      string `env:"EMAIL_SENDER_PASSWORD"`
 }
 
+type MetricsServer struct {
+	Port         int    `yaml:"port"`
+	IP           string `yaml:"ip"`
+	ReadTimeout  int    `yaml:"read_timeout"`
+	WriteTimeout int    `yaml:"write_timeout"`
+}
+
 type Subscriber struct {
 	DurableName        string   `yaml:"durable_name"`
 	DeadMessageSubject string   `yaml:"dead_message_subject"`
@@ -62,12 +69,13 @@ type Logger struct {
 }
 
 type Config struct {
-	Logger     Logger     `yaml:"logger"`
-	Subscriber Subscriber `yaml:"subscriber"`
-	Jaeger     Jaeger
-	Mail       Mail
-	Nats       Nats
-	GRPC       GRPC
+	Logger        Logger        `yaml:"logger"`
+	Subscriber    Subscriber    `yaml:"subscriber"`
+	MetricsServer MetricsServer `yaml:"email_metrics_server"`
+	Jaeger        Jaeger
+	Mail          Mail
+	Nats          Nats
+	GRPC          GRPC
 }
 
 func GetConfig() (*Config, error) {
