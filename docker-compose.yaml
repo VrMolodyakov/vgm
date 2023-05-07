@@ -92,6 +92,7 @@ services:
           dockerfile: Dockerfile
         ports:
           - 30001:30001  
+          - 7171:7171    
         env_file:
             - .env
         volumes:

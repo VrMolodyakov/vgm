@@ -2,8 +2,10 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -82,6 +84,22 @@ func (a *app) Start(ctx context.Context) {
 		a.deps.server.Serve(listener)
 		a.logger.Info("end of music gprc server")
 
+	}()
+
+	go func() {
+		a.logger.Info("music server started on ", " addr ", a.cfg.MetricsServer.Port)
+		if err := a.deps.metricsServer.ListenAndServe(); err != nil {
+			switch {
+			case errors.Is(err, http.ErrServerClosed):
+				a.logger.Warn("server shutdown")
+			default:
+				a.logger.Fatal(err.Error())
+			}
+		}
+		err := a.deps.metricsServer.Shutdown(ctx)
+		if err != nil {
+			a.logger.Fatal(err.Error())
+		}
 	}()
 
 	<-ctx.Done()

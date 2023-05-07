@@ -9,6 +9,7 @@ import SignUpForm from "../signup/sign-up-form";
 import { Auth,useAuth } from "../../features/auth/context/auth";
 import CreateForm from "../create/create-album";
 import AddRemoveInputField from "../input/add-remove-input-field";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 //TODO:index router
 const App: React.FC = () => {
@@ -27,23 +28,25 @@ const App: React.FC = () => {
   return (
     <>
       <Navbar collapseOnSelect expand="lg" bg="blue" variant="white">
-        <Link className="Home" to="/home">
-          Home
-        </Link>
-        <Link className="Charts" to="/price">
-          Charts
-        </Link>
+      <Nav className="me-auto">
+        <Nav.Link className="home" as={Link} to="/home">
+          VGM
+        </Nav.Link>
+        <Nav.Link className="news" as={Link} to="/price">
+          News
+        </Nav.Link>
+        </Nav>
 
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto"></Nav>
           <Nav className="links">
-            <Link className="navBarLink" to="/auth">
+            <Nav.Link className="navBarLink" as={Link} to="/auth">
               Sign In
-            </Link>
-            <Link className="navBarLink" to="/reg">
+            </Nav.Link>
+            <Nav.Link className="navBarLink" as={Link} to="/reg">
               Sign up
-            </Link>
+            </Nav.Link>
             <Nav.Link className="navBarLink" onClick={logout}>Log out</Nav.Link>
           </Nav>
         </Navbar.Collapse>

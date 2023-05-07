@@ -11,4 +11,4 @@ scrape_configs:
     metrics_path: /api/metrics/email
     static_configs:
       - targets:
-        - email:30001  
+        - email:7171  
