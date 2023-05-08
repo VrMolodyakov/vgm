@@ -244,7 +244,7 @@ func validateSortQuery(sortBy string) (string, error) {
 		return sortBy, nil
 	}
 	field := strings.TrimPrefix(sortBy, "-")
-	if field != "released_at" && field != "title" {
+	if field != "released_at" && field != "title" && field != "created_at" {
 		return "", errors.New("malformed orderdirection in sortBy query parameter, should be asc or desc")
 	}
 
