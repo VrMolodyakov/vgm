@@ -50,7 +50,7 @@ func NewAlbumRepository(client db.PostgreSQLClient) Album {
 }
 
 func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
-	_, span := tracer.Start(ctx, "repo.GetAll")
+	ctx, span := tracer.Start(ctx, "repo.GetAll")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -97,7 +97,7 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting 
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {
-	_, span := tracer.Start(ctx, "repo.Delete")
+	ctx, span := tracer.Start(ctx, "repo.Delete")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -129,7 +129,7 @@ func (r *repo) Delete(ctx context.Context, id string) error {
 }
 
 func (r *repo) DeleteInfo(ctx context.Context, id string) error {
-	_, span := tracer.Start(ctx, "repo.DeleteInfo")
+	ctx, span := tracer.Start(ctx, "repo.DeleteInfo")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -161,7 +161,7 @@ func (r *repo) DeleteInfo(ctx context.Context, id string) error {
 }
 
 func (r *repo) Update(ctx context.Context, album model.AlbumView) error {
-	_, span := tracer.Start(ctx, "repo.Update")
+	ctx, span := tracer.Start(ctx, "repo.Update")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -195,7 +195,7 @@ func (r *repo) Update(ctx context.Context, album model.AlbumView) error {
 }
 
 func (r *repo) UpdateInfo(ctx context.Context, info model.Info) error {
-	_, span := tracer.Start(ctx, "repo.UpdateInfo")
+	ctx, span := tracer.Start(ctx, "repo.UpdateInfo")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -230,7 +230,7 @@ func (r *repo) UpdateInfo(ctx context.Context, info model.Info) error {
 }
 
 func (r *repo) GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, error) {
-	_, span := tracer.Start(ctx, "repo.GetInfo")
+	ctx, span := tracer.Start(ctx, "repo.GetInfo")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -290,7 +290,7 @@ func (r *repo) GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, er
 }
 
 func (r *repo) Tx(ctx context.Context, action func(txRepo Album) error) error {
-	_, span := tracer.Start(ctx, "repo.Tx")
+	ctx, span := tracer.Start(ctx, "repo.Tx")
 	defer span.End()
 
 	return r.WithinTransaction(
@@ -301,7 +301,7 @@ func (r *repo) Tx(ctx context.Context, action func(txRepo Album) error) error {
 }
 
 func (r *repo) Create(ctx context.Context, album model.Album) error {
-	_, span := tracer.Start(ctx, "repo.Create")
+	ctx, span := tracer.Start(ctx, "repo.Create")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)

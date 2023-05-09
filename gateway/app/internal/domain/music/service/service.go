@@ -38,7 +38,7 @@ func NewAlbumService(client MusicGrpcClient) *music {
 }
 
 func (a *music) CreateAlbum(ctx context.Context, album model.Album) error {
-	_, span := tracer.Start(ctx, "client.CreateAlbum")
+	ctx, span := tracer.Start(ctx, "client.CreateAlbum")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -64,7 +64,7 @@ func (a *music) CreateAlbum(ctx context.Context, album model.Album) error {
 }
 
 func (a *music) CreatePerson(ctx context.Context, person model.Person) error {
-	_, span := tracer.Start(ctx, "client.CreatePerson")
+	ctx, span := tracer.Start(ctx, "client.CreatePerson")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -96,7 +96,7 @@ func (m *music) FindAllAlbums(
 	releaseView model.AlbumReleasedView,
 	sort model.Sort) ([]model.AlbumView, error) {
 
-	_, span := tracer.Start(ctx, "client.FindAllAlbums")
+	ctx, span := tracer.Start(ctx, "client.FindAllAlbums")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -121,7 +121,7 @@ func (m *music) FindAllAlbums(
 }
 
 func (m *music) FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
-	_, span := tracer.Start(ctx, "client.FindFullAlbum")
+	ctx, span := tracer.Start(ctx, "client.FindFullAlbum")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)

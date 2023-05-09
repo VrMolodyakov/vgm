@@ -32,7 +32,7 @@ func NewTracklistRepo(client db.PostgreSQLClient) *repo {
 }
 
 func (r *repo) Create(ctx context.Context, tracklist []model.Track) error {
-	_, span := tracer.Start(ctx, "repo.Create")
+	ctx, span := tracer.Start(ctx, "repo.Create")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -61,7 +61,7 @@ func (r *repo) Create(ctx context.Context, tracklist []model.Track) error {
 }
 
 func (r *repo) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
-	_, span := tracer.Start(ctx, "repo.GetAll")
+	ctx, span := tracer.Start(ctx, "repo.GetAll")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -110,7 +110,7 @@ func (r *repo) GetAll(ctx context.Context, albumID string) ([]model.Track, error
 }
 
 func (r *repo) Update(ctx context.Context, track model.Track) error {
-	_, span := tracer.Start(ctx, "repo.Update")
+	ctx, span := tracer.Start(ctx, "repo.Update")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -145,7 +145,7 @@ func (r *repo) Update(ctx context.Context, track model.Track) error {
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {
-	_, span := tracer.Start(ctx, "repo.Delete")
+	ctx, span := tracer.Start(ctx, "repo.Delete")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)

@@ -113,7 +113,7 @@ func (u *userHandler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
-	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
 	var req dto.SignInRequest
@@ -130,7 +130,7 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := u.user.GetByUsername(context.Background(), req.Username)
+	user, err := u.user.GetByUsername(ctx, req.Username)
 	if err != nil {
 		if _, ok := errors.IsInternal(err); ok {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -158,7 +158,7 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = u.tokenService.Save(r.Context(), refreshToken, user.Id, time.Duration(u.refreshTtl)*time.Minute)
+	err = u.tokenService.Save(ctx, refreshToken, user.Id, time.Duration(u.refreshTtl)*time.Minute)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -213,7 +213,7 @@ func (u *userHandler) SignInUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *userHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
-	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
 	refreshTokenCookie, err := r.Cookie("refresh_token")
@@ -227,12 +227,12 @@ func (u *userHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
-	userId, err := u.tokenService.Find(r.Context(), refreshToken)
+	userId, err := u.tokenService.Find(ctx, refreshToken)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
-	user, err := u.user.GetByID(r.Context(), userId)
+	user, err := u.user.GetByID(ctx, userId)
 	if err != nil {
 		if _, ok := errors.IsInternal(err); ok {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -283,7 +283,7 @@ func (u *userHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 }
 
 func (u *userHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 	refreshTokenCookie, err := r.Cookie("refresh_token")
 	if err != nil {
@@ -296,7 +296,7 @@ func (u *userHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
-	err = u.tokenService.Remove(r.Context(), refreshToken)
+	err = u.tokenService.Remove(ctx, refreshToken)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

@@ -29,7 +29,7 @@ func NewTrackService(dao TrackRepo) *trackService {
 }
 
 func (t *trackService) Create(ctx context.Context, tracklist []model.Track) error {
-	_, span := tracer.Start(ctx, "service.Create")
+	ctx, span := tracer.Start(ctx, "service.Create")
 	defer span.End()
 
 	for _, t := range tracklist {
@@ -47,7 +47,7 @@ func (t *trackService) Create(ctx context.Context, tracklist []model.Track) erro
 }
 
 func (t *trackService) GetAll(ctx context.Context, albumID string) ([]model.Track, error) {
-	_, span := tracer.Start(ctx, "service.GetAll")
+	ctx, span := tracer.Start(ctx, "service.GetAll")
 	defer span.End()
 
 	if albumID == "" {
@@ -63,7 +63,7 @@ func (t *trackService) GetAll(ctx context.Context, albumID string) ([]model.Trac
 }
 
 func (t *trackService) Update(ctx context.Context, track model.Track) error {
-	_, span := tracer.Start(ctx, "service.Update")
+	ctx, span := tracer.Start(ctx, "service.Update")
 	defer span.End()
 
 	if !track.IsValid() {
@@ -79,7 +79,7 @@ func (t *trackService) Update(ctx context.Context, track model.Track) error {
 }
 
 func (t *trackService) Delete(ctx context.Context, id string) error {
-	_, span := tracer.Start(ctx, "service.Delete")
+	ctx, span := tracer.Start(ctx, "service.Delete")
 	defer span.End()
 
 	if id == "" {

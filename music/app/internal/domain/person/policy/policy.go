@@ -29,7 +29,7 @@ func NewPersonPolicy(service PersonService) *PersonPolicy {
 }
 
 func (p *PersonPolicy) GetAll(ctx context.Context, filter filter.Filterable) ([]model.Person, error) {
-	_, span := tracer.Start(ctx, "policy.GetAll")
+	ctx, span := tracer.Start(ctx, "policy.GetAll")
 	defer span.End()
 	products, err := p.personService.GetAll(ctx, filter)
 	if err != nil {
@@ -40,19 +40,19 @@ func (p *PersonPolicy) GetAll(ctx context.Context, filter filter.Filterable) ([]
 }
 
 func (p *PersonPolicy) Create(ctx context.Context, person model.Person) (model.Person, error) {
-	_, span := tracer.Start(ctx, "policy.Create")
+	ctx, span := tracer.Start(ctx, "policy.Create")
 	defer span.End()
 	return p.personService.Create(ctx, person)
 }
 
 func (p *PersonPolicy) Update(ctx context.Context, person model.Person) error {
-	_, span := tracer.Start(ctx, "policy.Update")
+	ctx, span := tracer.Start(ctx, "policy.Update")
 	defer span.End()
 	return p.personService.Update(ctx, person)
 }
 
 func (p *PersonPolicy) Delete(ctx context.Context, albumID string) error {
-	_, span := tracer.Start(ctx, "policy.Delete")
+	ctx, span := tracer.Start(ctx, "policy.Delete")
 	defer span.End()
 	return p.personService.Delete(ctx, albumID)
 }

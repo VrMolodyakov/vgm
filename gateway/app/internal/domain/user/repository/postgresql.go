@@ -36,7 +36,7 @@ func NewUserRepo(client postgresql.PostgreSQLClient) *repo {
 }
 
 func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
-	_, span := tracer.Start(ctx, "repo.Create")
+	ctx, span := tracer.Start(ctx, "repo.Create")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -128,7 +128,7 @@ func (r *repo) Create(ctx context.Context, user model.User) (int, error) {
 }
 
 func (r *repo) GetByUsername(ctx context.Context, username string) (model.User, error) {
-	_, span := tracer.Start(ctx, "repo.GetByUsername")
+	ctx, span := tracer.Start(ctx, "repo.GetByUsername")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -176,7 +176,7 @@ func (r *repo) GetByUsername(ctx context.Context, username string) (model.User, 
 }
 
 func (r *repo) GetByID(ctx context.Context, ID int) (model.User, error) {
-	_, span := tracer.Start(ctx, "repo.GetByID")
+	ctx, span := tracer.Start(ctx, "repo.GetByID")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -223,7 +223,7 @@ func (r *repo) GetByID(ctx context.Context, ID int) (model.User, error) {
 }
 
 func (r *repo) Delete(ctx context.Context, username string) error {
-	_, span := tracer.Start(ctx, "repo.Delete")
+	ctx, span := tracer.Start(ctx, "repo.Delete")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -253,7 +253,7 @@ func (r *repo) Delete(ctx context.Context, username string) error {
 }
 
 func (r *repo) Update(ctx context.Context, user model.User) error {
-	_, span := tracer.Start(ctx, "repo.Update")
+	ctx, span := tracer.Start(ctx, "repo.Update")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)

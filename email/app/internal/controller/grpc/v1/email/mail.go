@@ -15,7 +15,7 @@ var (
 )
 
 func (s *server) CreateEmail(ctx context.Context, req *emailPb.CreateEmailRequest) (*emailPb.CreateEmailResponse, error) {
-	_, span := tracer.Start(ctx, "server.CreateEmail")
+	ctx, span := tracer.Start(ctx, "server.CreateEmail")
 	defer span.End()
 
 	email := model.ModelFromPB(req)

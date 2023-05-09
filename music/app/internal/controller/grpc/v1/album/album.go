@@ -17,7 +17,7 @@ var (
 )
 
 func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbumsRequest) (*albumPb.FindAllAlbumsResponse, error) {
-	_, span := tracer.Start(ctx, "server.FindAllAlbums")
+	ctx, span := tracer.Start(ctx, "server.FindAllAlbums")
 	defer span.End()
 
 	sort := albumModel.AlbumSort(request)
@@ -43,7 +43,7 @@ func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbu
 }
 
 func (s *server) DeleteAlbum(ctx context.Context, request *albumPb.DeleteAlbumRequest) (*albumPb.DeleteAlbumResponse, error) {
-	_, span := tracer.Start(ctx, "server.DeleteAlbum")
+	ctx, span := tracer.Start(ctx, "server.DeleteAlbum")
 	defer span.End()
 
 	err := s.albumPolicy.Delete(ctx, request.GetId())
@@ -54,7 +54,7 @@ func (s *server) DeleteAlbum(ctx context.Context, request *albumPb.DeleteAlbumRe
 }
 
 func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRequest) (*albumPb.UpdateAlbumResponse, error) {
-	_, span := tracer.Start(ctx, "server.UpdateAlbum")
+	ctx, span := tracer.Start(ctx, "server.UpdateAlbum")
 	defer span.End()
 
 	album := albumModel.UpdateModelFromPB(request)
@@ -66,7 +66,7 @@ func (s *server) UpdateAlbum(ctx context.Context, request *albumPb.UpdateAlbumRe
 }
 
 func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRequest) (*albumPb.CreateAlbumResponse, error) {
-	_, span := tracer.Start(ctx, "server.CreateAlbum")
+	ctx, span := tracer.Start(ctx, "server.CreateAlbum")
 	defer span.End()
 
 	album := albumModel.NewAlbumFromPB(request)
@@ -83,7 +83,7 @@ func (s *server) CreateAlbum(ctx context.Context, request *albumPb.CreateAlbumRe
 }
 
 func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlbumRequest) (*albumPb.FindFullAlbumResponse, error) {
-	_, span := tracer.Start(ctx, "server.FindFullAlbum")
+	ctx, span := tracer.Start(ctx, "server.FindFullAlbum")
 	defer span.End()
 
 	fullAlbum, err := s.albumPolicy.GetOne(context.Background(), request.GetAlbumId())
@@ -116,7 +116,7 @@ func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlb
 }
 
 func (s *server) CreatePerson(ctx context.Context, request *albumPb.CreatePersonRequest) (*albumPb.CreatePersonResponse, error) {
-	_, span := tracer.Start(ctx, "server.CreatePerson")
+	ctx, span := tracer.Start(ctx, "server.CreatePerson")
 	defer span.End()
 
 	personModel := personModel.NewPersonFromPB(request)

@@ -123,7 +123,7 @@ func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
-	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
 	logger := logging.LoggerFromContext(r.Context())
@@ -175,7 +175,7 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 		Field: sortBy,
 	}
 
-	albums, err := a.service.FindAllAlbums(r.Context(), p, titleView, releaseView, s)
+	albums, err := a.service.FindAllAlbums(ctx, p, titleView, releaseView, s)
 	if err != nil {
 		logger.Error(err.Error())
 		if e, ok := status.FromError(err); ok {
@@ -204,12 +204,12 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
-	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
 	albumID := chi.URLParam(r, "albumID")
-	logger := logging.LoggerFromContext(r.Context())
-	fullAlbum, err := a.service.FindFullAlbum(r.Context(), albumID)
+	logger := logging.LoggerFromContext(ctx)
+	fullAlbum, err := a.service.FindFullAlbum(ctx, albumID)
 	if err != nil {
 		logger.Error(err.Error())
 		if e, ok := status.FromError(err); ok {

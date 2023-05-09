@@ -31,7 +31,7 @@ func NewUserService(repo UserRepo) *userService {
 }
 
 func (u *userService) Create(ctx context.Context, user model.User) (int, error) {
-	_, span := tracer.Start(ctx, "service.Create")
+	ctx, span := tracer.Start(ctx, "service.Create")
 	defer span.End()
 
 	if !user.IsValid() {
@@ -41,7 +41,7 @@ func (u *userService) Create(ctx context.Context, user model.User) (int, error) 
 }
 
 func (u *userService) GetByUsername(ctx context.Context, username string) (model.User, error) {
-	_, span := tracer.Start(ctx, "service.GetByUsername")
+	ctx, span := tracer.Start(ctx, "service.GetByUsername")
 	defer span.End()
 
 	if username == "" {
@@ -51,7 +51,7 @@ func (u *userService) GetByUsername(ctx context.Context, username string) (model
 }
 
 func (u *userService) GetByID(ctx context.Context, ID int) (model.User, error) {
-	_, span := tracer.Start(ctx, "service.GetByID")
+	ctx, span := tracer.Start(ctx, "service.GetByID")
 	defer span.End()
 
 	if ID < 0 {
@@ -61,7 +61,7 @@ func (u *userService) GetByID(ctx context.Context, ID int) (model.User, error) {
 }
 
 func (u *userService) Delete(ctx context.Context, username string) error {
-	_, span := tracer.Start(ctx, "service.Delete")
+	ctx, span := tracer.Start(ctx, "service.Delete")
 	defer span.End()
 
 	if username == "" {
@@ -71,7 +71,7 @@ func (u *userService) Delete(ctx context.Context, username string) error {
 }
 
 func (u *userService) Update(ctx context.Context, user model.User) error {
-	_, span := tracer.Start(ctx, "service.Update")
+	ctx, span := tracer.Start(ctx, "service.Update")
 	defer span.End()
 
 	if !user.IsValid() {

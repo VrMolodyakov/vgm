@@ -31,7 +31,7 @@ func NewAlbumPolicy(
 }
 
 func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
-	_, span := tracer.Start(ctx, "policy.GetAll")
+	ctx, span := tracer.Start(ctx, "policy.GetAll")
 	defer span.End()
 
 	products, err := p.albumService.GetAll(ctx, filtering, sorting)
@@ -43,28 +43,28 @@ func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, s
 }
 
 func (p *albumPolicy) Delete(ctx context.Context, id string) error {
-	_, span := tracer.Start(ctx, "policy.Delete")
+	ctx, span := tracer.Start(ctx, "policy.Delete")
 	defer span.End()
 
 	return p.albumService.Delete(ctx, id)
 }
 
 func (p *albumPolicy) Update(ctx context.Context, album model.AlbumView) error {
-	_, span := tracer.Start(ctx, "policy.Update")
+	ctx, span := tracer.Start(ctx, "policy.Update")
 	defer span.End()
 
 	return p.albumService.Update(ctx, album)
 }
 
 func (p *albumPolicy) Create(ctx context.Context, album model.Album) error {
-	_, span := tracer.Start(ctx, "policy.Create")
+	ctx, span := tracer.Start(ctx, "policy.Create")
 	defer span.End()
 
 	return p.albumService.Create(ctx, album)
 }
 
 func (p *albumPolicy) GetOne(ctx context.Context, albumID string) (model.FullAlbum, error) {
-	_, span := tracer.Start(ctx, "policy.GetOne")
+	ctx, span := tracer.Start(ctx, "policy.GetOne")
 	defer span.End()
 
 	album, err := p.albumService.GetOne(ctx, albumID)

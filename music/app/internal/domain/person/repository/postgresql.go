@@ -35,7 +35,7 @@ func NewPersonStorage(client db.PostgreSQLClient) *repo {
 }
 
 func (r *repo) Create(ctx context.Context, person model.Person) (model.Person, error) {
-	_, span := tracer.Start(ctx, "repo.Create")
+	ctx, span := tracer.Start(ctx, "repo.Create")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -75,7 +75,7 @@ func (r *repo) Create(ctx context.Context, person model.Person) (model.Person, e
 }
 
 func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model.Person, error) {
-	_, span := tracer.Start(ctx, "repo.GetAll")
+	ctx, span := tracer.Start(ctx, "repo.GetAll")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -121,7 +121,7 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable) ([]model
 }
 
 func (r *repo) GetOne(ctx context.Context, personID string) (model.Person, error) {
-	_, span := tracer.Start(ctx, "repo.GetOne")
+	ctx, span := tracer.Start(ctx, "repo.GetOne")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -160,7 +160,7 @@ func (r *repo) GetOne(ctx context.Context, personID string) (model.Person, error
 }
 
 func (r *repo) Delete(ctx context.Context, id string) error {
-	_, span := tracer.Start(ctx, "repo.Delete")
+	ctx, span := tracer.Start(ctx, "repo.Delete")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -192,7 +192,7 @@ func (r *repo) Delete(ctx context.Context, id string) error {
 }
 
 func (r *repo) Update(ctx context.Context, person model.Person) error {
-	_, span := tracer.Start(ctx, "repo.Update")
+	ctx, span := tracer.Start(ctx, "repo.Update")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)

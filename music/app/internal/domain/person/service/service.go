@@ -30,7 +30,7 @@ func NewPersonService(dao PersonRepo) *personService {
 }
 
 func (p *personService) GetAll(ctx context.Context, filter filter.Filterable) ([]model.Person, error) {
-	_, span := tracer.Start(ctx, "service.GetAll")
+	ctx, span := tracer.Start(ctx, "service.GetAll")
 	defer span.End()
 
 	persons, err := p.personRepo.GetAll(ctx, filter)
@@ -42,7 +42,7 @@ func (p *personService) GetAll(ctx context.Context, filter filter.Filterable) ([
 }
 
 func (p *personService) Create(ctx context.Context, person model.Person) (model.Person, error) {
-	_, span := tracer.Start(ctx, "service.Create")
+	ctx, span := tracer.Start(ctx, "service.Create")
 	defer span.End()
 
 	if !person.IsValid() {
@@ -57,7 +57,7 @@ func (p *personService) Create(ctx context.Context, person model.Person) (model.
 }
 
 func (p *personService) Update(ctx context.Context, person model.Person) error {
-	_, span := tracer.Start(ctx, "service.Update")
+	ctx, span := tracer.Start(ctx, "service.Update")
 	defer span.End()
 
 	if !person.IsValid() {
@@ -73,7 +73,7 @@ func (p *personService) Update(ctx context.Context, person model.Person) error {
 }
 
 func (p *personService) Delete(ctx context.Context, id string) error {
-	_, span := tracer.Start(ctx, "service.Delete")
+	ctx, span := tracer.Start(ctx, "service.Delete")
 	defer span.End()
 
 	if id == "" {

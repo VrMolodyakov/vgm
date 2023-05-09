@@ -150,7 +150,7 @@ func (s *Subscriber) runWorker(
 
 func (s *Subscriber) processSendEmail(ctx context.Context) nats.MsgHandler {
 	return func(msg *nats.Msg) {
-		_, span := tracer.Start(ctx, "subscriber.processSendEmail")
+		ctx, span := tracer.Start(ctx, "subscriber.processSendEmail")
 		defer span.End()
 
 		s.logger.Infof("subscriber process Send Email: %s", msg.Subject)

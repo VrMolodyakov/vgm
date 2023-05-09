@@ -28,7 +28,7 @@ func NewCreditService(dao CreditRepo) *creditService {
 }
 
 func (c *creditService) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
-	_, span := tracer.Start(ctx, "service.GetAll")
+	ctx, span := tracer.Start(ctx, "service.GetAll")
 	defer span.End()
 
 	if albumID == "" {
@@ -44,7 +44,7 @@ func (c *creditService) GetAll(ctx context.Context, albumID string) ([]model.Cre
 }
 
 func (c *creditService) Delete(ctx context.Context, albumID string) error {
-	_, span := tracer.Start(ctx, "service.Delete")
+	ctx, span := tracer.Start(ctx, "service.Delete")
 	defer span.End()
 
 	if albumID == "" {
@@ -56,7 +56,7 @@ func (c *creditService) Delete(ctx context.Context, albumID string) error {
 }
 
 func (c *creditService) Update(ctx context.Context, albumId string, role string) error {
-	_, span := tracer.Start(ctx, "service.Update")
+	ctx, span := tracer.Start(ctx, "service.Update")
 	defer span.End()
 
 	if albumId == "" || role == "" {

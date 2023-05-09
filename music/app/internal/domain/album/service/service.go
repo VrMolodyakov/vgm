@@ -24,7 +24,7 @@ func NewAlbumService(albumRepo AlbumRepo) *albumService {
 }
 
 func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.AlbumView, error) {
-	_, span := tracer.Start(ctx, "service.GetAll")
+	ctx, span := tracer.Start(ctx, "service.GetAll")
 	defer span.End()
 
 	albums, err := a.albumRepo.GetAll(ctx, filter, sort)
@@ -36,7 +36,7 @@ func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sor
 }
 
 func (s *albumService) Delete(ctx context.Context, id string) error {
-	_, span := tracer.Start(ctx, "service.Delete")
+	ctx, span := tracer.Start(ctx, "service.Delete")
 	defer span.End()
 
 	if id == "" {
@@ -49,7 +49,7 @@ func (s *albumService) Delete(ctx context.Context, id string) error {
 }
 
 func (s *albumService) Update(ctx context.Context, album model.AlbumView) error {
-	_, span := tracer.Start(ctx, "service.Update")
+	ctx, span := tracer.Start(ctx, "service.Update")
 	defer span.End()
 
 	if album.IsEmpty() {
@@ -59,7 +59,7 @@ func (s *albumService) Update(ctx context.Context, album model.AlbumView) error 
 }
 
 func (s *albumService) GetOne(ctx context.Context, albumID string) (model.AlbumInfo, error) {
-	_, span := tracer.Start(ctx, "service.GetOne")
+	ctx, span := tracer.Start(ctx, "service.GetOne")
 	defer span.End()
 
 	if albumID == "" {
@@ -70,7 +70,7 @@ func (s *albumService) GetOne(ctx context.Context, albumID string) (model.AlbumI
 }
 
 func (s *albumService) Create(ctx context.Context, album model.Album) error {
-	_, span := tracer.Start(ctx, "service.Create")
+	ctx, span := tracer.Start(ctx, "service.Create")
 	defer span.End()
 
 	return s.albumRepo.Create(ctx, album)

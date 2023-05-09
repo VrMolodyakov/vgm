@@ -27,7 +27,7 @@ func NewTokenService(storage TokenRepo) *tokenService {
 }
 
 func (t *tokenService) Save(ctx context.Context, refreshToken string, userId int, expireAt time.Duration) error {
-	_, span := tracer.Start(ctx, "storage.Save")
+	ctx, span := tracer.Start(ctx, "storage.Save")
 	defer span.End()
 
 	if len(refreshToken) == 0 {
@@ -40,7 +40,7 @@ func (t *tokenService) Save(ctx context.Context, refreshToken string, userId int
 }
 
 func (t *tokenService) Find(ctx context.Context, refreshToken string) (int, error) {
-	_, span := tracer.Start(ctx, "storage.Find")
+	ctx, span := tracer.Start(ctx, "storage.Find")
 	defer span.End()
 
 	if len(refreshToken) == 0 {
@@ -50,7 +50,7 @@ func (t *tokenService) Find(ctx context.Context, refreshToken string) (int, erro
 }
 
 func (t *tokenService) Remove(ctx context.Context, refreshToken string) error {
-	_, span := tracer.Start(ctx, "storage.Remove")
+	ctx, span := tracer.Start(ctx, "storage.Remove")
 	defer span.End()
 
 	if len(refreshToken) == 0 {

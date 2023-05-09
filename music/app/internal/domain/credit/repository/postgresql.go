@@ -32,7 +32,7 @@ func NewCreditRepo(client db.PostgreSQLClient) *repo {
 }
 
 func (c *repo) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, error) {
-	_, span := tracer.Start(ctx, "repo.GetAll")
+	ctx, span := tracer.Start(ctx, "repo.GetAll")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -80,7 +80,7 @@ func (c *repo) GetAll(ctx context.Context, albumID string) ([]model.CreditInfo, 
 }
 
 func (c *repo) Delete(ctx context.Context, albumID string) error {
-	_, span := tracer.Start(ctx, "repo.Delete")
+	ctx, span := tracer.Start(ctx, "repo.Delete")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -112,7 +112,7 @@ func (c *repo) Delete(ctx context.Context, albumID string) error {
 }
 
 func (r *repo) Update(ctx context.Context, albumId string, role string) error {
-	_, span := tracer.Start(ctx, "repo.Update")
+	ctx, span := tracer.Start(ctx, "repo.Update")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
