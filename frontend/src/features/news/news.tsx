@@ -12,7 +12,7 @@ export const News: React.FC = () => {
     const [albums,setAlbums] = useState()
 
     const getLatestAlbums = async (url:string) =>{
-        return getRequest("auth/login").then(r => r.data).then(a => setAlbums(a))
+        return getRequest("music/albums?limit=10&sort_by=created_at").then(r => console.log(r))
         .catch(error => {   
           console.log(error)
         });

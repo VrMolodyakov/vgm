@@ -10,6 +10,7 @@ import { Auth,useAuth } from "../../features/auth/context/auth";
 import CreateForm from "../create/create-album";
 import AddRemoveInputField from "../input/add-remove-input-field";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { News } from "../../features/news/news";
 
 //TODO:index router
 const App: React.FC = () => {
@@ -32,7 +33,7 @@ const App: React.FC = () => {
         <Nav.Link className="home" as={Link} to="/home">
           VGM
         </Nav.Link>
-        <Nav.Link className="news" as={Link} to="/price">
+        <Nav.Link className="news" as={Link} to="/news">
           News
         </Nav.Link>
         </Nav>
@@ -57,8 +58,9 @@ const App: React.FC = () => {
             <Route path="auth" element={<SignInForm />} />
             <Route path="reg" element={<SignUpForm />} />
             <Route path="create" element={<CreateForm />} />
+            <Route path="news" element={<News />} />  
             <Route element = {<RequierAuth/>}>
-                <Route path="home" element={<Home />} />              
+                <Route path="home" element={<Home />} />                          
             </Route>
           </Route>
         </Routes>

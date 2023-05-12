@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-in-form.css"
 import { postRequest } from "../../api/api";
-import { AuthContextType } from "../../features/auth/types/auth-context-type";
 import { useLocation, useNavigate } from "react-router-dom";
-import { LocalStorage } from "../../features/local-storage/service/service";
 import { Auth, useAuth } from "../../features/auth/context/auth";
 import jwt_decode from "jwt-decode";
 
