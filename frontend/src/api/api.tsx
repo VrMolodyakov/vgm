@@ -1,7 +1,7 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
 //TODO:for docker -> process.env.REACT_APP_GATEWAY_URL
-const axiosClient = axios.create({
+const baseAxiosClient = axios.create({
     baseURL:"http://localhost:8080",
     withCredentials: true,
     headers: {
@@ -10,17 +10,17 @@ const axiosClient = axios.create({
 })
 
 export function getRequest(URL:string) {
-    return axiosClient.get(`/${URL}`).then(response => response);
+    return baseAxiosClient.get(`/${URL}`).then(response => response);
 }
   
 export function postRequest<T>(URL:string, payload:any) {
-    return axiosClient.post<T>(`/${URL}`, payload).then(response => response);
+    return baseAxiosClient.post<T>(`/${URL}`, payload).then(response => response);
 }
   
 export function patchRequest(URL:string, payload:any) {
-    return axiosClient.patch(`/${URL}`, payload).then(response => response);
+    return baseAxiosClient.patch(`/${URL}`, payload).then(response => response);
 }
   
 export function deleteRequest(URL:string) {
-    return axiosClient.delete(`/${URL}`).then(response => response);
+    return baseAxiosClient.delete(`/${URL}`).then(response => response);
 }

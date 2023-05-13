@@ -6,6 +6,7 @@ import { postRequest } from "../../api/api";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Auth, useAuth } from "../../features/auth/context/auth";
 import jwt_decode from "jwt-decode";
+import { Token } from "../../api/token";
 
 
 
@@ -20,12 +21,7 @@ type TokenResponse = {
   logged_in:string
 }
 
-type Token = {
-  exp:number
-  iat:number
-  nbf:number
-  role:string
-}
+
 
 const SignInForm: React.FC = () => {
   const { auth,setAuth } = useAuth();
