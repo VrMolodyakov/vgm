@@ -4,7 +4,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import {validationSchema} from "./validate-scheme"
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-up-form.css"
-import { getRequest, postRequest } from '../../api/api';
+import { postRequest } from '../../api/api';
+import config from "../../config/config";
 
 type UserSubmitForm = {
   username: string
@@ -40,7 +41,7 @@ const SignUpForm: React.FC = () => {
       role:"user"
     }
 
-    const response = await postRequest("auth/register",newUser)
+    const response = await postRequest(config.SignUpUrl,newUser)
     console.log(response)
   };
 

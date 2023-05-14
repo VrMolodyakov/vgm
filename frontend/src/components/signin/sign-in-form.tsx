@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Auth, useAuth } from "../../features/auth/context/auth";
 import jwt_decode from "jwt-decode";
 import { Token } from "../../api/token";
-
+import config from "../../config/config";
 
 
 type UserSubmitData = {
@@ -36,7 +36,7 @@ const SignInForm: React.FC = () => {
   } = useForm<UserSubmitData>()
 
   const getToken = async (userData:UserSubmitData) =>{
-    return postRequest<TokenResponse>("auth/login",userData).then(r => r.data)
+    return postRequest<TokenResponse>(config.SignInUrl,userData).then(r => r.data)
     .catch(error => {   
       if (error.response.status === 400){
         setError("root",{type:'custom',message:"wrong username or password"})
