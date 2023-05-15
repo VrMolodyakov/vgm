@@ -21,8 +21,6 @@ type TokenResponse = {
   logged_in:string
 }
 
-
-
 const SignInForm: React.FC = () => {
   const { auth,setAuth } = useAuth();
   const [isRegister,setIsRegister] = useState(false);

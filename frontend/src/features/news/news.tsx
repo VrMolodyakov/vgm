@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { getRequest } from "../../api/api";
-import axios, { InternalAxiosRequestConfig } from "axios";
+import { Form, Stack, Row, Col, Button, Card, Badge } from "react-bootstrap"
+import { InternalAxiosRequestConfig } from "axios";
 import { Auth, useAuth } from "../../features/auth/context/auth";
 import jwt_decode from 'jwt-decode'
 import { Token } from "../../api/token";
 import { newAxiosInstance } from "../../api/interceptors";
 import config from "../../config/config";
+import { AlbumView, Albums } from "./type";
+import { AlbumCard } from "../../components/album/card";
 
 type AlbumsResponse = {
   access_token: string
@@ -17,11 +19,10 @@ const instance = newAxiosInstance(config.MusicServerUrl)
 const refreshInstance = newAxiosInstance(config.UserServerUrl)
 
 export const News: React.FC = () => {
-  const [albums, setAlbums] = useState()
+  const [albums, setAlbums] = useState<AlbumView[]>([])
   const { auth, setAuth } = useAuth();
 
   const onRequest = async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
-    console.log("inside")
     const decoded: Token = jwt_decode(auth.token)
     console.log(decoded)
     const expireTime = decoded.exp * 1000;
@@ -43,24 +44,34 @@ export const News: React.FC = () => {
   };
   instance.interceptors.request.use(onRequest)
 
-  const refreshAccessToken = async () => {
+  const refreshAccessToken = () => {
     return refreshInstance.get(config.RefreshTokenUrl);
   };
 
-  const getLatestAlbums = async (url: string) => {
-    return instance.get(config.NewsUrl).then(r => r.data)
+  const getLatestAlbums = () => {
+    return instance.get<AlbumView[]>(config.NewsUrl).then(r => r.data).then(
+      albums => setAlbums(() => albums)
+    )
       .catch(error => {
         console.log(error)
       });
   }
 
   useEffect(() => {
-    const albums = getLatestAlbums("")
-    console.log(albums)
+    const albums = getLatestAlbums()
   }, []);
 
   return (
     <>
+      <Form className="list-form">
+        <Row xs={1} sm={2} lg={3} xl={4} className="g-3">
+          {albums.map(album => (
+            <Col key={album.album_id}>
+              <AlbumCard title={album.title} id={album.album_id} />
+            </Col>
+          ))}
+        </Row>
+      </Form>
     </>
   )
 }
