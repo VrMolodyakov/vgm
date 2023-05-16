@@ -23,7 +23,7 @@ var (
 type Album interface {
 	psqltx.Transactor
 	Tx(ctx context.Context, action func(txRepo Album) error) error
-	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
+	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumPreview, error)
 	GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, error)
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
@@ -49,7 +49,7 @@ func NewAlbumRepository(client db.PostgreSQLClient) Album {
 	}
 }
 
-func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
+func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumPreview, error) {
 	ctx, span := tracer.Start(ctx, "repo.GetAll")
 	defer span.End()
 
@@ -57,8 +57,9 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting 
 	filter := dbFIlter.NewFilters(filtering)
 	sort := dbSort.NewSortOptions(sorting)
 	query := r.queryBuilder.
-		Select("album_id", "title", "released_at", "created_at").
-		From(table)
+		Select("album_id", "title", "released_at", "created_at", "publisher", "small_image_src").
+		From(table).
+		Join("album_info USING (album_id)")
 
 	query = filter.Filter(query, "")
 	query = sort.Sort(query, "")
@@ -77,14 +78,16 @@ func (r *repo) GetAll(ctx context.Context, filtering filter.Filterable, sorting 
 		return nil, err
 	}
 
-	albums := make([]model.AlbumView, 0)
+	albums := make([]model.AlbumPreview, 0)
 	for rows.Next() {
-		as := AlbumViewStorage{}
+		as := AlbumPreviewStorage{}
 		if queryErr = rows.Scan(
 			&as.ID,
 			&as.Title,
 			&as.ReleasedAt,
 			&as.CreatedAt,
+			&as.Publisher,
+			&as.SmallImageSrc,
 		); queryErr != nil {
 			queryErr = db.ErrScan(queryErr)
 			logger.Error(queryErr.Error())

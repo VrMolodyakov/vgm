@@ -22,7 +22,7 @@ type MusicGrpcClient interface {
 		pagination model.Pagination,
 		titleView model.AlbumTitleView,
 		releaseView model.AlbumReleasedView,
-		sort model.Sort) ([]model.AlbumView, error)
+		sort model.Sort) ([]model.AlbumPreview, error)
 	CreatePerson(context.Context, model.Person) error
 	FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error)
 }
@@ -94,7 +94,7 @@ func (m *music) FindAllAlbums(
 	pagination model.Pagination,
 	titleView model.AlbumTitleView,
 	releaseView model.AlbumReleasedView,
-	sort model.Sort) ([]model.AlbumView, error) {
+	sort model.Sort) ([]model.AlbumPreview, error) {
 
 	ctx, span := tracer.Start(ctx, "client.FindAllAlbums")
 	defer span.End()

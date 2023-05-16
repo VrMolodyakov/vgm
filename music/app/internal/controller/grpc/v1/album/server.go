@@ -12,7 +12,7 @@ import (
 )
 
 type AlbumPolicy interface {
-	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]albumModel.AlbumView, error)
+	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]albumModel.AlbumPreview, error)
 	GetOne(ctx context.Context, albumID string) (albumModel.FullAlbum, error)
 	Create(ctx context.Context, album albumModel.Album) error
 	Delete(ctx context.Context, id string) error

@@ -12,7 +12,7 @@ import (
 
 type AlbumRepo interface {
 	Tx(ctx context.Context, action func(txRepo repository.Album) error) error
-	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
+	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumPreview, error)
 	GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, error)
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error

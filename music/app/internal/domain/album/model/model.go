@@ -21,6 +21,15 @@ type AlbumView struct {
 	CreatedAt  int64
 }
 
+type AlbumPreview struct {
+	ID            string
+	Title         string
+	ReleasedAt    int64
+	CreatedAt     int64
+	SmallImageSrc string
+	Publisher     string
+}
+
 type AlbumInfo struct {
 	Album AlbumView
 	Info  Info
@@ -74,6 +83,17 @@ func (a *AlbumView) ToProto() albumPb.Album {
 		Title:      a.Title,
 		CreatedAt:  a.CreatedAt,
 		ReleasedAt: a.ReleasedAt,
+	}
+}
+
+func (a *AlbumPreview) ToProto() albumPb.AlbumPreview {
+	return albumPb.AlbumPreview{
+		AlbumId:       a.ID,
+		Title:         a.Title,
+		CreatedAt:     a.CreatedAt,
+		ReleasedAt:    a.ReleasedAt,
+		Publisher:     a.Publisher,
+		SmallImageSrc: a.SmallImageSrc,
 	}
 }
 

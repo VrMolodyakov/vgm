@@ -13,4 +13,11 @@ message Album {
     int64  released_at = 4;
 }
 
-
+message AlbumPreview {
+    string album_id = 1;
+    string title = 2;
+    int64  created_at = 3;
+    int64  released_at = 4;
+    string publisher = 5;
+    string small_image_src = 6;
+}

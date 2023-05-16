@@ -31,7 +31,7 @@ type AlbumService interface {
 		pagination model.Pagination,
 		titleView model.AlbumTitleView,
 		releaseView model.AlbumReleasedView,
-		sort model.Sort) ([]model.AlbumView, error)
+		sort model.Sort) ([]model.AlbumPreview, error)
 	CreatePerson(context.Context, model.Person) error
 	FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error)
 }
@@ -189,7 +189,7 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	response := make([]dto.AlbumViewRes, len(albums))
+	response := make([]dto.AlbumPreiewRes, len(albums))
 	for i := 0; i < len(response); i++ {
 		response[i] = albums[i].DtoFromModel()
 	}

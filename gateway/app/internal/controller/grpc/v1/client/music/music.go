@@ -122,7 +122,7 @@ func (m *musicClient) FindAll(
 	titleView model.AlbumTitleView,
 	releaseView model.AlbumReleasedView,
 	sort model.Sort,
-) ([]model.AlbumView, error) {
+) ([]model.AlbumPreview, error) {
 
 	_, span := tracer.Start(ctx, "client.FindAll")
 	defer span.End()
@@ -139,9 +139,9 @@ func (m *musicClient) FindAll(
 		return nil, err
 	}
 	albumsPb := pb.GetAlbums()
-	albums := make([]model.AlbumView, len(albumsPb))
+	albums := make([]model.AlbumPreview, len(albumsPb))
 	for i := 0; i < len(albums); i++ {
-		albums[i] = model.AlbumFromPb(albumsPb[i])
+		albums[i] = model.AlbumPreviewFromPb(albumsPb[i])
 	}
 	return albums, nil
 }

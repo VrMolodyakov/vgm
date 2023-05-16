@@ -11,7 +11,7 @@ import (
 )
 
 type AlbumService interface {
-	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error)
+	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumPreview, error)
 	GetOne(ctx context.Context, albumID string) (model.AlbumInfo, error)
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error

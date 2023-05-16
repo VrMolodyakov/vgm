@@ -31,7 +31,7 @@ func (s *server) FindAllAlbums(ctx context.Context, request *albumPb.FindAllAlbu
 		return nil, err
 	}
 
-	pbAlbums := make([]*albumPb.Album, len(all))
+	pbAlbums := make([]*albumPb.AlbumPreview, len(all))
 	for i, a := range all {
 		album := a.ToProto()
 		pbAlbums[i] = &album

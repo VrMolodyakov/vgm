@@ -26,6 +26,15 @@ type AlbumViewRes struct {
 	CreatedAt  int64  `json:"created_at"`
 }
 
+type AlbumPreiewRes struct {
+	AlbumID       string `json:"album_id"`
+	Title         string `json:"title"`
+	ReleasedAt    int64  `json:"released_at"`
+	CreatedAt     int64  `json:"created_at"`
+	Publisher     string `json:"publisher" validate:"required"`
+	SmallImageSrc string `json:"small_image_src"`
+}
+
 type InfoReq struct {
 	CatalogNumber  string  `json:"catalog_number" validate:"required"`
 	FullImageSrc   string  `json:"full_image_src"`

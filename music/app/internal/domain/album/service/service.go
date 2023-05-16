@@ -23,7 +23,7 @@ func NewAlbumService(albumRepo AlbumRepo) *albumService {
 	return &albumService{albumRepo: albumRepo}
 }
 
-func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.AlbumView, error) {
+func (a *albumService) GetAll(ctx context.Context, filter filter.Filterable, sort sort.Sortable) ([]model.AlbumPreview, error) {
 	ctx, span := tracer.Start(ctx, "service.GetAll")
 	defer span.End()
 

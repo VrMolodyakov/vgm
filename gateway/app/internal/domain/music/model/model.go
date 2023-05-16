@@ -19,6 +19,15 @@ type AlbumView struct {
 	CreatedAt  int64
 }
 
+type AlbumPreview struct {
+	ID            string
+	Title         string
+	ReleasedAt    int64
+	CreatedAt     int64
+	SmallImageSrc string
+	Publisher     string
+}
+
 type Person struct {
 	FirstName string
 	LastName  string
@@ -222,12 +231,34 @@ func AlbumFromPb(pb *albumPb.Album) AlbumView {
 	}
 }
 
+func AlbumPreviewFromPb(pb *albumPb.AlbumPreview) AlbumPreview {
+	return AlbumPreview{
+		ID:            pb.GetAlbumId(),
+		Title:         pb.GetTitle(),
+		CreatedAt:     pb.GetCreatedAt(),
+		ReleasedAt:    pb.GetReleasedAt(),
+		Publisher:     pb.GetPublisher(),
+		SmallImageSrc: pb.GetSmallImageSrc(),
+	}
+}
+
 func (a *AlbumView) DtoFromModel() dto.AlbumViewRes {
 	return dto.AlbumViewRes{
 		AlbumID:    a.ID,
 		Title:      a.Title,
 		ReleasedAt: a.ReleasedAt,
 		CreatedAt:  a.CreatedAt,
+	}
+}
+
+func (a *AlbumPreview) DtoFromModel() dto.AlbumPreiewRes {
+	return dto.AlbumPreiewRes{
+		AlbumID:       a.ID,
+		Title:         a.Title,
+		ReleasedAt:    a.ReleasedAt,
+		CreatedAt:     a.CreatedAt,
+		Publisher:     a.Publisher,
+		SmallImageSrc: a.SmallImageSrc,
 	}
 }
 

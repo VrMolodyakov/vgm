@@ -30,7 +30,7 @@ func NewAlbumPolicy(
 		creditService: creditService}
 }
 
-func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumView, error) {
+func (p *albumPolicy) GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumPreview, error) {
 	ctx, span := tracer.Start(ctx, "policy.GetAll")
 	defer span.End()
 

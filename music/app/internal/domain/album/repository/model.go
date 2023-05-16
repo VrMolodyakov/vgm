@@ -18,6 +18,15 @@ type AlbumViewStorage struct {
 	CreatedAt  time.Time `struct:"created_at"`
 }
 
+type AlbumPreviewStorage struct {
+	ID            string    `struct:"album_id"`
+	Title         string    `struct:"title"`
+	ReleasedAt    time.Time `struct:"released_at"`
+	CreatedAt     time.Time `struct:"created_at"`
+	Publisher     string    `struct:"publisher"`
+	SmallImageSrc string    `struct:"small_image_src" `
+}
+
 type InfoStorage struct {
 	ID             string  `struct:"album_info_id"`
 	AlbumID        string  `struct:"album_id"`
@@ -76,6 +85,30 @@ func (album AlbumViewStorage) toModel() model.AlbumView {
 		Title:      album.Title,
 		CreatedAt:  album.CreatedAt.UnixMilli(),
 		ReleasedAt: album.ReleasedAt.UnixMilli(),
+	}
+}
+
+func fromPreviewModel(album model.AlbumPreview) AlbumPreviewStorage {
+	createdAt := time.UnixMilli(album.CreatedAt)
+	releasedAt := time.UnixMilli(album.ReleasedAt)
+	return AlbumPreviewStorage{
+		ID:            album.ID,
+		Title:         album.Title,
+		CreatedAt:     createdAt,
+		ReleasedAt:    releasedAt,
+		Publisher:     album.Publisher,
+		SmallImageSrc: album.SmallImageSrc,
+	}
+}
+
+func (album AlbumPreviewStorage) toModel() model.AlbumPreview {
+	return model.AlbumPreview{
+		ID:            album.ID,
+		Title:         album.Title,
+		CreatedAt:     album.CreatedAt.UnixMilli(),
+		ReleasedAt:    album.ReleasedAt.UnixMilli(),
+		SmallImageSrc: album.SmallImageSrc,
+		Publisher:     album.Publisher,
 	}
 }
 

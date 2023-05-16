@@ -130,7 +130,7 @@ message FindAllAlbumsRequest{
     filter.v1.Sort sort = 4;
 }
 message FindAllAlbumsResponse{
-    repeated Album albums = 1;
+    repeated AlbumPreview albums = 1;
 } 
 
 message DeleteAlbumRequest{

@@ -96,6 +96,31 @@
         }
       }
     },
+    "v1AlbumPreview": {
+      "type": "object",
+      "properties": {
+        "albumId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64"
+        },
+        "releasedAt": {
+          "type": "string",
+          "format": "int64"
+        },
+        "publisher": {
+          "type": "string"
+        },
+        "smallImageSrc": {
+          "type": "string"
+        }
+      }
+    },
     "v1CreateAlbumResponse": {
       "type": "object"
     },
@@ -150,7 +175,7 @@
         "albums": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1Album"
+            "$ref": "#/definitions/v1AlbumPreview"
           }
         }
       }
