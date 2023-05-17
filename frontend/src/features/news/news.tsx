@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Form, Stack, Row, Col, Button, Card, Badge } from "react-bootstrap"
+import { Form,Row, Col} from "react-bootstrap"
 import { InternalAxiosRequestConfig } from "axios";
 import { Auth, useAuth } from "../../features/auth/context/auth";
 import jwt_decode from 'jwt-decode'
@@ -8,12 +8,6 @@ import { newAxiosInstance } from "../../api/interceptors";
 import config from "../../config/config";
 import { AlbumView, Albums } from "./type";
 import { AlbumCard } from "../../components/album/card";
-
-type AlbumsResponse = {
-  access_token: string
-  refresh_token: string
-  logged_in: string
-}
 
 const instance = newAxiosInstance(config.MusicServerUrl)
 const refreshInstance = newAxiosInstance(config.UserServerUrl)
@@ -64,10 +58,10 @@ export const News: React.FC = () => {
   return (
     <>
       <Form className="list-form">
-        <Row xs={1} sm={2} lg={3} xl={4} className="g-3">
+        <Row xs={5} sm={5} lg={5} xl={5} className="g-3">
           {albums.map(album => (
             <Col key={album.album_id}>
-              <AlbumCard title={album.title} id={album.album_id} />
+              <AlbumCard title={album.title} id={album.album_id} publisher={album.publisher} imageSrc={album.small_image_src}/>
             </Col>
           ))}
         </Row>

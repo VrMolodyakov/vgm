@@ -1,18 +1,28 @@
-import { Stack,Card} from "react-bootstrap"
+import { Stack, Col, Card, Row, Image } from "react-bootstrap"
 import { Link } from "react-router-dom"
 import styles from "./card.module.css"
 
 type AlbumProps = {
-    title:string
-    id:string
+    title: string
+    id: string
+    publisher: string
+    imageSrc: string
 }
 
-export function AlbumCard({ title, id }: AlbumProps) {
-    return <Card>
+export function AlbumCard({ title, id, publisher, imageSrc }: AlbumProps) {
+    return <Card className={`${styles.base}`}>
         <Card.Body as={Link} to={`/${id}`} className={`h-100 text-reset text-decoration-none ${styles.card}`}>
-            <Stack gap={2} className="align-items-center justify-content-center h-100">
-                <span className="fs-5">{title}</span>
-            </Stack>
+            <Row className="align-items-center justify-content-center h-100">
+                <Col xs={2} className="d-flex align-items-center justify-content-center">
+                    <Image src={imageSrc} alt="Image" style={{ width: '60px', height: '60px' }} />
+                </Col>
+                <Col>
+                    <Row>                        
+                        <span className={`${styles.title}`}>{title}</span>
+                        <span className={`${styles.publisher}`}>{publisher}</span>
+                    </Row>
+                </Col>
+            </Row>
         </Card.Body>
     </Card>
 }

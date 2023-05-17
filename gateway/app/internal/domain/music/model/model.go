@@ -251,8 +251,8 @@ func (a *AlbumView) DtoFromModel() dto.AlbumViewRes {
 	}
 }
 
-func (a *AlbumPreview) DtoFromModel() dto.AlbumPreiewRes {
-	return dto.AlbumPreiewRes{
+func (a *AlbumPreview) DtoFromModel() dto.AlbumPreviewRes {
+	return dto.AlbumPreviewRes{
 		AlbumID:       a.ID,
 		Title:         a.Title,
 		ReleasedAt:    a.ReleasedAt,

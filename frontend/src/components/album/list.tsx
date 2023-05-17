@@ -16,7 +16,6 @@ export function AlbumList({albums}:AlbumListProps){
              <Row xs={1} sm={2} lg={3} xl={4} className="g-3">
                 {albums.map(album => (
                     <Col key={album.id}>
-                        <AlbumCard id={album.id} title={album.title} />
                     </Col>
                 ))}
             </Row>

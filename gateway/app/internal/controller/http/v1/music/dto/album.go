@@ -26,7 +26,7 @@ type AlbumViewRes struct {
 	CreatedAt  int64  `json:"created_at"`
 }
 
-type AlbumPreiewRes struct {
+type AlbumPreviewRes struct {
 	AlbumID       string `json:"album_id"`
 	Title         string `json:"title"`
 	ReleasedAt    int64  `json:"released_at"`

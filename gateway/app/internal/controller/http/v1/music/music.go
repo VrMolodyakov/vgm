@@ -189,7 +189,7 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	response := make([]dto.AlbumPreiewRes, len(albums))
+	response := make([]dto.AlbumPreviewRes, len(albums))
 	for i := 0; i < len(response); i++ {
 		response[i] = albums[i].DtoFromModel()
 	}

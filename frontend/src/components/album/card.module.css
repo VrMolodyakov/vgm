@@ -1,7 +1,21 @@
 .card {
     transition: translate ease-in-out 100ms, box-shadow ease-in-out 100ms;
-  }
-  
+}
+
+.base{
+    height: 100px;
+}
+
+.title{
+    font-size: 18px;
+    width: 100%;
+    
+}
+
+.publisher{
+    font-size: 12px;
+}
+
 .card:hover,
 .card:focus {
     translate: 0 -5px;
