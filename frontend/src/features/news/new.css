@@ -1,0 +1,18 @@
+.dateblock {
+   width: 50px;
+   height: 50px;
+   background-color: #f5f5f5;
+ }
+ 
+ .dateblock .date {
+   font-size: 12px;
+ }
+ 
+ .dateblock .day {
+   font-size: 20px;
+   font-weight: bold;
+ }
+ 
+ .album-col {
+   padding-left: 0;
+ }

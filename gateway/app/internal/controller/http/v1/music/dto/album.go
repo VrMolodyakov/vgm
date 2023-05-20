@@ -44,7 +44,7 @@ type InfoReq struct {
 	MediaFormat    string  `json:"media_format" validate:"required"`
 	Classification string  `json:"classification" validate:"required"`
 	Publisher      string  `json:"publisher" validate:"required"`
-	Price          float64 `json:"price" validate:"gt=0,required"`
+	Price          float64 `json:"price" validate:"gt=-1"`
 }
 
 type InfoRes struct {

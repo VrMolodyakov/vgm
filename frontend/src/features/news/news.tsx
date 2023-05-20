@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
-import { Form,Row, Col} from "react-bootstrap"
+import { Form, Row, Col } from "react-bootstrap"
 import { InternalAxiosRequestConfig } from "axios";
 import { Auth, useAuth } from "../../features/auth/context/auth";
 import jwt_decode from 'jwt-decode'
 import { Token } from "../../api/token";
 import { newAxiosInstance } from "../../api/interceptors";
 import config from "../../config/config";
-import { AlbumView, Albums } from "./type";
+import { AlbumView} from "./type";
 import { AlbumCard } from "../../components/album/card";
+import moment from 'moment';
+import "./new.css"
+import { DateRelease } from "./date-release";
 
 const instance = newAxiosInstance(config.MusicServerUrl)
 const refreshInstance = newAxiosInstance(config.UserServerUrl)
+const days: number = 6
 
 export const News: React.FC = () => {
   const [albums, setAlbums] = useState<AlbumView[]>([])
+  const [dates, setDates] = useState<number[]>([])
   const { auth, setAuth } = useAuth();
+  
 
   const onRequest = async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
     const decoded: Token = jwt_decode(auth.token)
@@ -43,29 +49,43 @@ export const News: React.FC = () => {
   };
 
   const getLatestAlbums = () => {
-    return instance.get<AlbumView[]>(config.NewsUrl).then(r => r.data).then(
-      albums => setAlbums(() => albums)
-    )
+    let now: Date = new Date()
+    let end = new Date()
+    end.setDate(now.getDate() - days)
+    for (let day = now; day >= end; day.setDate(day.getDate() - 1)) {
+      let formattedDate = (moment(day)).format('YYYY-MM-DD')
+      let url = config.ReleaseUrl.concat(formattedDate.toString())
+      instance.get<AlbumView[]>(url).then(r => r.data)
+      .then(
+        albums => {
+          if (albums.length > 0){
+            setDates(prev => [...prev,albums[0].released_at])
+            setAlbums(prev =>[...prev,...albums])
+          }
+        }
+      )
       .catch(error => {
-        console.log(error)
+          console.log(error)
       });
+      console.log(dates)
+    }
   }
 
   useEffect(() => {
-    const albums = getLatestAlbums()
+    getLatestAlbums()
   }, []);
 
   return (
     <>
       <Form className="list-form">
-        <Row xs={5} sm={5} lg={5} xl={5} className="g-3">
-          {albums.map(album => (
-            <Col key={album.album_id}>
-              <AlbumCard title={album.title} id={album.album_id} publisher={album.publisher} imageSrc={album.small_image_src}/>
-            </Col>
-          ))}
-        </Row>
+      {dates.map(date =>(
+          albums.filter(album => album.released_at = date).map(album => (
+            <DateRelease albums={albums} date={new Date(album.released_at)}/>
+          ))
+      ))}
+      {}
       </Form>
     </>
   )
 }
+
