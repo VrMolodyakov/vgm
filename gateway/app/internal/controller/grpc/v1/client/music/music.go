@@ -61,7 +61,7 @@ func (m *musicClient) StartWithTLS(certs client.ClientCerts) {
 }
 
 func (m *musicClient) CreateAlbum(ctx context.Context, album model.Album) error {
-	_, span := tracer.Start(ctx, "client.CreateAlbum")
+	ctx, span := tracer.Start(ctx, "client.CreateAlbum")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -99,7 +99,7 @@ func (m *musicClient) CreateAlbum(ctx context.Context, album model.Album) error 
 }
 
 func (m *musicClient) CreatePerson(ctx context.Context, person model.Person) error {
-	_, span := tracer.Start(ctx, "client.CreatePerson")
+	ctx, span := tracer.Start(ctx, "client.CreatePerson")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)
@@ -124,7 +124,7 @@ func (m *musicClient) FindAll(
 	sort model.Sort,
 ) ([]model.AlbumPreview, error) {
 
-	_, span := tracer.Start(ctx, "client.FindAll")
+	ctx, span := tracer.Start(ctx, "client.FindAll")
 	defer span.End()
 
 	request := albumPb.FindAllAlbumsRequest{
@@ -147,7 +147,7 @@ func (m *musicClient) FindAll(
 }
 
 func (m *musicClient) FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error) {
-	_, span := tracer.Start(ctx, "client.FindFullAlbum")
+	ctx, span := tracer.Start(ctx, "client.FindFullAlbum")
 	defer span.End()
 
 	logger := logging.LoggerFromContext(ctx)

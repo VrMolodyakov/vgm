@@ -11,6 +11,7 @@ import { AlbumCard } from "../../components/album/card";
 import moment from 'moment';
 import "./new.css"
 import { DateRelease } from "./date-release";
+import { date } from "yup";
 
 const instance = newAxiosInstance(config.MusicServerUrl)
 const refreshInstance = newAxiosInstance(config.UserServerUrl)
@@ -24,7 +25,6 @@ export const News: React.FC = () => {
 
   const onRequest = async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
     const decoded: Token = jwt_decode(auth.token)
-    console.log(decoded)
     const expireTime = decoded.exp * 1000;
     const now = + new Date();
     if (expireTime > now) {
@@ -48,28 +48,29 @@ export const News: React.FC = () => {
     return refreshInstance.get(config.RefreshTokenUrl);
   };
 
-  const getLatestAlbums = () => {
-    let now: Date = new Date()
-    let end = new Date()
-    end.setDate(now.getDate() - days)
+  const getLatestAlbums = async () => {
+    let now: Date = new Date();
+    let end = new Date();
+    end.setDate(now.getDate() - days);
+  
+    const requests = [];
+  
     for (let day = now; day >= end; day.setDate(day.getDate() - 1)) {
-      let formattedDate = (moment(day)).format('YYYY-MM-DD')
-      let url = config.ReleaseUrl.concat(formattedDate.toString())
-      instance.get<AlbumView[]>(url).then(r => r.data)
-      .then(
-        albums => {
-          if (albums.length > 0){
-            setDates(prev => [...prev,albums[0].released_at])
-            setAlbums(prev =>[...prev,...albums])
-          }
-        }
-      )
-      .catch(error => {
-          console.log(error)
-      });
-      console.log(dates)
+      let formattedDate = moment(day).format('YYYY-MM-DD');
+      let url = config.ReleaseUrl.concat(formattedDate.toString());
+      requests.push(
+        instance.get<AlbumView[]>(url).then(response => response.data).catch(error => {
+          console.log(error);
+          return [];
+        })
+      );  
     }
-  }
+    const req = await Promise.all(requests);
+    const albumsArray = req.flat();
+    const newDates = albumsArray.map(album => album.released_at);  
+    setAlbums(prev => [...prev, ...albumsArray]);
+    setDates(prev => [...prev, ...newDates]);
+  };
 
   useEffect(() => {
     getLatestAlbums()
@@ -77,11 +78,13 @@ export const News: React.FC = () => {
 
   return (
     <>
+      {/* <button onClick={() => {
+        console.log(albums)
+        console.log(dates)
+      }}></button> */}
       <Form className="list-form">
       {dates.map(date =>(
-          albums.filter(album => album.released_at = date).map(album => (
-            <DateRelease albums={albums} date={new Date(album.released_at)}/>
-          ))
+          <DateRelease key={date} albums={albums.filter(album => album.released_at === date)} date={new Date(date)}/>
       ))}
       {}
       </Form>

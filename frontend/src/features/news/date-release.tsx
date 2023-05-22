@@ -12,7 +12,7 @@ export function DateRelease({albums,date}:DateReleaseProps){
     return  <Row xs={5} sm={5} lg={5} xl={5} className="g-3">
     <div className="dateblock">
       <Row className="date">
-        <span>{date.getMonth()}</span>
+        <span>{date.toLocaleString('en-US', {month: 'short'})}</span>
       </Row>
       <Row className="day">
         <span>{date.getDay()}</span>
