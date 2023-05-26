@@ -38,13 +38,11 @@ func (a *AuthMiddleware) Auth(next http.Handler) http.Handler {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
-
 		sub, err := a.tokenHandler.ValidateAccessToken(accessToken)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
-
 		userId := sub.(float64)
 		_, err = a.userService.GetByID(r.Context(), int(userId))
 		if err != nil {

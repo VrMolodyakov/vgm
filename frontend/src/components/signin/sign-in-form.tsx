@@ -8,6 +8,7 @@ import { Auth, useAuth } from "../../features/auth/context/auth";
 import jwt_decode from "jwt-decode";
 import { Token } from "../../api/token";
 import config from "../../config/config";
+import { useLoginMutation } from "../../features/auth/slice/auth-api-slice";
 
 
 type UserSubmitData = {
@@ -22,6 +23,10 @@ type TokenResponse = {
 }
 
 const SignInForm: React.FC = () => {
+  const [login, { isLoading }] = useLoginMutation()
+
+
+
   const { auth,setAuth } = useAuth();
   const [isRegister,setIsRegister] = useState(false);
   const navigate = useNavigate();
@@ -34,6 +39,13 @@ const SignInForm: React.FC = () => {
   } = useForm<UserSubmitData>()
 
   const getToken = async (userData:UserSubmitData) =>{
+    try{
+      const userDat = await login(userData).unwrap()
+      console.log(userDat)
+    }catch (err) {
+      console.log(err)
+    }
+
     return postRequest<TokenResponse>(config.SignInUrl,userData).then(r => r.data)
     .catch(error => {   
       if (error.response.status === 400){
