@@ -3,18 +3,19 @@ import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './features/auth/context/auth';
 import App from './components/app/app';
-import { Provider } from 'react-redux'
-import { store } from './api/store/store';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <Provider store={store}>
      <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
      <AuthProvider>
       <App />
      </AuthProvider>
+     </QueryClientProvider>
     </BrowserRouter>
-    </Provider>
 );

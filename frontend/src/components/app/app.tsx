@@ -1,14 +1,12 @@
 import { Navbar, Nav } from "react-bootstrap";
 import { Routes, Route, Link,useNavigate } from "react-router-dom";
 import {RequierAuth} from "../../features/auth/requier/requier-auth";
-import IndexRouter from "../../routes/index-router";
 import Home from "../home";
 import Layout from "../layout";
 import SignInForm from "../signin/sign-in-form";
 import SignUpForm from "../signup/sign-up-form";
 import { Auth,useAuth } from "../../features/auth/context/auth";
 import CreateForm from "../create/create-album";
-import AddRemoveInputField from "../input/add-remove-input-field";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { News } from "../../features/news/news";
 

@@ -1,9 +1,6 @@
 
-const Home: React.FC = () => {
-    return (
-        <h1>Home page</h1>
-    );
-  };
-  
-  export default Home;
-  
+type LoginDate = {
+    username: string
+    password: string
+}
+

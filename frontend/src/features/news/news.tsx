@@ -10,21 +10,21 @@ import { AlbumView } from "./type";
 import moment from 'moment';
 import "./news.css"
 import { DateRelease } from "./date-release";
+import { useAuthStore } from "../../api/store/store";
 
 const days: number = 6
 
 export const News: React.FC = () => {
- const instance = newAxiosInstance(config.MusicServerUrl)
- const refreshInstance = newAxiosInstance(config.UserServerUrl)
-
+  const instance = newAxiosInstance(config.MusicServerUrl)
+  const refreshInstance = newAxiosInstance(config.UserServerUrl)
+  let getToken = useAuthStore(state => state.getToken)
   const [albums, setAlbums] = useState<AlbumView[]>([])
   const [dates, setDates] = useState<number[]>([])
   const { auth, setAuth } = useAuth();
 
 
   const onRequest = async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
-    console.log(auth.token);
-    const token = auth.token;
+    const token = getToken()
     const decoded: Token = jwt_decode(token);
     const expireTime = decoded.exp * 1000;
     const now = +new Date();

@@ -1,16 +1,23 @@
-import { configureStore } from '@reduxjs/toolkit'
-import { apiSlice } from '../slice/slice'
-import authReducer from '../../features/auth/slice/auth-slice'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 // ...
+type State = {
+  accessToken: string
+}
 
-export const store = configureStore({
-  reducer: {
-      [apiSlice.reducerPath]: apiSlice.reducer,
-      auth: authReducer
-  },
-  middleware: getDefaultMiddleware =>
-      getDefaultMiddleware().concat(apiSlice.middleware),
-  devTools: true
-})
+type Action = {
+  setToken: (token: string) => void
+  getToken:() => string
+}
 
-export type RootState = ReturnType<typeof store.getState>
+export const useAuthStore = create(persist<State & Action>(
+  (set,get) => ({
+    accessToken: "",
+    setToken: (accessToken: string) => set((state) => ({
+      accessToken
+    })),
+    getToken: () => get().accessToken
+  }), {
+    name: 'auth'
+  }
+))

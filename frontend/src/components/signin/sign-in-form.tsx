@@ -8,7 +8,7 @@ import { Auth, useAuth } from "../../features/auth/context/auth";
 import jwt_decode from "jwt-decode";
 import { Token } from "../../api/token";
 import config from "../../config/config";
-import { useLoginMutation } from "../../features/auth/slice/auth-api-slice";
+import { useAuthStore } from "../../api/store/store";
 
 
 type UserSubmitData = {
@@ -23,9 +23,8 @@ type TokenResponse = {
 }
 
 const SignInForm: React.FC = () => {
-  const [login, { isLoading }] = useLoginMutation()
-
-
+  
+  let setToken = useAuthStore(state => state.setToken)
 
   const { auth,setAuth } = useAuth();
   const [isRegister,setIsRegister] = useState(false);
@@ -39,13 +38,6 @@ const SignInForm: React.FC = () => {
   } = useForm<UserSubmitData>()
 
   const getToken = async (userData:UserSubmitData) =>{
-    try{
-      const userDat = await login(userData).unwrap()
-      console.log(userDat)
-    }catch (err) {
-      console.log(err)
-    }
-
     return postRequest<TokenResponse>(config.SignInUrl,userData).then(r => r.data)
     .catch(error => {   
       if (error.response.status === 400){
@@ -60,7 +52,7 @@ const SignInForm: React.FC = () => {
     (async() => {
       const response = await getToken(data);
       if (response) {
-        navigate("/home");
+        setToken(response.access_token)
         const accessToken = response.access_token
         const decoded:Token = jwt_decode(accessToken);
         const auth:Auth = {
@@ -68,6 +60,7 @@ const SignInForm: React.FC = () => {
           role:decoded.role
         } 
         setAuth(() => auth)
+        navigate("/home");
       }
     })();
   }
