@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+
 
 // // const axiosInstance: AxiosInstance = 
 
@@ -43,17 +43,3 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 //       console.log("token is expired")
 //       }
 //   );
-
-export function newAxiosInstance(url:string) : AxiosInstance{
-    return axios.create({
-        baseURL: url,
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-    })
-}
-  
-export function newWithRequestConfig(onRequest:InternalAxiosRequestConfig){
-
-}

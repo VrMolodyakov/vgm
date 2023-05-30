@@ -9,6 +9,8 @@ import jwt_decode from "jwt-decode";
 import { Token } from "../../api/token";
 import config from "../../config/config";
 import { useAuthStore } from "../../api/store/store";
+import { useUserLogin } from "../../features/auth/hooks/use-auth";
+import { AxiosError } from "axios";
 
 
 type UserSubmitData = {
@@ -30,6 +32,7 @@ const SignInForm: React.FC = () => {
   const [isRegister,setIsRegister] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { data, error, mutate: login, isSuccess, isError } = useUserLogin();
   const {
     handleSubmit,
     register,
@@ -37,32 +40,48 @@ const SignInForm: React.FC = () => {
     formState: { errors },
   } = useForm<UserSubmitData>()
 
-  const getToken = async (userData:UserSubmitData) =>{
-    return postRequest<TokenResponse>(config.SignInUrl,userData).then(r => r.data)
-    .catch(error => {   
-      if (error.response.status === 400){
-        setError("root",{type:'custom',message:"wrong username or password"})
-      }else{
-        setError("root",{type:'custom',message:"internal server error"})
-      }
-    });
-  }
+  // const getToken = async (userData:UserSubmitData) =>{
+  //   return postRequest<TokenResponse>(config.SignInUrl,userData).then(r => r.data)
+  //   .catch(error => {   
+  //     if (error.response.status === 400){
+  //       setError("root",{type:'custom',message:"wrong username or password"})
+  //     }else{
+  //       setError("root",{type:'custom',message:"internal server error"})
+  //     }
+  //   });
+  // }
 
-  function onSubmit(data: UserSubmitData){
-    (async() => {
-      const response = await getToken(data);
-      if (response) {
-        setToken(response.access_token)
-        const accessToken = response.access_token
-        const decoded:Token = jwt_decode(accessToken);
-        const auth:Auth = {
-          token:accessToken,
-          role:decoded.role
-        } 
-        setAuth(() => auth)
-        navigate("/home");
+  useEffect(() => {
+    if (isSuccess) {
+      setToken(data.access_token)
+    } else if (isError) {
+      if (error){
+        if (error.response?.status === 400){
+          setError("root",{type:'custom',message:"wrong username or password"})
+        }else{
+          setError("root",{type:'custom',message:"internal server error"})
+        }
       }
-    })();
+    } else return;
+  }, [isSuccess, isError]);
+
+  function onSubmit(userData: UserSubmitData){
+    login(userData)
+    navigate("/home")
+    // (async() => {
+    //   const response = await getToken(data);
+    //   if (response) {
+    //     setToken(response.access_token)
+    //     const accessToken = response.access_token
+    //     const decoded:Token = jwt_decode(accessToken);
+    //     const auth:Auth = {
+    //       token:accessToken,
+    //       role:decoded.role
+    //     } 
+    //     setAuth(() => auth)
+    //     navigate("/home");
+    //   }
+    // })();
   }
 
   // useEffect(() => {
