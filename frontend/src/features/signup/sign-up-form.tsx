@@ -30,7 +30,7 @@ const SignUpForm: React.FC = () => {
   } = useForm<UserSubmitForm>({
     resolver: yupResolver(validationSchema)
   });
-
+  //TODO: react-query
   async function onSubmit(data: UserSubmitForm){
     console.log(JSON.stringify(data, null, 2));
 
@@ -40,9 +40,7 @@ const SignUpForm: React.FC = () => {
       password:data.password,
       role:"user"
     }
-
     const response = await postRequest(config.SignUpUrl,newUser)
-    console.log(response)
   };
 
   return (

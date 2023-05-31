@@ -4,12 +4,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-in-form.css"
 import { postRequest } from "../../api/api";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Auth, useAuth } from "../../features/auth/context/auth";
+import { Auth, useAuth } from "../auth/context/auth";
 import jwt_decode from "jwt-decode";
 import { Token } from "../../api/token";
 import config from "../../config/config";
 import { useAuthStore } from "../../api/store/store";
-import { useUserLogin } from "../../features/auth/hooks/use-auth";
+import { useUserLogin } from "../auth/hooks/use-auth";
 import { AxiosError } from "axios";
 
 
@@ -26,9 +26,7 @@ type TokenResponse = {
 
 const SignInForm: React.FC = () => {
   
-  let setToken = useAuthStore(state => state.setToken)
-
-  const { auth,setAuth } = useAuth();
+  let setToken = useAuthStore(state => state.setAccessToken)
   const [isRegister,setIsRegister] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,17 +37,6 @@ const SignInForm: React.FC = () => {
     setError,
     formState: { errors },
   } = useForm<UserSubmitData>()
-
-  // const getToken = async (userData:UserSubmitData) =>{
-  //   return postRequest<TokenResponse>(config.SignInUrl,userData).then(r => r.data)
-  //   .catch(error => {   
-  //     if (error.response.status === 400){
-  //       setError("root",{type:'custom',message:"wrong username or password"})
-  //     }else{
-  //       setError("root",{type:'custom',message:"internal server error"})
-  //     }
-  //   });
-  // }
 
   useEffect(() => {
     if (isSuccess) {
@@ -68,28 +55,7 @@ const SignInForm: React.FC = () => {
   function onSubmit(userData: UserSubmitData){
     login(userData)
     navigate("/home")
-    // (async() => {
-    //   const response = await getToken(data);
-    //   if (response) {
-    //     setToken(response.access_token)
-    //     const accessToken = response.access_token
-    //     const decoded:Token = jwt_decode(accessToken);
-    //     const auth:Auth = {
-    //       token:accessToken,
-    //       role:decoded.role
-    //     } 
-    //     setAuth(() => auth)
-    //     navigate("/home");
-    //   }
-    // })();
   }
-
-  // useEffect(() => {
-  //   if (auth !== "" && auth !== null) {
-  //     LocalStorage.set("access_token", auth)
-
-  //   }
-  // }, [auth]);
 
   useEffect(() => {
     if (location.state?.previousUrl === "/reg"){
