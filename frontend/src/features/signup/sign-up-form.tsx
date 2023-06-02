@@ -4,8 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import {validationSchema} from "./validate-scheme"
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-up-form.css"
-import { postRequest } from '../../api/api';
-import config from "../../config/config";
+import { useUserRegister } from '../auth/hooks/use-auth';
 
 type UserSubmitForm = {
   username: string
@@ -22,6 +21,7 @@ type UserRequest = {
 }
 
 const SignUpForm: React.FC = () => {
+  const {mutate: reg, isSuccess, isError } = useUserRegister()
   const {
     register,
     handleSubmit,
@@ -40,7 +40,7 @@ const SignUpForm: React.FC = () => {
       password:data.password,
       role:"user"
     }
-    const response = await postRequest(config.SignUpUrl,newUser)
+    reg(newUser)
   };
 
   return (

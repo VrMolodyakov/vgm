@@ -1,12 +1,13 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/auth";
+import { useAuthStore } from "../../../api/store/store";
 
 export const RequierAuth = () => {
-    const {auth} = useAuth();
+    let getToken = useAuthStore(state => state.getAccessToken)
     const location = useLocation();
-    console.log("require : ",auth)
+    console.log("require : ",getToken())
     return (
-        auth.token !== ""?<Outlet/> : <Navigate to = "/auth" state = {{from:location}} replace />
+        getToken() !== ""?<Outlet/> : <Navigate to = "/auth" state = {{from:location}} replace />
     );
 }
 

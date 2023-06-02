@@ -47,11 +47,11 @@ func NewAlbumHandler(service AlbumService) *albumHandler {
 }
 
 func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
-	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
 	var album dto.AlbumReq
-	logger := logging.LoggerFromContext(r.Context())
+	logger := logging.LoggerFromContext(ctx)
 	if err := json.NewDecoder(r.Body).Decode(&album); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
@@ -64,7 +64,7 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := a.service.CreateAlbum(r.Context(), model.AlbumFromDto(album))
+	err := a.service.CreateAlbum(ctx, model.AlbumFromDto(album))
 	if err != nil {
 		logger.Error(err.Error())
 		if e, ok := status.FromError(err); ok {
@@ -85,11 +85,11 @@ func (a *albumHandler) CreateAlbum(w http.ResponseWriter, r *http.Request) {
 
 //TODO:return person?
 func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
-	_, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
 	var person dto.Person
-	logger := logging.LoggerFromContext(r.Context())
+	logger := logging.LoggerFromContext(ctx)
 	if err := json.NewDecoder(r.Body).Decode(&person); err != nil {
 		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
 		return
@@ -102,7 +102,7 @@ func (a *albumHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := a.service.CreatePerson(r.Context(), model.PersonFromDto(person))
+	err := a.service.CreatePerson(ctx, model.PersonFromDto(person))
 	if err != nil {
 		logger.Error(err.Error())
 		if e, ok := status.FromError(err); ok {
@@ -126,7 +126,7 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 
-	logger := logging.LoggerFromContext(r.Context())
+	logger := logging.LoggerFromContext(ctx)
 	sortBy := r.URL.Query().Get("sort_by")
 	sortBy, err := validateSortQuery(sortBy)
 	if err != nil {

@@ -2,15 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-in-form.css"
-import { postRequest } from "../../api/api";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Auth, useAuth } from "../auth/context/auth";
-import jwt_decode from "jwt-decode";
-import { Token } from "../../api/token";
-import config from "../../config/config";
 import { useAuthStore } from "../../api/store/store";
 import { useUserLogin } from "../auth/hooks/use-auth";
-import { AxiosError } from "axios";
+import { Auth, useAuth } from "../auth/context/auth";
+import { Token } from "../../api/token";
+import jwt_decode from "jwt-decode";
 
 
 type UserSubmitData = {
@@ -25,12 +22,13 @@ type TokenResponse = {
 }
 
 const SignInForm: React.FC = () => {
-  
-  let setToken = useAuthStore(state => state.setAccessToken)
+  let setAccessToken = useAuthStore(state => state.setAccessToken)
+  let setRole = useAuthStore(state => state.setRole)
+  let setRefreshToken = useAuthStore(state => state.setRefreshToken)
   const [isRegister,setIsRegister] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { data, error, mutate: login, isSuccess, isError } = useUserLogin();
+  const { data, error, mutate: login, isSuccess, isError } = useUserLogin()
   const {
     handleSubmit,
     register,
@@ -40,7 +38,11 @@ const SignInForm: React.FC = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      setToken(data.access_token)
+      setAccessToken(data.access_token)
+      setRefreshToken(data.refresh_token)
+      const decoded:Token = jwt_decode(data.access_token)
+      setRole(decoded.role) 
+      navigate("/home")
     } else if (isError) {
       if (error){
         if (error.response?.status === 400){
@@ -54,7 +56,6 @@ const SignInForm: React.FC = () => {
 
   function onSubmit(userData: UserSubmitData){
     login(userData)
-    navigate("/home")
   }
 
   useEffect(() => {

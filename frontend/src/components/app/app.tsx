@@ -56,8 +56,8 @@ const App: React.FC = () => {
             <Route path="auth" element={<SignInForm />} />
             <Route path="reg" element={<SignUpForm />} />
             <Route path="create" element={<CreateForm />} />
-            <Route path="news" element={<News />} />  
             <Route element = {<RequierAuth/>}>
+                <Route path="news" element={<News />} />  
                 <Route path="home" element={<Home />} />                          
             </Route>
           </Route>
