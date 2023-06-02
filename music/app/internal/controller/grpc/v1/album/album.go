@@ -86,7 +86,7 @@ func (s *server) FindFullAlbum(ctx context.Context, request *albumPb.FindFullAlb
 	ctx, span := tracer.Start(ctx, "server.FindFullAlbum")
 	defer span.End()
 
-	fullAlbum, err := s.albumPolicy.GetOne(context.Background(), request.GetAlbumId())
+	fullAlbum, err := s.albumPolicy.GetOne(ctx, request.GetAlbumId())
 	if err != nil {
 		return &albumPb.FindFullAlbumResponse{}, err
 	}
@@ -128,5 +128,18 @@ func (s *server) CreatePerson(ctx context.Context, request *albumPb.CreatePerson
 
 	return &albumPb.CreatePersonResponse{
 		Person: person.ToProto(),
+	}, nil
+}
+
+func (s *server) FindLastDats(ctx context.Context, request *albumPb.FindLastDatsRequest) (*albumPb.FindLastDatsResponse, error) {
+	ctx, span := tracer.Start(ctx, "server.FindLastDats")
+	defer span.End()
+	days := request.GetCount()
+	createdAt, err := s.albumPolicy.GetLastDays(ctx, days)
+	if err != nil {
+		return nil, err
+	}
+	return &albumPb.FindLastDatsResponse{
+		CreatedAt: createdAt,
 	}, nil
 }

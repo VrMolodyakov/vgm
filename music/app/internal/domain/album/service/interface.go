@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
 	repository "github.com/VrMolodyakov/vgm/music/app/internal/domain/album/repository"
@@ -17,6 +18,7 @@ type AlbumRepo interface {
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
+	GetLastDays(ctx context.Context, limit uint64) ([]time.Time, error)
 }
 
 type Transactor interface {

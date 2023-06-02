@@ -16,6 +16,7 @@ type AlbumService interface {
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
+	GetDays(ctx context.Context, count uint64) ([]int64, error)
 }
 
 type TrackService interface {

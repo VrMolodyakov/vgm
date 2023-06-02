@@ -25,6 +25,7 @@ type MusicGrpcClient interface {
 		sort model.Sort) ([]model.AlbumPreview, error)
 	CreatePerson(context.Context, model.Person) error
 	FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error)
+	FindLastUpdateDays(ctx context.Context, count uint64) ([]int64, error)
 }
 
 type music struct {
@@ -143,4 +144,29 @@ func (m *music) FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, 
 		return model.FullAlbum{}, err
 	}
 	return fullAlbum, nil
+}
+
+func (m *music) FindLastUpdateDays(ctx context.Context, count uint64) ([]int64, error) {
+	ctx, span := tracer.Start(ctx, "client.FindFullAlbum")
+	defer span.End()
+
+	logger := logging.LoggerFromContext(ctx)
+	dates, err := m.client.FindLastUpdateDays(ctx, count)
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				logger.Error("Has Internal Error")
+				return nil, errors.NewInternal(err, "grpc client response")
+			case codes.Aborted:
+				logger.Error("gRPC Aborted the call")
+				return nil, err
+			default:
+				logger.Sugar().Error(e.Code(), e.Message())
+				return nil, err
+			}
+		}
+		return nil, err
+	}
+	return dates, nil
 }

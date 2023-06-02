@@ -2,6 +2,7 @@ package reposotory
 
 import (
 	"context"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/VrMolodyakov/vgm/music/app/internal/domain/album/model"
@@ -28,6 +29,7 @@ type Album interface {
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
+	GetLastDays(ctx context.Context, limit uint64) ([]time.Time, error)
 }
 
 type repo struct {
@@ -380,6 +382,42 @@ func (r *repo) Create(ctx context.Context, album model.Album) error {
 
 	return nil
 
+}
+
+func (r *repo) GetLastDays(ctx context.Context, limit uint64) ([]time.Time, error) {
+	ctx, span := tracer.Start(ctx, "repo.UpdateInfo")
+	defer span.End()
+	logger := logging.LoggerFromContext(ctx)
+	query := r.queryBuilder.
+		Select("created_at").
+		From(table).Limit(limit)
+	sql, args, err := query.ToSql()
+	logger.Infow(table, sql, args)
+	if err != nil {
+		err = errors.NewInternal(db.ErrCreateQuery(err), "create query")
+		logger.Error(err.Error())
+		return nil, err
+	}
+	rows, queryErr := r.Conn().Query(ctx, sql, args...)
+	if queryErr != nil {
+		err = errors.NewInternal(db.ErrCreateQuery(err), "do query")
+		logger.Error(err.Error())
+		return nil, err
+	}
+
+	dates := make([]time.Time, 0)
+	for rows.Next() {
+		var as time.Time
+		if queryErr = rows.Scan(
+			&as,
+		); queryErr != nil {
+			queryErr = db.ErrScan(queryErr)
+			logger.Error(queryErr.Error())
+			return nil, queryErr
+		}
+		dates = append(dates, as)
+	}
+	return dates, nil
 }
 
 func (r *repo) insertMap(table string, storageMap map[string]interface{}) (string, []interface{}, error) {

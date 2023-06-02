@@ -75,3 +75,17 @@ func (s *albumService) Create(ctx context.Context, album model.Album) error {
 
 	return s.albumRepo.Create(ctx, album)
 }
+
+func (s *albumService) GetDays(ctx context.Context, count uint64) ([]int64, error) {
+	ctx, span := tracer.Start(ctx, "service.GetDays")
+	defer span.End()
+	dates, err := s.albumRepo.GetLastDays(ctx, count)
+	if err != nil {
+		return nil, err
+	}
+	unix := make([]int64, len(dates))
+	for i := range dates {
+		unix[i] = dates[i].UnixMilli()
+	}
+	return unix, nil
+}

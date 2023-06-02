@@ -34,6 +34,7 @@ type AlbumService interface {
 		sort model.Sort) ([]model.AlbumPreview, error)
 	CreatePerson(context.Context, model.Person) error
 	FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error)
+	FindLastUpdateDays(ctx context.Context, count uint64) ([]int64, error)
 }
 
 type albumHandler struct {
@@ -233,6 +234,42 @@ func (a *albumHandler) FindFullAlbums(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	metrics.AlbumCounter.WithLabelValues(albumID, strconv.Itoa(http.StatusOK))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
+
+}
+
+func (a *albumHandler) FindLastUpdateDays(w http.ResponseWriter, r *http.Request) {
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
+
+	param := chi.URLParam(r, "limit")
+	logger := logging.LoggerFromContext(ctx)
+	limit, err := strconv.ParseUint(param, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	dates, err := a.service.FindLastUpdateDays(ctx, limit)
+	if err != nil {
+		logger.Error(err.Error())
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			default:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+	}
+	jsonResponse, err := json.Marshal(dates)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)

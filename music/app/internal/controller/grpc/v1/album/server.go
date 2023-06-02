@@ -17,6 +17,7 @@ type AlbumPolicy interface {
 	Create(ctx context.Context, album albumModel.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album albumModel.AlbumView) error
+	GetLastDays(ctx context.Context, count uint64) ([]int64, error)
 }
 
 type PersonPolicy interface {

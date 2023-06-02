@@ -161,3 +161,19 @@ func (m *musicClient) FindFullAlbum(ctx context.Context, id string) (model.FullA
 	}
 	return model.FullAlbumFromPb(pb), nil
 }
+
+func (m *musicClient) FindLastUpdateDays(ctx context.Context, count uint64) ([]int64, error) {
+	ctx, span := tracer.Start(ctx, "client.FindFullAlbum")
+	defer span.End()
+
+	logger := logging.LoggerFromContext(ctx)
+	request := albumPb.FindLastDatsRequest{
+		Count: count,
+	}
+	pb, err := m.client.FindLastDats(ctx, &request)
+	if err != nil {
+		logger.Error(err.Error())
+		return nil, err
+	}
+	return pb.GetCreatedAt(), nil
+}

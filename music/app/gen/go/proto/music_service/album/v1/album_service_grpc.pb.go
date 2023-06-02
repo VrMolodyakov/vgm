@@ -27,6 +27,7 @@ type MusicServiceClient interface {
 	DeleteAlbum(ctx context.Context, in *DeleteAlbumRequest, opts ...grpc.CallOption) (*DeleteAlbumResponse, error)
 	UpdateAlbum(ctx context.Context, in *UpdateAlbumRequest, opts ...grpc.CallOption) (*UpdateAlbumResponse, error)
 	FindFullAlbum(ctx context.Context, in *FindFullAlbumRequest, opts ...grpc.CallOption) (*FindFullAlbumResponse, error)
+	FindLastDats(ctx context.Context, in *FindLastDatsRequest, opts ...grpc.CallOption) (*FindLastDatsResponse, error)
 	FindAllAlbums(ctx context.Context, in *FindAllAlbumsRequest, opts ...grpc.CallOption) (*FindAllAlbumsResponse, error)
 	FindAllPersons(ctx context.Context, in *FindAllPersonsRequest, opts ...grpc.CallOption) (*FindAllPersonsResponse, error)
 	CreatePerson(ctx context.Context, in *CreatePersonRequest, opts ...grpc.CallOption) (*CreatePersonResponse, error)
@@ -85,6 +86,15 @@ func (c *musicServiceClient) FindFullAlbum(ctx context.Context, in *FindFullAlbu
 	return out, nil
 }
 
+func (c *musicServiceClient) FindLastDats(ctx context.Context, in *FindLastDatsRequest, opts ...grpc.CallOption) (*FindLastDatsResponse, error) {
+	out := new(FindLastDatsResponse)
+	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/FindLastDats", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *musicServiceClient) FindAllAlbums(ctx context.Context, in *FindAllAlbumsRequest, opts ...grpc.CallOption) (*FindAllAlbumsResponse, error) {
 	out := new(FindAllAlbumsResponse)
 	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/FindAllAlbums", in, out, opts...)
@@ -121,6 +131,7 @@ type MusicServiceServer interface {
 	DeleteAlbum(context.Context, *DeleteAlbumRequest) (*DeleteAlbumResponse, error)
 	UpdateAlbum(context.Context, *UpdateAlbumRequest) (*UpdateAlbumResponse, error)
 	FindFullAlbum(context.Context, *FindFullAlbumRequest) (*FindFullAlbumResponse, error)
+	FindLastDats(context.Context, *FindLastDatsRequest) (*FindLastDatsResponse, error)
 	FindAllAlbums(context.Context, *FindAllAlbumsRequest) (*FindAllAlbumsResponse, error)
 	FindAllPersons(context.Context, *FindAllPersonsRequest) (*FindAllPersonsResponse, error)
 	CreatePerson(context.Context, *CreatePersonRequest) (*CreatePersonResponse, error)
@@ -145,6 +156,9 @@ func (UnimplementedMusicServiceServer) UpdateAlbum(context.Context, *UpdateAlbum
 }
 func (UnimplementedMusicServiceServer) FindFullAlbum(context.Context, *FindFullAlbumRequest) (*FindFullAlbumResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindFullAlbum not implemented")
+}
+func (UnimplementedMusicServiceServer) FindLastDats(context.Context, *FindLastDatsRequest) (*FindLastDatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindLastDats not implemented")
 }
 func (UnimplementedMusicServiceServer) FindAllAlbums(context.Context, *FindAllAlbumsRequest) (*FindAllAlbumsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAllAlbums not implemented")
@@ -258,6 +272,24 @@ func _MusicService_FindFullAlbum_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MusicService_FindLastDats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindLastDatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MusicServiceServer).FindLastDats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.music_service.album.v1.MusicService/FindLastDats",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MusicServiceServer).FindLastDats(ctx, req.(*FindLastDatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MusicService_FindAllAlbums_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FindAllAlbumsRequest)
 	if err := dec(in); err != nil {
@@ -338,6 +370,10 @@ var MusicService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindFullAlbum",
 			Handler:    _MusicService_FindFullAlbum_Handler,
+		},
+		{
+			MethodName: "FindLastDats",
+			Handler:    _MusicService_FindLastDats_Handler,
 		},
 		{
 			MethodName: "FindAllAlbums",

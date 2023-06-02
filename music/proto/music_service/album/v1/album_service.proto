@@ -14,6 +14,7 @@ service MusicService {
     rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteAlbumResponse) {}
     rpc UpdateAlbum(UpdateAlbumRequest) returns (UpdateAlbumResponse) {}
     rpc FindFullAlbum(FindFullAlbumRequest) returns (FindFullAlbumResponse) {}
+    rpc FindLastDats(FindLastDatsRequest) returns (FindLastDatsResponse) {}
     rpc FindAllAlbums(FindAllAlbumsRequest) returns (FindAllAlbumsResponse) {}
     rpc FindAllPersons(FindAllPersonsRequest) returns (FindAllPersonsResponse) {}
     rpc CreatePerson(CreatePersonRequest) returns (CreatePersonResponse) {}
@@ -150,3 +151,9 @@ message UpdateAlbumRequest{
 message UpdateAlbumResponse{
 } 
 
+message FindLastDatsRequest{
+    uint64 count = 1;
+}
+message FindLastDatsResponse{
+    repeated int64 created_at = 1;
+}

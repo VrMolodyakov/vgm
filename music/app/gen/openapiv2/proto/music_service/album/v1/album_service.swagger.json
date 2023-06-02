@@ -214,6 +214,18 @@
         }
       }
     },
+    "v1FindLastDatsResponse": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "int64"
+          }
+        }
+      }
+    },
     "v1IntFieldFilter": {
       "type": "object",
       "properties": {

@@ -86,3 +86,9 @@ func (p *albumPolicy) GetOne(ctx context.Context, albumID string) (model.FullAlb
 		Tracklist: tracklist,
 	}, nil
 }
+
+func (p *albumPolicy) GetLastDays(ctx context.Context, count uint64) ([]int64, error) {
+	ctx, span := tracer.Start(ctx, "policy.GetLastDays")
+	defer span.End()
+	return p.albumService.GetDays(ctx, count)
+}
