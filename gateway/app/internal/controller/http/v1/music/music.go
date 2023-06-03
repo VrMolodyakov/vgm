@@ -154,8 +154,8 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 	}
 	titlFilterVal := r.URL.Query().Get("title.val")
 	titleFilterOp := r.URL.Query().Get("title.op")
-	releaseFilterVal := r.URL.Query().Get("release.val")
-	releaseFilterOp := r.URL.Query().Get("release.op")
+	releaseFilterVal := r.URL.Query().Get("create.val")
+	releaseFilterOp := r.URL.Query().Get("create.op")
 
 	titleView := model.AlbumTitleView{
 		Value:    titlFilterVal,
@@ -265,7 +265,8 @@ func (a *albumHandler) FindLastUpdateDays(w http.ResponseWriter, r *http.Request
 			}
 		}
 	}
-	jsonResponse, err := json.Marshal(dates)
+	res := dto.DatesRes{Dates: dates}
+	jsonResponse, err := json.Marshal(res)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

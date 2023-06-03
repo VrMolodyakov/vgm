@@ -390,6 +390,7 @@ func (r *repo) GetLastDays(ctx context.Context, limit uint64) ([]time.Time, erro
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
 		Select("created_at").
+		Distinct().
 		From(table).Limit(limit)
 	sql, args, err := query.ToSql()
 	logger.Infow(table, sql, args)

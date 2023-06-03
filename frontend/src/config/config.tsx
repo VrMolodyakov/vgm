@@ -3,6 +3,7 @@ interface ENV {
   MusicServerUrl: string | undefined
   NewsUrl: string | undefined
   ReleaseUrl: string | undefined
+  LastDaysUrl: string | undefined
   SignInUrl: string | undefined
   SignUpUrl: string | undefined
   RefreshTokenUrl: string | undefined
@@ -13,6 +14,7 @@ interface Config {
   MusicServerUrl: string
   NewsUrl: string
   ReleaseUrl: string 
+  LastDaysUrl: string
   SignInUrl: string
   SignUpUrl: string
   RefreshTokenUrl: string
@@ -24,6 +26,7 @@ const getConfig = (): ENV => {
     MusicServerUrl: process.env.REACT_APP_MUSIC_SERVER_URL,
     NewsUrl: process.env.REACT_APP_NEWS_URL,
     ReleaseUrl:process.env.REACT_APP_RELEASE_URL,
+    LastDaysUrl:process.env.REACT_APP_LAST_DAYS,
     SignInUrl: process.env.REACT_APP_SIGN_IN_URL,
     SignUpUrl: process.env.REACT_APP_SIGN_UP_URL,
     RefreshTokenUrl: process.env.REACT_APP_REFRESH_TOKEN_URL

@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 
 const days: number = 6
 
+type DatesResponse = {
+    dates: number[]
+}
+
 export class MusicService {
     navigate = useNavigate();
 
@@ -15,14 +19,11 @@ export class MusicService {
      }
 
     async getLatest() {
-        let now: Date = new Date()
-        let end = new Date()
-        end.setDate(now.getDate() - days)
-
+        let res = await this.client.get<DatesResponse>(config.LastDaysUrl + days).then(r => r.data)
+        let dates = res.dates.map(date => new Date(date))
         const requests = []
-
-        for (let day = now; day >= end; day.setDate(day.getDate() - 1)) {
-            let formattedDate = moment(day).format('YYYY-MM-DD');
+        for (let i = 0; i < dates.length; i++){
+            let formattedDate = moment(dates[i]).format('YYYY-MM-DD');
             let url = config.ReleaseUrl.concat(formattedDate.toString());
             console.log(url)
             requests.push(

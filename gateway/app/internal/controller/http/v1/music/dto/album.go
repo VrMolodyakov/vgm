@@ -92,3 +92,7 @@ type FullAlbumRes struct {
 	Tracklist []TrackRes      `json:"tracklist"`
 	Credits   []CreditInfoRes `json:"credits"`
 }
+
+type DatesRes struct {
+	Dates []int64 `json:"dates"`
+}
