@@ -1,18 +1,53 @@
 import { useForm } from "react-hook-form";
 import { ChangeEvent, useState } from "react"
+import "./create-album.css"
+import DateInput from "../date-input/date-input";
+
+type MusicSubmitForm = {
+  title: string
+  catalogNumber: string
+  image: string
+  barcode: string
+  price: number
+  currencyCode: string
+  mediaFormat: string
+  classification: string
+  publisher: string
+}
+
+async function onSubmit(data: MusicSubmitForm){
+  console.log(JSON.stringify(data, null, 2));
+};
 
 const CreateForm: React.FC = () => {
-  const { register, handleSubmit } = useForm();
-
+  const { register, handleSubmit } = useForm<MusicSubmitForm>();
+  const [date, setDate] = useState(new Date())
   const [tracklist, setTracklist] = useState([{ title: "", duration: "" }])
   const [credits, setCredits] = useState([{ name: "", position: "" }])
 
   //TODO:create for each
-  let handleChange = (i: number, e: ChangeEvent<HTMLInputElement>) => {
-    let newFormValues = [...tracklist];
-    let n: string = e.target.name
-    newFormValues[i].title = e.target.value;
-    setTracklist(newFormValues);
+  let handleChangeTitle = (i: number, e: ChangeEvent<HTMLInputElement>) => {
+    let newFormValues = [...tracklist]
+    newFormValues[i].title = e.target.value
+    setTracklist(newFormValues)
+  }
+
+  let handleChangeDuration = (i: number, e: ChangeEvent<HTMLInputElement>) => {
+    let newFormValues = [...tracklist]
+    newFormValues[i].duration = e.target.value
+    setTracklist(newFormValues)
+  }
+
+  let handleChangeName = (i: number, e: ChangeEvent<HTMLInputElement>) => {
+    let newFormValues = [...credits]
+    newFormValues[i].name = e.target.value
+    setCredits(newFormValues)
+  }
+
+  let handleChangePosition = (i: number, e: ChangeEvent<HTMLInputElement>) => {
+    let newFormValues = [...credits]
+    newFormValues[i].position = e.target.value
+    setCredits(newFormValues)
   }
 
   let addTracklistFields = () => {
@@ -35,41 +70,42 @@ const CreateForm: React.FC = () => {
     setCredits(newFormValues)
   }
 
-  // let handleSubmit = (event:any) => {
-  //     event.preventDefault();
-  //     alert(JSON.stringify(formValues));
-  // }
-
   return (
-    <form>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <h1>Create Album</h1>
       <label>Title</label>
-      <input name="title" {...register} />
+      <input type="text" {...register("title")} />
       <label>Released at</label>
-      <input name="released_at" {...register} />
+      <div>
+        <DateInput
+          value={date}
+          onChange={setDate}
+        />
+        <br />
+        <span>{date && date.toISOString()}</span>
+      </div>
       <label>Catalog Number</label>
-      <input name="catalog_number" {...register} />
+      <input type="text" {...register("catalogNumber")} />
       <label>Image</label>
-      <input name="image" {...register} />
+      <input type = "text" {...register("image")} />
       <label>Barcode</label>
-      <input name="barcode" {...register} />
+      <input type = "text" {...register("barcode")} />
       <label>Price</label>
-      <input name="price" {...register} />
+      <input type = "number" {...register("price")} />
       <label>Currency code</label>
-      <input name="currency_code" {...register} />
+      <input type = "text" {...register("currencyCode")} />
       <label>Media format</label>
-      <input name="media_format" {...register} />
+      <input type = "text" {...register("mediaFormat")} />
       <label>Classification</label>
-      <input name="classification" {...register} />
+      <input type = "text" {...register("classification")} />
       <label>Publisher</label>
-      <input name="publisher" {...register} />
-      <input type="submit" />
+      <input type = "text" {...register("publisher")} />
       {tracklist.map((element, index) => (
         <div className="form-inline" key={index}>
           <label>Title</label>
-          <input type="text" name="title" value={element.title || ""} onChange={e => handleChange(index, e)} />
+          <input type="text" name="title" value={element.title || ""} onChange={e => handleChangeTitle(index, e)} />
           <label>Duration</label>
-          <input type="text" name="duration" value={element.duration || ""} onChange={e => handleChange(index, e)} />
+          <input type="text" name="duration" value={element.duration || ""} onChange={e => handleChangeDuration(index, e)} />
           {
             index ?
               <button type="button" className="button remove" onClick={() => removeFormTracklist(index)}>Remove</button>
@@ -84,9 +120,9 @@ const CreateForm: React.FC = () => {
       {credits.map((element, index) => (
         <div className="form-inline" key={index}>
           <label>Name</label>
-          <input type="text" name="name" value={element.name || ""} onChange={e => handleChange(index, e)} />
+          <input type="text" name="name" value={element.name || ""} onChange={e => handleChangeName(index, e)} />
           <label>Position</label>
-          <input type="text" name="position" value={element.position || ""} onChange={e => handleChange(index, e)} />
+          <input type="text" name="position" value={element.position || ""} onChange={e => handleChangePosition(index, e)} />
           {
             index ?
               <button type="button" className="button remove" onClick={() => removeFormCredits(index)}>Remove</button>
@@ -98,6 +134,7 @@ const CreateForm: React.FC = () => {
         <button className="button add" type="button" onClick={() => addCreditFields()}>Add</button>
         <button className="button submit" type="submit">Submit</button>
       </div>
+      <input type="submit" />
     </form>
   );
 }

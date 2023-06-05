@@ -40,6 +40,7 @@ const SignInForm: React.FC = () => {
     if (isSuccess) {
       setAccessToken(data.access_token)
       setRefreshToken(data.refresh_token)
+      console.log(data.refresh_token)
       const decoded:Token = jwt_decode(data.access_token)
       setRole(decoded.role) 
       navigate("/home")

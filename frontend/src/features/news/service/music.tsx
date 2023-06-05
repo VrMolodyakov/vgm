@@ -21,6 +21,7 @@ export class MusicService {
     async getLatest() {
         let res = await this.client.get<DatesResponse>(config.LastDaysUrl + days).then(r => r.data)
         let dates = res.dates.map(date => new Date(date))
+        console.log(dates)
         const requests = []
         for (let i = 0; i < dates.length; i++){
             let formattedDate = moment(dates[i]).format('YYYY-MM-DD');

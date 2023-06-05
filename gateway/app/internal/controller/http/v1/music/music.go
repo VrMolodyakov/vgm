@@ -154,8 +154,8 @@ func (a *albumHandler) FindAllAlbums(w http.ResponseWriter, r *http.Request) {
 	}
 	titlFilterVal := r.URL.Query().Get("title.val")
 	titleFilterOp := r.URL.Query().Get("title.op")
-	releaseFilterVal := r.URL.Query().Get("create.val")
-	releaseFilterOp := r.URL.Query().Get("create.op")
+	releaseFilterVal := r.URL.Query().Get("release.val")
+	releaseFilterOp := r.URL.Query().Get("release.op")
 
 	titleView := model.AlbumTitleView{
 		Value:    titlFilterVal,

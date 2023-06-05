@@ -11,7 +11,7 @@ import { useNews } from "./hooks/use-news";
 
 
 export const News: React.FC = () => {
-  let getToken = useAuthStore(state => state.getAccessToken)
+  let getToken = useAuthStore(state => state.getRefreshToken)
   let removeAccessToken = useAuthStore(state => state.removeAccessToken)
   let removeRefreshToken = useAuthStore(state => state.removeRefreshToken)
   let setAccessToken = useAuthStore(state => state.setAccessToken)
@@ -20,7 +20,7 @@ export const News: React.FC = () => {
 
   let client = createMusicClient(
     config.MusicServerUrl,
-    config.UserServerUrl + "/" + config.ReleaseUrl,
+    config.RefreshTokenUrl,
     getToken,
     removeAccessToken,
     removeRefreshToken,

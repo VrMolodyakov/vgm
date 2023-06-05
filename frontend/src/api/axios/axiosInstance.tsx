@@ -25,7 +25,6 @@ export function deleteRequest(URL:string) {
   return baseAxiosClient.delete(`/${URL}`).then(response => response);
 }
 
-
 export function newAxiosInstance(url:string) : AxiosInstance{
   return axios.create({
       baseURL: url,
@@ -65,26 +64,24 @@ export function createMusicClient(
 
   client.interceptors.response.use(
     res => {
-      console.log("response inter")
       return res;
     },
     async err => {
       const originalConfig = err.config;
-      console.log("response error inter")  
       if (originalConfig.url !== config.SignInUrl && err.response) {
         if (err.response.status === 401 && !originalConfig._retry) {
           originalConfig._retry = true;
   
           try {
-            const rs = await axios.post(
+            const rs = await baseAxiosClient.get(
               refreshURL,
+              
               {
                 headers: {
-                  Authorization: getToken()
+                  Authorization: "Bearer " + getToken()
                 }
               }
             );
-  
             const data = rs.data;
             setAccessToken(data.access_token)
             return client(originalConfig);
@@ -92,6 +89,7 @@ export function createMusicClient(
 
             removeAccessToken()
             removeRefreshToken()
+            window.location.href = 'http://localhost:3001/auth';
             // Redirecting the user to the landing page
             return Promise.reject(_error);
           }
