@@ -1,5 +1,5 @@
 import { Col, Row } from "react-bootstrap";
-import { AlbumCard } from "../../components/album/card";
+import { AlbumCard } from "../../../components/album/card";
 import { AlbumView} from "./type";
 import "./date-release.css";
 

@@ -7,6 +7,7 @@ interface ENV {
   SignInUrl: string | undefined
   SignUpUrl: string | undefined
   RefreshTokenUrl: string | undefined
+  CreateAlbumUrl: string | undefined
 }
 
 interface Config {
@@ -18,6 +19,7 @@ interface Config {
   SignInUrl: string
   SignUpUrl: string
   RefreshTokenUrl: string
+  CreateAlbumUrl: string 
 }
 
 const getConfig = (): ENV => {
@@ -29,7 +31,8 @@ const getConfig = (): ENV => {
     LastDaysUrl:process.env.REACT_APP_LAST_DAYS,
     SignInUrl: process.env.REACT_APP_SIGN_IN_URL,
     SignUpUrl: process.env.REACT_APP_SIGN_UP_URL,
-    RefreshTokenUrl: process.env.REACT_APP_REFRESH_TOKEN_URL
+    RefreshTokenUrl: process.env.REACT_APP_REFRESH_TOKEN_URL,
+    CreateAlbumUrl: process.env.REACT_APP_CREATE_ALBUM_URL
   };
 };
 

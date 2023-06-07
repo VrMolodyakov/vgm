@@ -5,20 +5,12 @@ import "./sign-in-form.css"
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../api/store/store";
 import { useUserLogin } from "../auth/hooks/use-auth";
-import { Auth, useAuth } from "../auth/context/auth";
 import { Token } from "../../api/token";
 import jwt_decode from "jwt-decode";
-
 
 type UserSubmitData = {
   username: string
   password: string
-}
-
-type TokenResponse = {
-  access_token:string 
-  refresh_token:string
-  logged_in:string
 }
 
 const SignInForm: React.FC = () => {

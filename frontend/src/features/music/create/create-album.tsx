@@ -1,29 +1,49 @@
 import { useForm } from "react-hook-form";
 import { ChangeEvent, useState } from "react"
 import "./create-album.css"
-import DateInput from "../date-input/date-input";
-
-type MusicSubmitForm = {
-  title: string
-  catalogNumber: string
-  image: string
-  barcode: string
-  price: number
-  currencyCode: string
-  mediaFormat: string
-  classification: string
-  publisher: string
-}
-
-async function onSubmit(data: MusicSubmitForm){
-  console.log(JSON.stringify(data, null, 2));
-};
+import DateInput from "../../../components/date-input/date-input";
+import { Info, Track, Credit, Album, FullAlbum } from "./types";
+import { useAlbum } from "./hooks/use-album";
+import { MusicService } from "../service/music";
+import { useMusicClient } from "../client-provider/context/context";
 
 const CreateForm: React.FC = () => {
-  const { register, handleSubmit } = useForm<MusicSubmitForm>();
+  const { register, handleSubmit } = useForm<Album & Info>();
   const [date, setDate] = useState(new Date())
-  const [tracklist, setTracklist] = useState([{ title: "", duration: "" }])
-  const [credits, setCredits] = useState([{ name: "", position: "" }])
+  const [tracklist, setTracklist] = useState<Track[]>([])
+  const [credits, setCredits] = useState<Credit[]>([])
+  let client = useMusicClient()
+  let musicService = new MusicService(client)
+  const { data, error, mutate: create, isSuccess, isError } = useAlbum(musicService)
+
+  async function onSubmit(data: Album & Info){
+    const album:Album = {
+      title:data.title,
+      released_at:new Number(date),
+    }
+
+    const info:Info = {
+      barcode: data.barcode,
+      catalog_number: data.catalog_number,
+      classification: data.classification,
+      currency_code: data.currency_code,
+      full_image_src: data.full_image_src,
+      small_image_src: data.small_image_src,
+      media_format: data.media_format,
+      price: data.price,
+      publisher: data.publisher
+    }
+
+    const fullAlbum: FullAlbum = {
+      credits: credits,
+      tracklist: tracklist,
+      album:album,
+      info:info
+    }
+
+    create(fullAlbum)
+    // console.log(JSON.stringify(fullAlbum, null, 2));
+  }
 
   //TODO:create for each
   let handleChangeTitle = (i: number, e: ChangeEvent<HTMLInputElement>) => {
@@ -82,20 +102,22 @@ const CreateForm: React.FC = () => {
           onChange={setDate}
         />
         <br />
-        <span>{date && date.toISOString()}</span>
+        <span>{new Number(date).toString()}</span>
       </div>
       <label>Catalog Number</label>
-      <input type="text" {...register("catalogNumber")} />
-      <label>Image</label>
-      <input type = "text" {...register("image")} />
+      <input type="text" {...register("catalog_number")} />
+      <label>Small Image</label>
+      <input type = "text" {...register("small_image_src")} />
+      <label>Full Image</label>
+      <input type = "text" {...register("full_image_src")} />
       <label>Barcode</label>
       <input type = "text" {...register("barcode")} />
       <label>Price</label>
       <input type = "number" {...register("price")} />
       <label>Currency code</label>
-      <input type = "text" {...register("currencyCode")} />
+      <input type = "text" {...register("currency_code")} />
       <label>Media format</label>
-      <input type = "text" {...register("mediaFormat")} />
+      <input type = "text" {...register("media_format")} />
       <label>Classification</label>
       <input type = "text" {...register("classification")} />
       <label>Publisher</label>

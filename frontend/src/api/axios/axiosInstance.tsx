@@ -100,7 +100,9 @@ export function createMusicClient(
     }
   )
   return client
+  
 }
 
-const userInstance = newAxiosInstance(config.UserServerUrl)
-export {userInstance}
+const userClient = newAxiosInstance(config.UserServerUrl)
+export {userClient as userInstance}
+

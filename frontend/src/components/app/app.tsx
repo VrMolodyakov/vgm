@@ -6,9 +6,9 @@ import Layout from "../layout";
 import SignInForm from "../../features/signin/sign-in-form";
 import SignUpForm from "../../features/signup/sign-up-form";
 import { Auth,useAuth } from "../../features/auth/context/auth";
-import CreateForm from "../create/create-album";
+import CreateForm from "../../features/music/create/create-album";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { News } from "../../features/news/news";
+import { News } from "../../features/music/news/news";
 
 //TODO:index router
 const App: React.FC = () => {

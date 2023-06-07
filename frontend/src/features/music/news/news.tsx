@@ -1,32 +1,20 @@
 import { useEffect, useState } from "react";
 import { Form} from "react-bootstrap"
-import config from "../../config/config";
+import config from "../../../config/config";
 import { AlbumView } from "./type";
 import "./news.css"
 import { DateRelease } from "./date-release";
-import { useAuthStore } from "../../api/store/store";
-import { createMusicClient, newAxiosInstance } from "../../api/axios/axiosInstance";
-import { MusicService } from "./service/music";
+import { useAuthStore } from "../../../api/store/store";
+import { MusicService } from "../service/music";
 import { useNews } from "./hooks/use-news";
+import { createMusicClient } from "../../../api/axios/axiosInstance";
+import { useMusicClient } from "../client-provider/context/context";
 
 
 export const News: React.FC = () => {
-  let getToken = useAuthStore(state => state.getRefreshToken)
-  let removeAccessToken = useAuthStore(state => state.removeAccessToken)
-  let removeRefreshToken = useAuthStore(state => state.removeRefreshToken)
-  let setAccessToken = useAuthStore(state => state.setAccessToken)
   const [albums, setAlbums] = useState<AlbumView[]>([])
   const [dates, setDates] = useState<number[]>([])
-
-  let client = createMusicClient(
-    config.MusicServerUrl,
-    config.RefreshTokenUrl,
-    getToken,
-    removeAccessToken,
-    removeRefreshToken,
-    setAccessToken
-  )
-  
+  let client = useMusicClient()
   let musicService = new MusicService(client)
   const { data, isLoading, isError } = useNews(musicService);
 
