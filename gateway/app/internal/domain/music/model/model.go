@@ -283,3 +283,19 @@ func (f *FullAlbum) DtoFromModel() dto.FullAlbumRes {
 		Tracklist: tracklist,
 	}
 }
+
+func PersonFromPb(pb *albumPb.Person) Person {
+	return Person{
+		FirstName: pb.GetFirstName(),
+		LastName:  pb.GetLastName(),
+		BirthDate: pb.GetBirthDate(),
+	}
+}
+
+func (p Person) DtoFromModel() dto.Person {
+	return dto.Person{
+		FirstName: p.FirstName,
+		LastName:  p.LastName,
+		BirthDate: p.BirthDate,
+	}
+}

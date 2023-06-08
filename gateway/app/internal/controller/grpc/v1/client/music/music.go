@@ -177,3 +177,31 @@ func (m *musicClient) FindLastUpdateDays(ctx context.Context, count uint64) ([]i
 	}
 	return pb.GetCreatedAt(), nil
 }
+
+func (m *musicClient) FindPersons(
+	ctx context.Context,
+	pagination model.Pagination,
+	firstNameView model.FirstNameView,
+	lastNameView model.LastNameView,
+) ([]model.Person, error) {
+
+	ctx, span := tracer.Start(ctx, "client.FindAll")
+	defer span.End()
+
+	request := albumPb.FindAllPersonsRequest{
+		Pagination: pagination.PbFromModel(),
+		FirstName:  firstNameView.PbFromModel(),
+		LastName:   lastNameView.PbFromModel(),
+	}
+
+	pb, err := m.client.FindAllPersons(ctx, &request)
+	if err != nil {
+		return nil, err
+	}
+	personsPb := pb.GetPersons()
+	persons := make([]model.Person, len(personsPb))
+	for i := range personsPb {
+		persons[i] = model.PersonFromPb(personsPb[i])
+	}
+	return persons, nil
+}

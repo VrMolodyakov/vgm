@@ -22,10 +22,11 @@ service MusicService {
 
 message FindAllPersonsRequest{
     filter.v1.Pagination pagination = 1;
-    filter.v1.StringFieldFilter full_name = 2;
+    filter.v1.StringFieldFilter first_name = 2;
+    filter.v1.StringFieldFilter last_name = 3;
 }
 message FindAllPersonsResponse{
-    repeated Person person = 1;
+    repeated Person persons = 1;
 }
 
 message CreatePersonRequest{

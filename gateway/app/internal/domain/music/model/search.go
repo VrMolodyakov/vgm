@@ -18,6 +18,16 @@ type AlbumTitleView struct {
 	Operator string
 }
 
+type FirstNameView struct {
+	Value    string
+	Operator string
+}
+
+type LastNameView struct {
+	Value    string
+	Operator string
+}
+
 type AlbumReleasedView struct {
 	Value    string
 	Operator string
@@ -43,6 +53,42 @@ func (titleView *AlbumTitleView) PbFromModel() *filterPb.StringFieldFilter {
 	}
 	pb := filterPb.StringFieldFilter{Val: titleView.Value}
 	switch op := titleView.Operator; op {
+	case "like":
+		pb.Op = filterPb.StringFieldFilter_OPERATOR_LIKE
+	case "neq":
+		pb.Op = filterPb.StringFieldFilter_OPERATOR_NEQ
+	case "eq":
+		pb.Op = filterPb.StringFieldFilter_OPERATOR_EQ
+	default:
+		pb.Op = filterPb.StringFieldFilter_OPERATOR_LIKE
+	}
+	return &pb
+}
+
+func (nameView *FirstNameView) PbFromModel() *filterPb.StringFieldFilter {
+	if nameView.Value == "" {
+		return nil
+	}
+	pb := filterPb.StringFieldFilter{Val: nameView.Value}
+	switch op := nameView.Operator; op {
+	case "like":
+		pb.Op = filterPb.StringFieldFilter_OPERATOR_LIKE
+	case "neq":
+		pb.Op = filterPb.StringFieldFilter_OPERATOR_NEQ
+	case "eq":
+		pb.Op = filterPb.StringFieldFilter_OPERATOR_EQ
+	default:
+		pb.Op = filterPb.StringFieldFilter_OPERATOR_LIKE
+	}
+	return &pb
+}
+
+func (nameView *LastNameView) PbFromModel() *filterPb.StringFieldFilter {
+	if nameView.Value == "" {
+		return nil
+	}
+	pb := filterPb.StringFieldFilter{Val: nameView.Value}
+	switch op := nameView.Operator; op {
 	case "like":
 		pb.Op = filterPb.StringFieldFilter_OPERATOR_LIKE
 	case "neq":

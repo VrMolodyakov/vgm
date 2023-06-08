@@ -131,6 +131,27 @@ func (s *server) CreatePerson(ctx context.Context, request *albumPb.CreatePerson
 	}, nil
 }
 
+func (s *server) FindAllPersons(ctx context.Context, request *albumPb.FindAllPersonsRequest) (*albumPb.FindAllPersonsResponse, error) {
+	ctx, span := tracer.Start(ctx, "server.FindAllPersons")
+	defer span.End()
+
+	filter := personModel.PersonFilter(request)
+	persons, err := s.personPolicy.GetAll(ctx, filter)
+
+	if err != nil {
+		return nil, err
+	}
+
+	personsPb := make([]*albumPb.Person, len(persons))
+	for i := range persons {
+		personsPb[i] = persons[i].ToProto()
+	}
+
+	return &albumPb.FindAllPersonsResponse{
+		Persons: personsPb,
+	}, nil
+}
+
 func (s *server) FindLastDats(ctx context.Context, request *albumPb.FindLastDatsRequest) (*albumPb.FindLastDatsResponse, error) {
 	ctx, span := tracer.Start(ctx, "server.FindLastDats")
 	defer span.End()

@@ -26,6 +26,12 @@ type MusicGrpcClient interface {
 	CreatePerson(context.Context, model.Person) error
 	FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error)
 	FindLastUpdateDays(ctx context.Context, count uint64) ([]int64, error)
+	FindPersons(
+		ctx context.Context,
+		pagination model.Pagination,
+		firstNameView model.FirstNameView,
+		lastNameView model.LastNameView,
+	) ([]model.Person, error)
 }
 
 type music struct {
@@ -169,4 +175,34 @@ func (m *music) FindLastUpdateDays(ctx context.Context, count uint64) ([]int64, 
 		return nil, err
 	}
 	return dates, nil
+}
+
+func (m *music) FindAllPersons(
+	ctx context.Context,
+	pagination model.Pagination,
+	firstNameView model.FirstNameView,
+	lastNameView model.LastNameView,
+) ([]model.Person, error) {
+	ctx, span := tracer.Start(ctx, "client.FindAllAlbums")
+	defer span.End()
+
+	logger := logging.LoggerFromContext(ctx)
+	persons, err := m.client.FindPersons(ctx, pagination, firstNameView, lastNameView)
+	if err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				logger.Error("Has Internal Error")
+				return nil, errors.NewInternal(err, "grpc client response")
+			case codes.Aborted:
+				logger.Error("gRPC Aborted the call")
+				return nil, err
+			default:
+				logger.Sugar().Error(e.Code(), e.Message())
+				return nil, err
+			}
+		}
+		return nil, err
+	}
+	return persons, nil
 }

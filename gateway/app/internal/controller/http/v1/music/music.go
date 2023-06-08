@@ -35,6 +35,12 @@ type AlbumService interface {
 	CreatePerson(context.Context, model.Person) error
 	FindFullAlbum(ctx context.Context, id string) (model.FullAlbum, error)
 	FindLastUpdateDays(ctx context.Context, count uint64) ([]int64, error)
+	FindAllPersons(
+		ctx context.Context,
+		pagination model.Pagination,
+		firstNameView model.FirstNameView,
+		lastNameView model.LastNameView,
+	) ([]model.Person, error)
 }
 
 type albumHandler struct {
@@ -275,6 +281,77 @@ func (a *albumHandler) FindLastUpdateDays(w http.ResponseWriter, r *http.Request
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
 
+}
+
+func (a *albumHandler) FindAllPersons(w http.ResponseWriter, r *http.Request) {
+	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
+	defer span.End()
+
+	logger := logging.LoggerFromContext(ctx)
+	strLimit := r.URL.Query().Get("limit")
+	limit := 0
+	if strLimit != "" {
+		limit, err := strconv.Atoi(strLimit)
+		if err != nil || limit <= -1 {
+			http.Error(w, "limit query parameter is no valid number", http.StatusBadRequest)
+			return
+		}
+	}
+	strOffset := r.URL.Query().Get("offset")
+	offset := 0
+	if strOffset != "" {
+		offset, err := strconv.Atoi(strOffset)
+		if err != nil || offset <= -1 {
+			http.Error(w, "offset query parameter is no valid number", http.StatusBadRequest)
+			return
+		}
+	}
+	firstNameFilterVal := r.URL.Query().Get("firstName.val")
+	firstNameFilterOp := r.URL.Query().Get("firstName.op")
+	lastNameFilterVal := r.URL.Query().Get("lastName.val")
+	lastNameFilterOp := r.URL.Query().Get("lastName.op")
+
+	firstName := model.FirstNameView{
+		Value:    firstNameFilterVal,
+		Operator: firstNameFilterOp,
+	}
+
+	lastName := model.LastNameView{
+		Value:    lastNameFilterVal,
+		Operator: lastNameFilterOp,
+	}
+
+	p := model.Pagination{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	persons, err := a.service.FindAllPersons(ctx, p, firstName, lastName)
+	if err != nil {
+		logger.Error(err.Error())
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.Internal:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			default:
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+	}
+	response := make([]dto.Person, len(persons))
+	for i := 0; i < len(response); i++ {
+		response[i] = persons[i].DtoFromModel()
+	}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 }
 
 func validateSortQuery(sortBy string) (string, error) {

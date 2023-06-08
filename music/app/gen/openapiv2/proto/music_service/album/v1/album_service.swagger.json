@@ -183,7 +183,7 @@
     "v1FindAllPersonsResponse": {
       "type": "object",
       "properties": {
-        "person": {
+        "persons": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1Person"

@@ -30,7 +30,7 @@ const CreateForm: React.FC = () => {
       full_image_src: data.full_image_src,
       small_image_src: data.small_image_src,
       media_format: data.media_format,
-      price: data.price,
+      price: +data.price,
       publisher: data.publisher
     }
 
@@ -60,13 +60,13 @@ const CreateForm: React.FC = () => {
 
   let handleChangeName = (i: number, e: ChangeEvent<HTMLInputElement>) => {
     let newFormValues = [...credits]
-    newFormValues[i].name = e.target.value
+    newFormValues[i].profession = e.target.value
     setCredits(newFormValues)
   }
 
   let handleChangePosition = (i: number, e: ChangeEvent<HTMLInputElement>) => {
     let newFormValues = [...credits]
-    newFormValues[i].position = e.target.value
+    newFormValues[i].person_id = +e.target.value
     setCredits(newFormValues)
   }
 
@@ -75,7 +75,7 @@ const CreateForm: React.FC = () => {
   }
 
   let addCreditFields = () => {
-    setCredits([...credits, { name: "", position: "" }])
+    setCredits([...credits, { profession: "", person_id: -1 }])
   }
 
   let removeFormTracklist = (i: number) => {
@@ -113,7 +113,7 @@ const CreateForm: React.FC = () => {
       <label>Barcode</label>
       <input type = "text" {...register("barcode")} />
       <label>Price</label>
-      <input type = "number" {...register("price")} />
+      <input type='number' step="0.1" {...register("price")} />
       <label>Currency code</label>
       <input type = "text" {...register("currency_code")} />
       <label>Media format</label>
@@ -142,9 +142,9 @@ const CreateForm: React.FC = () => {
       {credits.map((element, index) => (
         <div className="form-inline" key={index}>
           <label>Name</label>
-          <input type="text" name="name" value={element.name || ""} onChange={e => handleChangeName(index, e)} />
+          <input type="text" name="name" value={element.profession || ""} onChange={e => handleChangeName(index, e)} />
           <label>Position</label>
-          <input type="text" name="position" value={element.position || ""} onChange={e => handleChangePosition(index, e)} />
+          <input type="text" name="position" value={element.person_id || 0} onChange={e => handleChangePosition(index, e)} />
           {
             index ?
               <button type="button" className="button remove" onClick={() => removeFormCredits(index)}>Remove</button>

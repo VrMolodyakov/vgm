@@ -85,7 +85,6 @@ func (f *filters) Filter(query sq.SelectBuilder, alias string) sq.SelectBuilder 
 		}
 		and = append(and, e)
 	}
-	logger.Sugar().Info(and)
 	query = query.Where(and)
 	if f.limit == 0 {
 		return query

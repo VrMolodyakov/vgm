@@ -16,8 +16,8 @@ export type Track = {
 }
 
 export type Credit = {
-  name: string
-  position: string
+  profession: string
+  person_id: number
 }
 
 export type Album = {
