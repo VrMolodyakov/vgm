@@ -29,6 +29,7 @@ type AlbumPreview struct {
 }
 
 type Person struct {
+	ID        int64
 	FirstName string
 	LastName  string
 	BirthDate int64
@@ -286,6 +287,7 @@ func (f *FullAlbum) DtoFromModel() dto.FullAlbumRes {
 
 func PersonFromPb(pb *albumPb.Person) Person {
 	return Person{
+		ID:        pb.GetPersonId(),
 		FirstName: pb.GetFirstName(),
 		LastName:  pb.GetLastName(),
 		BirthDate: pb.GetBirthDate(),
@@ -294,6 +296,7 @@ func PersonFromPb(pb *albumPb.Person) Person {
 
 func (p Person) DtoFromModel() dto.Person {
 	return dto.Person{
+		ID:        p.ID,
 		FirstName: p.FirstName,
 		LastName:  p.LastName,
 		BirthDate: p.BirthDate,

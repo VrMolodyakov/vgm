@@ -8,6 +8,7 @@ type AlbumReq struct {
 }
 
 type Person struct {
+	ID        int64  `json:"person_id"`
 	FirstName string `json:"first_name" validate:"required"`
 	LastName  string `json:"last_name" validate:"required"`
 	BirthDate int64  `json:"birth_date" validate:"required"`

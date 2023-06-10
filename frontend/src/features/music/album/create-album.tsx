@@ -14,7 +14,7 @@ const CreateForm: React.FC = () => {
   const [credits, setCredits] = useState<Credit[]>([])
   let client = useMusicClient()
   let musicService = new MusicService(client)
-  const { data, error, mutate: create, isSuccess, isError } = useAlbum(musicService)
+  const { mutate: create } = useAlbum(musicService)
 
   async function onSubmit(data: Album & Info){
     const album:Album = {

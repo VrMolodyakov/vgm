@@ -10,3 +10,8 @@ export type AlbumView = {
 export type Albums = {
     albums:Array<AlbumView>
 }
+
+export type DatesResponse = {
+    dates: number[]
+}
+

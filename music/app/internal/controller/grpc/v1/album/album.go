@@ -141,12 +141,10 @@ func (s *server) FindAllPersons(ctx context.Context, request *albumPb.FindAllPer
 	if err != nil {
 		return nil, err
 	}
-
 	personsPb := make([]*albumPb.Person, len(persons))
 	for i := range persons {
 		personsPb[i] = persons[i].ToProto()
 	}
-
 	return &albumPb.FindAllPersonsResponse{
 		Persons: personsPb,
 	}, nil

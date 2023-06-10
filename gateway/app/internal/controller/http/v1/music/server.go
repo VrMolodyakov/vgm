@@ -32,6 +32,7 @@ func NewServer(
 		r.Get("/albums", handler.FindAllAlbums)
 		r.Get("/albums/{albumID}", handler.FindFullAlbums)
 		r.Get("/dates/{limit}", handler.FindLastUpdateDays)
+		r.Get("/persons", handler.FindAllPersons)
 	})
 
 	addr := fmt.Sprintf("%s:%d", cfg.IP, cfg.Port)

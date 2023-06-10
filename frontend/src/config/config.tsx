@@ -8,6 +8,8 @@ interface ENV {
   SignUpUrl: string | undefined
   RefreshTokenUrl: string | undefined
   CreateAlbumUrl: string | undefined
+  GetPersonsUrl: string | undefined
+  CreatePersonsUrl: string | undefined
 }
 
 interface Config {
@@ -20,6 +22,9 @@ interface Config {
   SignUpUrl: string
   RefreshTokenUrl: string
   CreateAlbumUrl: string 
+  GetPersonsUrl: string 
+  CreatePersonsUrl: string 
+
 }
 
 const getConfig = (): ENV => {
@@ -32,7 +37,10 @@ const getConfig = (): ENV => {
     SignInUrl: process.env.REACT_APP_SIGN_IN_URL,
     SignUpUrl: process.env.REACT_APP_SIGN_UP_URL,
     RefreshTokenUrl: process.env.REACT_APP_REFRESH_TOKEN_URL,
-    CreateAlbumUrl: process.env.REACT_APP_CREATE_ALBUM_URL
+    CreateAlbumUrl: process.env.REACT_APP_CREATE_ALBUM_URL,
+    GetPersonsUrl:  process.env.REACT_APP_ALL_PERSONS_URL,
+    CreatePersonsUrl: process.env.REACT_APP_CREATE_PERSONS_URL
+
   };
 };
 

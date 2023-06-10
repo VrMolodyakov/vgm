@@ -31,3 +31,4 @@ export type FullAlbum = {
   credits: Credit[]
   tracklist: Track[]
 }
+

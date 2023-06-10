@@ -6,9 +6,10 @@ import Layout from "../layout";
 import SignInForm from "../../features/signin/sign-in-form";
 import SignUpForm from "../../features/signup/sign-up-form";
 import { Auth,useAuth } from "../../features/auth/context/auth";
-import CreateForm from "../../features/music/create/create-album";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { News } from "../../features/music/news/news";
+import { PersonList } from "../../features/music/persons/list/list";
+import CreateForm from "../../features/music/album/create-album";
 
 //TODO:index router
 const App: React.FC = () => {
@@ -56,6 +57,7 @@ const App: React.FC = () => {
             <Route path="auth" element={<SignInForm />} />
             <Route path="reg" element={<SignUpForm />} />
             <Route path="create" element={<CreateForm />} />
+            <Route path="persons" element={<PersonList />} />
             <Route element = {<RequierAuth/>}>
                 <Route path="news" element={<News />} />  
                 <Route path="home" element={<Home />} />                          

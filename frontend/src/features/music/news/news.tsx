@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import { Form} from "react-bootstrap"
-import config from "../../../config/config";
 import { AlbumView } from "./type";
 import "./news.css"
 import { DateRelease } from "./date-release";
-import { useAuthStore } from "../../../api/store/store";
 import { MusicService } from "../service/music";
 import { useNews } from "./hooks/use-news";
-import { createMusicClient } from "../../../api/axios/axiosInstance";
 import { useMusicClient } from "../client-provider/context/context";
 
 
