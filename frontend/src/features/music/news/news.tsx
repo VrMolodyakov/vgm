@@ -25,16 +25,18 @@ export const News: React.FC = () => {
   }, [data]);
 
   return (
-    <>
+    <div className="album-container">
       <Form className="list-form">
         <div className="centered-block">
+          <div className="release">
           <h2>New's release</h2>
+          </div>
           {dates.map(date => (
             <DateRelease key={date} albums={albums.filter(album => album.released_at === date)} date={new Date(date)} />
           ))}
         </div>
       </Form>
-    </>
+    </div>
   )
 }
 

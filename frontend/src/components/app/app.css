@@ -4,9 +4,10 @@ body {
 
 .App {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
     height: 100vh;
+    margin: 0 auto;
 }
 
 .navbar {

@@ -1,4 +1,22 @@
 .centered-block {
-    text-align: center;
-    margin: 0 auto;
-  }
+  text-align: center;
+  margin: 0 auto;
+}
+
+.album-container {
+  justify-content: flex-start;
+
+}
+
+.album-container {
+  padding: 10px;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.release h2 {
+  font-size: 25px;
+  margin-top: 20px;
+  text-align: left;
+}
