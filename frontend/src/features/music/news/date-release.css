@@ -1,23 +1,83 @@
-.dateblock {
-  width: 50px;
-  height: 50px;
-  background-color: #f5f5f5;
+.list-form {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.album-card .album-image img {
+  width: 60px;
+  height: 60px;
+  border: 2px solid gray; /* Измените толщину и цвет рамки */
+  margin-right: 10px;
+}
+
+
+.dateblock {
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 45px;
+  height: 50px;
+  border: 1px solid gray;
+  background-color: lightgray;
+  margin-top: 25px;
+
 }
 
-.dateblock .date,
-.dateblock .day {
-  font-size: 12px;
+.album-card {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: rgb(1, 100, 165);
 }
 
-.dateblock .day {
-  font-size: 20px;
+.album-image img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+.album-details {
+  margin-left: 10px;
+}
+
+.album-title {
   font-weight: bold;
 }
 
+.album-publisher {
+  color: #888;
+}
+
+
 .album-col {
-  padding-left: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #ffffff00;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.album-col .album-image {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+}
+
+.album-col .album-details {
+  flex: 1;
+}
+
+.album-col .album-title {
+  font-weight: bold;
+}
+
+.album-col .album-publisher {
+  color: #888;
 }

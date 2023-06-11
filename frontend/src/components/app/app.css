@@ -1,0 +1,18 @@
+body {
+    background: #012c57de;
+}
+
+.App {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.navbar {
+    background-color: black;
+}
+
+.navbar .nav-link {
+    color: white;
+}

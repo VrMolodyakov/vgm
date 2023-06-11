@@ -1,55 +1,65 @@
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 300px;
-  }
-  
-  h1 {
-    margin-bottom: 10px;
-  }
-  
-  label {
-    margin-top: 10px;
-  }
-  
-  input {
-    width: 100%;
-    padding: 5px;
-    margin-top: 5px;
-  }
-  
-  .form-inline {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-  }
-  
-  .button {
-    margin-top: 10px;
-    padding: 5px 10px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .remove {
-    background-color: #ff0000;
-    color: #ffffff;
-  }
-  
-  .add {
-    background-color: #00ff00;
-    color: #ffffff;
-  }
-  
-  .submit {
-    background-color: #0000ff;
-    color: #ffffff;
-  }
-  
-  .button-section {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-  
+.album-from {
+  background-color: #f2f2f2;
+  padding: 20px;
+  max-width: 400px;
+  margin: 750px auto 0; /* Здесь значение margin-top увеличено на 200px */
+}
+
+.album-from input[type="text"],
+.album-from input[type="number"] {
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.album-from h1 {
+  margin-bottom: 10px;
+}
+
+.album-from label {
+  margin-top: 10px;
+  display: block; /* Добавлено свойство display: block; чтобы поместить надпись над input */
+}
+
+.album-from input,
+.album-from select {
+  width: 100%;
+  padding: 5px;
+  margin-top: 5px;
+}
+
+.album-from .form-inline {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.album-from .form-row {
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px; /* Добавлен разрыв между label и input */
+}
+
+.album-from .button {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.album-from .button.add {
+  border: 1px solid #000;
+}
+
+.album-from .button-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.album-from .button.remove {
+  border: 1px solid #000; /* Добавлен стиль рамки к кнопкам "Remove" */
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-top: 60px;
+}

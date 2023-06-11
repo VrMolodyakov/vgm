@@ -48,6 +48,7 @@ export class MusicService {
     async createPerson(data: Person) {
         return await this.client.post(config.CreatePersonsUrl, data)
             .catch((err: Error | AxiosError) => {
+                console.log(err)
                 return Promise.reject(err)
             })
     }

@@ -1,13 +1,13 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react"
-import "./create-album.css"
 import DateInput from "../../../../components/date-input/date-input";
 import { useMusicClient } from "../../client-provider/context/context";
 import { MusicService } from "../../service/music";
 import { Person } from "../types";
 import { usePerson } from "../hooks/usePerson";
+import "./create-person.css"
 
-const CreateForm: React.FC = () => {
+const CreatePersonForm: React.FC = () => {
   const { register, handleSubmit } = useForm<Person>();
   const [date, setDate] = useState(new Date())
   let client = useMusicClient()
@@ -15,12 +15,13 @@ const CreateForm: React.FC = () => {
   const { mutate: create } = usePerson(musicService)
 
   async function onSubmit(data: Person){
+    data.birth_date = new Number(date)
     console.log(data)
     create(data)
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="form-container">
       <h1>Create Person</h1>
       <label>First Name</label>
       <input type="text" {...register("first_name")} />
@@ -35,9 +36,9 @@ const CreateForm: React.FC = () => {
         <br />
         <span>{new Number(date).toString()}</span>
       </div>
-      
+      <input type="submit" />
     </form>
   );
 }
 
-export default CreateForm
+export default CreatePersonForm

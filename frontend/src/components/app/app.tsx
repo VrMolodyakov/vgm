@@ -9,7 +9,9 @@ import { Auth,useAuth } from "../../features/auth/context/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { News } from "../../features/music/news/news";
 import { PersonList } from "../../features/music/persons/list/list";
-import CreateForm from "../../features/music/album/create-album";
+import CreateAlbumForm from "../../features/music/album/create-album";
+import "./app.css"
+import CreatePersonForm from "../../features/music/persons/create/create-person";
 
 //TODO:index router
 const App: React.FC = () => {
@@ -26,7 +28,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <>
+    <div className="app">
       <Navbar collapseOnSelect expand="lg" bg="blue" variant="white">
       <Nav className="me-auto">
         <Nav.Link className="home" as={Link} to="/home">
@@ -56,7 +58,8 @@ const App: React.FC = () => {
           <Route path="/" element={<Layout />}>
             <Route path="auth" element={<SignInForm />} />
             <Route path="reg" element={<SignUpForm />} />
-            <Route path="create" element={<CreateForm />} />
+            <Route path="create-album" element={<CreateAlbumForm />} />
+            <Route path="create-person" element={<CreatePersonForm />} />
             <Route path="persons" element={<PersonList />} />
             <Route element = {<RequierAuth/>}>
                 <Route path="news" element={<News />} />  
@@ -65,7 +68,7 @@ const App: React.FC = () => {
           </Route>
         </Routes>
       </div>
-    </>
+    </div>
   );
 };
 
