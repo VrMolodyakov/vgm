@@ -17,7 +17,7 @@ const SignInForm: React.FC = () => {
   let setAccessToken = useAuthStore(state => state.setAccessToken)
   let setRole = useAuthStore(state => state.setRole)
   let setRefreshToken = useAuthStore(state => state.setRefreshToken)
-  const [isRegister,setIsRegister] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { data, error, mutate: login, isSuccess, isError } = useUserLogin()
@@ -33,26 +33,26 @@ const SignInForm: React.FC = () => {
       setAccessToken(data.access_token)
       setRefreshToken(data.refresh_token)
       console.log(data.refresh_token)
-      const decoded:Token = jwt_decode(data.access_token)
-      setRole(decoded.role) 
+      const decoded: Token = jwt_decode(data.access_token)
+      setRole(decoded.role)
       navigate("/home")
     } else if (isError) {
-      if (error){
-        if (error.response?.status === 400){
-          setError("root",{type:'custom',message:"wrong username or password"})
-        }else{
-          setError("root",{type:'custom',message:"internal server error"})
+      if (error) {
+        if (error.response?.status === 400) {
+          setError("root", { type: 'custom', message: "wrong username or password" })
+        } else {
+          setError("root", { type: 'custom', message: "internal server error" })
         }
       }
     } else return;
   }, [isSuccess, isError]);
 
-  function onSubmit(userData: UserSubmitData){
+  function onSubmit(userData: UserSubmitData) {
     login(userData)
   }
 
   useEffect(() => {
-    if (location.state?.previousUrl === "/reg"){
+    if (location.state?.previousUrl === "/reg") {
       setIsRegister(true)
     }
   }, []);
@@ -62,22 +62,38 @@ const SignInForm: React.FC = () => {
       <div className="login">
         <form onSubmit={handleSubmit(onSubmit)}>
           {isRegister && (
-                          <div className="alert alert-success" role="alert">
-                          {"you have been successfully registered"}
-                          </div>
-                         )
-          }
+            <div className="alert alert-success" role="alert">
+              {"you have been successfully registered"}
+            </div>
+          )}
+
           <div className="form-group">
-            <input id="username" type="username" required={true} {...register("username")}></input>
-          </div>
-          <div className="form-group">
-            <label>Your password</label>
-            <input  id="password" className={`form-control ${errors.password ? "is-invalid" : ""}`} {...register("password")}
+            <label>Login</label>
+            <input
+              id="username"
+              className="form-control"
+              type="username"
+              required={true}
+              {...register("username")}
             ></input>
           </div>
-          <button type="submit">Submit</button>
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              id="password"
+              className={`form-control ${errors.password ? "is-invalid" : ""}`}
+              {...register("password")}
+            ></input>
+          </div>
+          <div className="form-group">
+            <button type="submit" className="btn">
+              Submit
+            </button>
+          </div>
           {errors.root && (
+            <div className="error-message">
               <small className="text-danger">{errors.root.message}</small>
+            </div>
           )}
         </form>
       </div>

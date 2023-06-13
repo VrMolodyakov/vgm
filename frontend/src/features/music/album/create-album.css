@@ -1,8 +1,12 @@
 .album-from {
-  background-color: #f2f2f2;
+  background-color: #070975f1;
+  color: aliceblue;
   padding: 20px;
   max-width: 400px;
-  margin: 750px auto 0; /* Здесь значение margin-top увеличено на 200px */
+  margin: 0px auto 0; /* Здесь значение margin-top увеличено на 200px */
+  height: 100vh; /* Высота по размеру экрана */
+  overflow-y: scroll;
+  padding-bottom: 80px;
 }
 
 .album-from input[type="text"],

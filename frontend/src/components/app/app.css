@@ -1,6 +1,15 @@
 body {
-    background: #012c57de;
+    background: linear-gradient(rgb(0, 162, 255), rgba(13, 47, 160, 0.651)), url('../../assets/background-image.jpg');
+    background-blend-mode: overlay;
+    background-repeat: no-repeat;
+    overflow-y: hidden;
 }
+
+.header {
+    height: 100px; /* Примерная высота шапки */
+    background-color: #080c1c; /* Цвет шапки */
+    z-index: 1; /* Установка z-index, чтобы шапка оставалась наверху */
+  }
 
 .App {
     display: flex;
@@ -8,12 +17,13 @@ body {
     flex-direction: column;
     height: 100vh;
     margin: 0 auto;
+    
 }
 
 .navbar {
-    background-color: black;
+    background-color: #151743;
 }
 
 .navbar .nav-link {
-    color: white;
+    color: #dbdac0;
 }

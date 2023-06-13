@@ -13,9 +13,13 @@
   display: flex;
   justify-content: flex-start;
   width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: rgb(21 23 38 / 83%);
 }
 
 .release h2 {
+  color: #dbdac0;
   font-size: 25px;
   margin-top: 20px;
   text-align: left;

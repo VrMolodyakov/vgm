@@ -7,7 +7,8 @@
 .album-card .album-image img {
   width: 60px;
   height: 60px;
-  border: 2px solid rgba(63, 61, 202, 0.781); /* Измените толщину и цвет рамки */
+  border: 3px solid rgb(153, 152, 152); 
+  border-style: inset;
   margin-right: 10px;
 }
 
@@ -16,13 +17,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   width: 45px;
   height: 50px;
   border: 1px solid rgb(46, 32, 32);
-  background-color: rgb(141, 193, 241);
+  background-color: rgb(24, 54, 110);
   margin-top: 25px;
   margin-left: 8px;
   border-radius: 4px;
+  color: #788888;
 
 }
 
@@ -31,9 +34,9 @@
   align-items: center;
   padding: 10px;
   width: 100%;
-  border: 1px solid #ccc;
+  border: 1px solid #15295ed7;
   border-radius: 5px;
-  background-color: rgb(1, 100, 165);
+  background-color: #354e79c4
 }
 
 .album-image img {

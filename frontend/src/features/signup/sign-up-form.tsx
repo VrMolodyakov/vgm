@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import {validationSchema} from "./validate-scheme"
+import { validationSchema } from "./validate-scheme"
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./sign-up-form.css"
 import { useUserRegister } from '../auth/hooks/use-auth';
@@ -14,14 +14,14 @@ type UserSubmitForm = {
 }
 
 type UserRequest = {
-  username:string
-  email:string
-  password:string
-  role:string
+  username: string
+  email: string
+  password: string
+  role: string
 }
 
 const SignUpForm: React.FC = () => {
-  const {mutate: reg, isSuccess, isError } = useUserRegister()
+  const { mutate: reg, isSuccess, isError } = useUserRegister()
   const {
     register,
     handleSubmit,
@@ -31,14 +31,14 @@ const SignUpForm: React.FC = () => {
     resolver: yupResolver(validationSchema)
   });
   //TODO: react-query
-  async function onSubmit(data: UserSubmitForm){
+  async function onSubmit(data: UserSubmitForm) {
     console.log(JSON.stringify(data, null, 2));
 
-    let newUser:UserRequest = {
-      username:data.username,
-      email:data.email,
-      password:data.password,
-      role:"user"
+    let newUser: UserRequest = {
+      username: data.username,
+      email: data.email,
+      password: data.password,
+      role: "user"
     }
     reg(newUser)
   };
@@ -59,7 +59,6 @@ const SignUpForm: React.FC = () => {
 
           <div className="form-group">
             <label>Email</label>
-            <i className="fa-solid fa-envelope"></i>
             <input
               type="text"
               {...register('email')}
@@ -77,27 +76,28 @@ const SignUpForm: React.FC = () => {
             />
             <div className="invalid-feedback">{errors.password?.message}</div>
           </div>
+
           <div className="form-group">
             <label>Confirm Password</label>
             <input
               type="password"
               {...register('confirmPassword')}
-              className={`form-control ${
-                errors.confirmPassword ? 'is-invalid' : ''
-              }`}
+              className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''
+                }`}
             />
             <div className="invalid-feedback">
               {errors.confirmPassword?.message}
             </div>
           </div>
-          <div className="form-group">
-            <button type="submit" className="btn btn-primary">
+
+          <div className="button-group">
+            <button type="submit" className="btn btn-primary btn-wide">
               Register
             </button>
             <button
               type="button"
               onClick={() => reset()}
-              className="btn btn-warning float-right"
+              className="btn btn-warning btn-wide"
             >
               Reset
             </button>
@@ -105,6 +105,7 @@ const SignUpForm: React.FC = () => {
         </form>
       </div>
     </div>
+
   );
 };
 
