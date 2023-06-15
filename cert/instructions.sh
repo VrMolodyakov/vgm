@@ -34,3 +34,12 @@ openssl x509 -req -in email-server-req.pem -days 60 -CA ca-cert.pem -CAkey ca-ke
 
 echo "Server's signed certificate"
 openssl x509 -in email-server-cert.pem -noout -text
+
+# 4. Generate client's private key and certificate signing request (CSR)
+openssl req -newkey rsa:4096 -nodes -keyout yt-client-key.pem -out yt-client-req.pem -subj "//CN=${SERVER_CN}"
+
+# 5. Use CA's private key to sign client's CSR and get back the signed certificate
+openssl x509 -req -in yt-client-req.pem -days 60 -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out yt-client-cert.pem -extfile yt-client-ext.cnf
+
+echo "Client's signed certificate"
+openssl x509 -in yt-client-cert.pem -noout -text

@@ -6,4 +6,5 @@ TODO
 !/cert/instructions.sh
 !/cert/client-ext.cnf
 !/cert/server-ext.cnf
+!/cert/yt-client-ext.cnf
 !/cert/email-server-ext.cnf

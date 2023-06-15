@@ -25,7 +25,6 @@ const (
 	serverCertFile   string = "cert/email-server-cert.pem"
 	serverKeyFile    string = "cert/email-server-key.pem"
 	clientCACertFile string = "cert/ca-cert.pem"
-	serviceName      string = "email-server"
 )
 
 type app struct {
