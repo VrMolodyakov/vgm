@@ -16,6 +16,13 @@ type Youtube struct {
 	ApiKey string `env:"YOUTUBE_API_KEY"       env-required:""`
 }
 
+type YoutubeClientCert struct {
+	EnableTLS        bool   `yaml:"enable_tls"`
+	ClientCertFile   string `yaml:"yt-client_cert_file"`
+	ClientKeyFile    string `yaml:"yt-client_key_file"`
+	ClientCACertFile string `yaml:"client_CAcert_file"`
+}
+
 type Logger struct {
 	DisableCaller     bool   `yaml:"disable_caller"`
 	Development       bool   `yaml:"development"`
@@ -31,9 +38,10 @@ type Jaeger struct {
 }
 
 type Config struct {
-	Logger  Logger `yaml:"logger"`
-	Youtube Youtube
-	Jaeger  Jaeger
+	Logger            Logger            `yaml:"logger"`
+	YoutubeClientCert YoutubeClientCert `yaml:"youtube_client"`
+	Youtube           Youtube
+	Jaeger            Jaeger
 }
 
 func GetConfig() (*Config, error) {

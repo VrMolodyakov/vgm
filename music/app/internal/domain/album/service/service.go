@@ -89,3 +89,13 @@ func (s *albumService) GetDays(ctx context.Context, count uint64) ([]int64, erro
 	}
 	return unix, nil
 }
+
+func (s *albumService) GetRandom(ctx context.Context, count uint64) ([]string, error) {
+	ctx, span := tracer.Start(ctx, "service.GetRandom")
+	defer span.End()
+	titles, err := s.albumRepo.GetRandom(ctx, count)
+	if err != nil {
+		return nil, err
+	}
+	return titles, nil
+}

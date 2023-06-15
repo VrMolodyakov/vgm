@@ -26,6 +26,7 @@ type Album interface {
 	Tx(ctx context.Context, action func(txRepo Album) error) error
 	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumPreview, error)
 	GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, error)
+	GetRandom(ctx context.Context, limit uint64) ([]string, error)
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
@@ -385,7 +386,7 @@ func (r *repo) Create(ctx context.Context, album model.Album) error {
 }
 
 func (r *repo) GetLastDays(ctx context.Context, limit uint64) ([]time.Time, error) {
-	ctx, span := tracer.Start(ctx, "repo.UpdateInfo")
+	ctx, span := tracer.Start(ctx, "repo.GetLastDays")
 	defer span.End()
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
@@ -420,7 +421,42 @@ func (r *repo) GetLastDays(ctx context.Context, limit uint64) ([]time.Time, erro
 	}
 	return dates, nil
 }
-
+func (r *repo) GetRandom(ctx context.Context, limit uint64) ([]string, error) {
+	ctx, span := tracer.Start(ctx, "repo.GetRandom")
+	defer span.End()
+	logger := logging.LoggerFromContext(ctx)
+	query := r.queryBuilder.
+		Select("title").
+		Distinct().
+		From(table).Where("random() < 0.01").
+		Limit(limit)
+	sql, args, err := query.ToSql()
+	logger.Infow(table, sql, args)
+	if err != nil {
+		err = errors.NewInternal(db.ErrCreateQuery(err), "create query")
+		logger.Error(err.Error())
+		return nil, err
+	}
+	rows, queryErr := r.Conn().Query(ctx, sql, args...)
+	if queryErr != nil {
+		err = errors.NewInternal(db.ErrCreateQuery(err), "do query")
+		logger.Error(err.Error())
+		return nil, err
+	}
+	titles := make([]string, limit)
+	for rows.Next() {
+		var title string
+		if queryErr = rows.Scan(
+			&title,
+		); queryErr != nil {
+			queryErr = db.ErrScan(queryErr)
+			logger.Error(queryErr.Error())
+			return nil, queryErr
+		}
+		titles = append(titles, title)
+	}
+	return titles, nil
+}
 func (r *repo) insertMap(table string, storageMap map[string]interface{}) (string, []interface{}, error) {
 	return r.queryBuilder.
 		Insert(table).

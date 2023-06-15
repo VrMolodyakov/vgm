@@ -22,15 +22,15 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MusicServiceClient interface {
-	CreateAlbum(ctx context.Context, in *CreateAlbumRequest, opts ...grpc.CallOption) (*CreateAlbumResponse, error)
-	FindAlbum(ctx context.Context, in *FindAlbumRequest, opts ...grpc.CallOption) (*FindAlbumResponse, error)
-	DeleteAlbum(ctx context.Context, in *DeleteAlbumRequest, opts ...grpc.CallOption) (*DeleteAlbumResponse, error)
-	UpdateAlbum(ctx context.Context, in *UpdateAlbumRequest, opts ...grpc.CallOption) (*UpdateAlbumResponse, error)
 	FindFullAlbum(ctx context.Context, in *FindFullAlbumRequest, opts ...grpc.CallOption) (*FindFullAlbumResponse, error)
 	FindLastDats(ctx context.Context, in *FindLastDatsRequest, opts ...grpc.CallOption) (*FindLastDatsResponse, error)
 	FindAllAlbums(ctx context.Context, in *FindAllAlbumsRequest, opts ...grpc.CallOption) (*FindAllAlbumsResponse, error)
 	FindAllPersons(ctx context.Context, in *FindAllPersonsRequest, opts ...grpc.CallOption) (*FindAllPersonsResponse, error)
+	FindRandomTitles(ctx context.Context, in *FindRandomTitlesRequest, opts ...grpc.CallOption) (*FindRandomTitlesResponse, error)
+	CreateAlbum(ctx context.Context, in *CreateAlbumRequest, opts ...grpc.CallOption) (*CreateAlbumResponse, error)
 	CreatePerson(ctx context.Context, in *CreatePersonRequest, opts ...grpc.CallOption) (*CreatePersonResponse, error)
+	DeleteAlbum(ctx context.Context, in *DeleteAlbumRequest, opts ...grpc.CallOption) (*DeleteAlbumResponse, error)
+	UpdateAlbum(ctx context.Context, in *UpdateAlbumRequest, opts ...grpc.CallOption) (*UpdateAlbumResponse, error)
 }
 
 type musicServiceClient struct {
@@ -39,42 +39,6 @@ type musicServiceClient struct {
 
 func NewMusicServiceClient(cc grpc.ClientConnInterface) MusicServiceClient {
 	return &musicServiceClient{cc}
-}
-
-func (c *musicServiceClient) CreateAlbum(ctx context.Context, in *CreateAlbumRequest, opts ...grpc.CallOption) (*CreateAlbumResponse, error) {
-	out := new(CreateAlbumResponse)
-	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/CreateAlbum", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *musicServiceClient) FindAlbum(ctx context.Context, in *FindAlbumRequest, opts ...grpc.CallOption) (*FindAlbumResponse, error) {
-	out := new(FindAlbumResponse)
-	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/FindAlbum", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *musicServiceClient) DeleteAlbum(ctx context.Context, in *DeleteAlbumRequest, opts ...grpc.CallOption) (*DeleteAlbumResponse, error) {
-	out := new(DeleteAlbumResponse)
-	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/DeleteAlbum", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *musicServiceClient) UpdateAlbum(ctx context.Context, in *UpdateAlbumRequest, opts ...grpc.CallOption) (*UpdateAlbumResponse, error) {
-	out := new(UpdateAlbumResponse)
-	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/UpdateAlbum", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *musicServiceClient) FindFullAlbum(ctx context.Context, in *FindFullAlbumRequest, opts ...grpc.CallOption) (*FindFullAlbumResponse, error) {
@@ -113,9 +77,45 @@ func (c *musicServiceClient) FindAllPersons(ctx context.Context, in *FindAllPers
 	return out, nil
 }
 
+func (c *musicServiceClient) FindRandomTitles(ctx context.Context, in *FindRandomTitlesRequest, opts ...grpc.CallOption) (*FindRandomTitlesResponse, error) {
+	out := new(FindRandomTitlesResponse)
+	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/FindRandomTitles", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *musicServiceClient) CreateAlbum(ctx context.Context, in *CreateAlbumRequest, opts ...grpc.CallOption) (*CreateAlbumResponse, error) {
+	out := new(CreateAlbumResponse)
+	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/CreateAlbum", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *musicServiceClient) CreatePerson(ctx context.Context, in *CreatePersonRequest, opts ...grpc.CallOption) (*CreatePersonResponse, error) {
 	out := new(CreatePersonResponse)
 	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/CreatePerson", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *musicServiceClient) DeleteAlbum(ctx context.Context, in *DeleteAlbumRequest, opts ...grpc.CallOption) (*DeleteAlbumResponse, error) {
+	out := new(DeleteAlbumResponse)
+	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/DeleteAlbum", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *musicServiceClient) UpdateAlbum(ctx context.Context, in *UpdateAlbumRequest, opts ...grpc.CallOption) (*UpdateAlbumResponse, error) {
+	out := new(UpdateAlbumResponse)
+	err := c.cc.Invoke(ctx, "/proto.music_service.album.v1.MusicService/UpdateAlbum", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -126,15 +126,15 @@ func (c *musicServiceClient) CreatePerson(ctx context.Context, in *CreatePersonR
 // All implementations must embed UnimplementedMusicServiceServer
 // for forward compatibility
 type MusicServiceServer interface {
-	CreateAlbum(context.Context, *CreateAlbumRequest) (*CreateAlbumResponse, error)
-	FindAlbum(context.Context, *FindAlbumRequest) (*FindAlbumResponse, error)
-	DeleteAlbum(context.Context, *DeleteAlbumRequest) (*DeleteAlbumResponse, error)
-	UpdateAlbum(context.Context, *UpdateAlbumRequest) (*UpdateAlbumResponse, error)
 	FindFullAlbum(context.Context, *FindFullAlbumRequest) (*FindFullAlbumResponse, error)
 	FindLastDats(context.Context, *FindLastDatsRequest) (*FindLastDatsResponse, error)
 	FindAllAlbums(context.Context, *FindAllAlbumsRequest) (*FindAllAlbumsResponse, error)
 	FindAllPersons(context.Context, *FindAllPersonsRequest) (*FindAllPersonsResponse, error)
+	FindRandomTitles(context.Context, *FindRandomTitlesRequest) (*FindRandomTitlesResponse, error)
+	CreateAlbum(context.Context, *CreateAlbumRequest) (*CreateAlbumResponse, error)
 	CreatePerson(context.Context, *CreatePersonRequest) (*CreatePersonResponse, error)
+	DeleteAlbum(context.Context, *DeleteAlbumRequest) (*DeleteAlbumResponse, error)
+	UpdateAlbum(context.Context, *UpdateAlbumRequest) (*UpdateAlbumResponse, error)
 	mustEmbedUnimplementedMusicServiceServer()
 }
 
@@ -142,18 +142,6 @@ type MusicServiceServer interface {
 type UnimplementedMusicServiceServer struct {
 }
 
-func (UnimplementedMusicServiceServer) CreateAlbum(context.Context, *CreateAlbumRequest) (*CreateAlbumResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateAlbum not implemented")
-}
-func (UnimplementedMusicServiceServer) FindAlbum(context.Context, *FindAlbumRequest) (*FindAlbumResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindAlbum not implemented")
-}
-func (UnimplementedMusicServiceServer) DeleteAlbum(context.Context, *DeleteAlbumRequest) (*DeleteAlbumResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteAlbum not implemented")
-}
-func (UnimplementedMusicServiceServer) UpdateAlbum(context.Context, *UpdateAlbumRequest) (*UpdateAlbumResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateAlbum not implemented")
-}
 func (UnimplementedMusicServiceServer) FindFullAlbum(context.Context, *FindFullAlbumRequest) (*FindFullAlbumResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindFullAlbum not implemented")
 }
@@ -166,8 +154,20 @@ func (UnimplementedMusicServiceServer) FindAllAlbums(context.Context, *FindAllAl
 func (UnimplementedMusicServiceServer) FindAllPersons(context.Context, *FindAllPersonsRequest) (*FindAllPersonsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAllPersons not implemented")
 }
+func (UnimplementedMusicServiceServer) FindRandomTitles(context.Context, *FindRandomTitlesRequest) (*FindRandomTitlesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindRandomTitles not implemented")
+}
+func (UnimplementedMusicServiceServer) CreateAlbum(context.Context, *CreateAlbumRequest) (*CreateAlbumResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAlbum not implemented")
+}
 func (UnimplementedMusicServiceServer) CreatePerson(context.Context, *CreatePersonRequest) (*CreatePersonResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePerson not implemented")
+}
+func (UnimplementedMusicServiceServer) DeleteAlbum(context.Context, *DeleteAlbumRequest) (*DeleteAlbumResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAlbum not implemented")
+}
+func (UnimplementedMusicServiceServer) UpdateAlbum(context.Context, *UpdateAlbumRequest) (*UpdateAlbumResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAlbum not implemented")
 }
 func (UnimplementedMusicServiceServer) mustEmbedUnimplementedMusicServiceServer() {}
 
@@ -180,78 +180,6 @@ type UnsafeMusicServiceServer interface {
 
 func RegisterMusicServiceServer(s grpc.ServiceRegistrar, srv MusicServiceServer) {
 	s.RegisterService(&MusicService_ServiceDesc, srv)
-}
-
-func _MusicService_CreateAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateAlbumRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MusicServiceServer).CreateAlbum(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.music_service.album.v1.MusicService/CreateAlbum",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MusicServiceServer).CreateAlbum(ctx, req.(*CreateAlbumRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MusicService_FindAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FindAlbumRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MusicServiceServer).FindAlbum(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.music_service.album.v1.MusicService/FindAlbum",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MusicServiceServer).FindAlbum(ctx, req.(*FindAlbumRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MusicService_DeleteAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteAlbumRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MusicServiceServer).DeleteAlbum(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.music_service.album.v1.MusicService/DeleteAlbum",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MusicServiceServer).DeleteAlbum(ctx, req.(*DeleteAlbumRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _MusicService_UpdateAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateAlbumRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MusicServiceServer).UpdateAlbum(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.music_service.album.v1.MusicService/UpdateAlbum",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MusicServiceServer).UpdateAlbum(ctx, req.(*UpdateAlbumRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _MusicService_FindFullAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -326,6 +254,42 @@ func _MusicService_FindAllPersons_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MusicService_FindRandomTitles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindRandomTitlesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MusicServiceServer).FindRandomTitles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.music_service.album.v1.MusicService/FindRandomTitles",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MusicServiceServer).FindRandomTitles(ctx, req.(*FindRandomTitlesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MusicService_CreateAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAlbumRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MusicServiceServer).CreateAlbum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.music_service.album.v1.MusicService/CreateAlbum",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MusicServiceServer).CreateAlbum(ctx, req.(*CreateAlbumRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MusicService_CreatePerson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreatePersonRequest)
 	if err := dec(in); err != nil {
@@ -344,6 +308,42 @@ func _MusicService_CreatePerson_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MusicService_DeleteAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAlbumRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MusicServiceServer).DeleteAlbum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.music_service.album.v1.MusicService/DeleteAlbum",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MusicServiceServer).DeleteAlbum(ctx, req.(*DeleteAlbumRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MusicService_UpdateAlbum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAlbumRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MusicServiceServer).UpdateAlbum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.music_service.album.v1.MusicService/UpdateAlbum",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MusicServiceServer).UpdateAlbum(ctx, req.(*UpdateAlbumRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MusicService_ServiceDesc is the grpc.ServiceDesc for MusicService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -351,22 +351,6 @@ var MusicService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.music_service.album.v1.MusicService",
 	HandlerType: (*MusicServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateAlbum",
-			Handler:    _MusicService_CreateAlbum_Handler,
-		},
-		{
-			MethodName: "FindAlbum",
-			Handler:    _MusicService_FindAlbum_Handler,
-		},
-		{
-			MethodName: "DeleteAlbum",
-			Handler:    _MusicService_DeleteAlbum_Handler,
-		},
-		{
-			MethodName: "UpdateAlbum",
-			Handler:    _MusicService_UpdateAlbum_Handler,
-		},
 		{
 			MethodName: "FindFullAlbum",
 			Handler:    _MusicService_FindFullAlbum_Handler,
@@ -384,8 +368,24 @@ var MusicService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MusicService_FindAllPersons_Handler,
 		},
 		{
+			MethodName: "FindRandomTitles",
+			Handler:    _MusicService_FindRandomTitles_Handler,
+		},
+		{
+			MethodName: "CreateAlbum",
+			Handler:    _MusicService_CreateAlbum_Handler,
+		},
+		{
 			MethodName: "CreatePerson",
 			Handler:    _MusicService_CreatePerson_Handler,
+		},
+		{
+			MethodName: "DeleteAlbum",
+			Handler:    _MusicService_DeleteAlbum_Handler,
+		},
+		{
+			MethodName: "UpdateAlbum",
+			Handler:    _MusicService_UpdateAlbum_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -92,3 +92,9 @@ func (p *albumPolicy) GetLastDays(ctx context.Context, count uint64) ([]int64, e
 	defer span.End()
 	return p.albumService.GetDays(ctx, count)
 }
+
+func (p *albumPolicy) GetRandomTitles(ctx context.Context, count uint64) ([]string, error) {
+	ctx, span := tracer.Start(ctx, "policy.GetRandomTitles")
+	defer span.End()
+	return p.albumService.GetRandom(ctx, count)
+}

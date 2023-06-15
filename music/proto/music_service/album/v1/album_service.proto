@@ -9,15 +9,15 @@ import "proto/filter/v1/filter.proto";
 
 
 service MusicService {
-    rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
-    rpc FindAlbum(FindAlbumRequest) returns (FindAlbumResponse) {}
-    rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteAlbumResponse) {}
-    rpc UpdateAlbum(UpdateAlbumRequest) returns (UpdateAlbumResponse) {}
     rpc FindFullAlbum(FindFullAlbumRequest) returns (FindFullAlbumResponse) {}
     rpc FindLastDats(FindLastDatsRequest) returns (FindLastDatsResponse) {}
     rpc FindAllAlbums(FindAllAlbumsRequest) returns (FindAllAlbumsResponse) {}
     rpc FindAllPersons(FindAllPersonsRequest) returns (FindAllPersonsResponse) {}
+    rpc FindRandomTitles(FindRandomTitlesRequest) returns (FindRandomTitlesResponse) {}
+    rpc CreateAlbum(CreateAlbumRequest) returns (CreateAlbumResponse) {}
     rpc CreatePerson(CreatePersonRequest) returns (CreatePersonResponse) {}
+    rpc DeleteAlbum(DeleteAlbumRequest) returns (DeleteAlbumResponse) {}
+    rpc UpdateAlbum(UpdateAlbumRequest) returns (UpdateAlbumResponse) {}
 }
 
 message FindAllPersonsRequest{
@@ -157,4 +157,11 @@ message FindLastDatsRequest{
 }
 message FindLastDatsResponse{
     repeated int64 created_at = 1;
+}
+
+message FindRandomTitlesRequest{
+    uint64 count = 1;
+}
+message FindRandomTitlesResponse{
+    repeated string titles = 1;
 }

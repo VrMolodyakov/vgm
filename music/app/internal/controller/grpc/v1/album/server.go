@@ -14,10 +14,11 @@ import (
 type AlbumPolicy interface {
 	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]albumModel.AlbumPreview, error)
 	GetOne(ctx context.Context, albumID string) (albumModel.FullAlbum, error)
+	GetRandomTitles(ctx context.Context, count uint64) ([]string, error)
+	GetLastDays(ctx context.Context, count uint64) ([]int64, error)
 	Create(ctx context.Context, album albumModel.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album albumModel.AlbumView) error
-	GetLastDays(ctx context.Context, count uint64) ([]int64, error)
 }
 
 type PersonPolicy interface {

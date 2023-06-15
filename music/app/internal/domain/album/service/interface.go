@@ -15,10 +15,11 @@ type AlbumRepo interface {
 	Tx(ctx context.Context, action func(txRepo repository.Album) error) error
 	GetAll(ctx context.Context, filtering filter.Filterable, sorting sort.Sortable) ([]model.AlbumPreview, error)
 	GetInfo(ctx context.Context, albumID string) (model.AlbumInfo, error)
+	GetRandom(ctx context.Context, limit uint64) ([]string, error)
+	GetLastDays(ctx context.Context, limit uint64) ([]time.Time, error)
 	Create(ctx context.Context, album model.Album) error
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, album model.AlbumView) error
-	GetLastDays(ctx context.Context, limit uint64) ([]time.Time, error)
 }
 
 type Transactor interface {

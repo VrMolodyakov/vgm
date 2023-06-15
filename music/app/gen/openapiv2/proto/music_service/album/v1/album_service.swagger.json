@@ -161,14 +161,6 @@
     "v1DeleteAlbumResponse": {
       "type": "object"
     },
-    "v1FindAlbumResponse": {
-      "type": "object",
-      "properties": {
-        "album": {
-          "$ref": "#/definitions/v1Album"
-        }
-      }
-    },
     "v1FindAllAlbumsResponse": {
       "type": "object",
       "properties": {
@@ -222,6 +214,17 @@
           "items": {
             "type": "string",
             "format": "int64"
+          }
+        }
+      }
+    },
+    "v1FindRandomTitlesResponse": {
+      "type": "object",
+      "properties": {
+        "titles": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       }

@@ -162,3 +162,16 @@ func (s *server) FindLastDats(ctx context.Context, request *albumPb.FindLastDats
 		CreatedAt: createdAt,
 	}, nil
 }
+
+func (s *server) FindRandomTitles(ctx context.Context, request *albumPb.FindRandomTitlesRequest) (*albumPb.FindRandomTitlesResponse, error) {
+	ctx, span := tracer.Start(ctx, "server.FindLastDats")
+	defer span.End()
+	limit := request.GetCount()
+	titles, err := s.albumPolicy.GetRandomTitles(ctx, limit)
+	if err != nil {
+		return nil, err
+	}
+	return &albumPb.FindRandomTitlesResponse{
+		Titles: titles,
+	}, nil
+}
