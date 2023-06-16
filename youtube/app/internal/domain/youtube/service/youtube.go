@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"google.golang.org/api/youtube/v3"
@@ -20,7 +21,7 @@ func NewYoutubeService(youtube *youtube.Service) *youtubeService {
 	}
 }
 
-func (s *youtubeService) GetVideoIDByTitle(videoTitle string) (string, error) {
+func (s *youtubeService) GetVideoIDByTitle(ctx context.Context, videoTitle string) (string, error) {
 	searchResponse, err := s.youtube.Search.List([]string{"id"}).Q(videoTitle).MaxResults(1).Do()
 	if err != nil {
 		return "", fmt.Errorf("error executing search query: %v", err)

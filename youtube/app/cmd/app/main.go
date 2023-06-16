@@ -2,23 +2,36 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
-	"github.com/VrMolodyakov/vgm/youtube/internal/domain/youtube/service"
-	"github.com/VrMolodyakov/vgm/youtube/pkg/youtube"
+	"github.com/VrMolodyakov/vgm/youtube/internal/app"
 )
 
 func main() {
 	ctx := context.Background()
-	client, err := youtube.NewYoutubeClient(ctx, "AIzaSyA0lomsxxv-ffFkukOcA5QINXtIOF0kEUc")
-	if err != nil {
-		log.Fatal(err)
+	a := app.New()
+
+	defer func() {
+		a.Close(ctx)
+	}()
+
+	if err := a.ReadConfig(); err != nil {
+		log.Fatal(err, "read config")
+		return
 	}
-	s := service.NewYoutubeService(client)
-	id, err := s.GetVideoIDByTitle("street fighter 3 album")
-	if err != nil {
-		log.Fatal(err)
+
+	a.InitLogger()
+
+	if err := a.InitTracer(); err != nil {
+		log.Fatal(err, "init tracer")
+		return
 	}
-	fmt.Println(id)
+
+	if err := a.Setup(ctx); err != nil {
+		log.Fatal(err, "setup dependencies")
+		return
+	}
+
+	a.Start(ctx)
+
 }

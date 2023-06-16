@@ -34,5 +34,4 @@ func main() {
 
 	a.StartSubscriber(ctx)
 	a.Start(ctx)
-
 }

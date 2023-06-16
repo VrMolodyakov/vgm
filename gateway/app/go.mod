@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/VrMolodyakov/vgm/email/app v0.0.0-20230405203532-2865d2463bd9
-	github.com/VrMolodyakov/vgm/music/app v0.0.0-20230608202006-b8229bdc9899
+	github.com/VrMolodyakov/vgm/music/app v0.0.0-20230615231818-eb51afa13ad1
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/jackc/pgconn v1.14.0
@@ -15,8 +15,8 @@ require (
 	github.com/worldline-go/struct2 v1.2.3
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.40.0
 	go.uber.org/zap v1.24.0
-	golang.org/x/crypto v0.8.0
-	google.golang.org/grpc v1.55.0
+	golang.org/x/crypto v0.10.0
+	google.golang.org/grpc v1.56.0
 )
 
 require (
@@ -72,10 +72,10 @@ require (
 	go.opentelemetry.io/contrib v1.0.0 // indirect
 	go.opentelemetry.io/otel/metric v0.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
-	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/net v0.11.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/text v0.10.0 // indirect
 	google.golang.org/genproto v0.0.0-20230525234025-438c736192d0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/protobuf v1.30.0 // indirect

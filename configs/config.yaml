@@ -28,6 +28,10 @@ music_server:
   read_timeout: 15
   write_timeout: 15
 
+youtube_server:
+  read_timeout: 15
+  write_timeout: 15
+
 logger:
   disable_caller: false
   development: true
