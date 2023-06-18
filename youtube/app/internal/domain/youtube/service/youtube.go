@@ -35,3 +35,45 @@ func (s *youtubeService) GetVideoIDByTitle(ctx context.Context, videoTitle strin
 
 	return "", nil
 }
+
+func (s *youtubeService) CreatePlaylist(title string) (string, error) {
+	playlist := &youtube.Playlist{
+		Snippet: &youtube.PlaylistSnippet{
+			Title: title,
+		},
+		Status: &youtube.PlaylistStatus{
+			PrivacyStatus: "public",
+		},
+	}
+
+	playlistResponse, err := s.youtube.Playlists.Insert([]string{"snippet,status"}, playlist).Do()
+	if err != nil {
+		return "", fmt.Errorf("create playlist error: %v", err)
+	}
+
+	playlistID := playlistResponse.Id
+	playlistURL := fmt.Sprintf("https://www.youtube.com/playlist?list=%s", playlistID)
+
+	return playlistURL, nil
+}
+
+func (s *youtubeService) AddVideosToPlaylist(playlistID string, videoIDs []string) error {
+	for _, videoID := range videoIDs {
+		playlistItem := &youtube.PlaylistItem{
+			Snippet: &youtube.PlaylistItemSnippet{
+				PlaylistId: playlistID,
+				ResourceId: &youtube.ResourceId{
+					Kind:    "youtube#video",
+					VideoId: videoID,
+				},
+			},
+		}
+
+		_, err := s.youtube.PlaylistItems.Insert([]string{"snippet"}, playlistItem).Do()
+		if err != nil {
+			return fmt.Errorf("cannot add to playlist due to: %v", err)
+		}
+	}
+
+	return nil
+}

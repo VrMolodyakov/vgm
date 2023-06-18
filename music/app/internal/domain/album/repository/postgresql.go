@@ -2,6 +2,7 @@ package reposotory
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -427,8 +428,8 @@ func (r *repo) GetRandom(ctx context.Context, limit uint64) ([]string, error) {
 	logger := logging.LoggerFromContext(ctx)
 	query := r.queryBuilder.
 		Select("title").
-		Distinct().
-		From(table).Where("random() < 0.01").
+		From(table).
+		OrderBy("random()").
 		Limit(limit)
 	sql, args, err := query.ToSql()
 	logger.Infow(table, sql, args)
@@ -444,6 +445,7 @@ func (r *repo) GetRandom(ctx context.Context, limit uint64) ([]string, error) {
 		return nil, err
 	}
 	titles := make([]string, limit)
+	var i int
 	for rows.Next() {
 		var title string
 		if queryErr = rows.Scan(
@@ -453,8 +455,10 @@ func (r *repo) GetRandom(ctx context.Context, limit uint64) ([]string, error) {
 			logger.Error(queryErr.Error())
 			return nil, queryErr
 		}
-		titles = append(titles, title)
+		titles[i] = title
+		i++
 	}
+	fmt.Println(titles, len(titles))
 	return titles, nil
 }
 func (r *repo) insertMap(table string, storageMap map[string]interface{}) (string, []interface{}, error) {

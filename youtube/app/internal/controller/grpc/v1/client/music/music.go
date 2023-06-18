@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"github.com/VrMolodyakov/vgm/gateway/pkg/logging"
 	albumPb "github.com/VrMolodyakov/vgm/music/app/gen/go/proto/music_service/album/v1"
 	"github.com/VrMolodyakov/vgm/youtube/internal/controller/grpc/v1/client"
+	"github.com/VrMolodyakov/vgm/youtube/pkg/logging"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
@@ -19,15 +19,17 @@ var (
 
 type musicClient struct {
 	target string
+	logger logging.Logger
 	client albumPb.MusicServiceClient
 }
 
-func NewMusicClient(target string) *musicClient {
+func NewMusicClient(target string, logger logging.Logger) *musicClient {
 	if target == "" {
 		log.Fatalln("Error in Access to GRPC URL in music client")
 	}
 	return &musicClient{
 		target: target,
+		logger: logger,
 	}
 }
 
@@ -63,13 +65,12 @@ func (m *musicClient) FindRandomTitles(ctx context.Context, count uint64) ([]str
 	ctx, span := tracer.Start(ctx, "client.FindRandomTitles")
 	defer span.End()
 
-	logger := logging.LoggerFromContext(ctx)
 	request := albumPb.FindRandomTitlesRequest{
 		Count: count,
 	}
 	pb, err := m.client.FindRandomTitles(ctx, &request)
 	if err != nil {
-		logger.Error(err.Error())
+		m.logger.Error(err.Error())
 		return nil, err
 	}
 	return pb.GetTitles(), nil

@@ -8,11 +8,11 @@ import (
 )
 
 type LoggerCfg struct {
-	DisableCaller     bool   `yaml:"disable_caller"`
-	Development       bool   `yaml:"development"`
-	DisableStacktrace bool   `yaml:"disable_stacktrace"`
-	Encoding          string `yaml:"encoding"`
-	Level             string `yaml:"level"`
+	DisableCaller     bool
+	Development       bool
+	DisableStacktrace bool
+	Encoding          string
+	Level             string
 }
 
 // Logger methods interface

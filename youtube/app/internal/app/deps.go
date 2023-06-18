@@ -24,10 +24,12 @@ type Deps struct {
 
 func (d *Deps) Setup(ctx context.Context, cfg *config.Config, logger logging.Logger) error {
 	musicAddress := fmt.Sprintf("%s:%d", cfg.MusicGRPC.HostName, cfg.MusicGRPC.Port)
-	grpcMusicClient := music.NewMusicClient(musicAddress)
+	musicCerts := d.loadYoutubeClientCert(cfg.YoutubeClientCert)
+	grpcMusicClient := music.NewMusicClient(musicAddress, logger)
+	grpcMusicClient.StartWithTLS(musicCerts)
 	music := musicService.NewMusicService(grpcMusicClient, logger)
 
-	client, err := youtube.NewYoutubeClient(ctx, "")
+	client, err := youtube.NewYoutubeClient(ctx, cfg.Youtube.ApiKey)
 	if err != nil {
 		log.Fatal(err)
 	}

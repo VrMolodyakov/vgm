@@ -27,7 +27,7 @@ func NewServer(
 	router.Use(chiMiddleware.Recoverer)
 
 	router.Route("/youtube", func(r chi.Router) {
-		r.Post("/playlist", handler.CreatePlaylist)
+		r.Get("/playlist", handler.CreatePlaylist)
 	})
 
 	addr := fmt.Sprintf("%s:%d", cfg.IP, cfg.Port)

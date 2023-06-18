@@ -61,7 +61,7 @@ func (a *app) Start(ctx context.Context) {
 	defer stop()
 
 	go func() {
-		a.logger.Info("music server started on ", " addr ", a.cfg.YoutubeServer.Port)
+		a.logger.Info("youtube server started on ", " addr ", a.cfg.YoutubeServer.Port)
 		if err := a.deps.youtubeServer.ListenAndServe(); err != nil {
 			switch {
 			case errors.Is(err, http.ErrServerClosed):

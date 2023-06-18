@@ -33,8 +33,8 @@ type CORS struct {
 
 type YoutubeClientCert struct {
 	EnableTLS        bool   `yaml:"enable_tls"`
-	ClientCertFile   string `yaml:"yt-client_cert_file"`
-	ClientKeyFile    string `yaml:"yt-client_key_file"`
+	ClientCertFile   string `yaml:"client_cert_file"`
+	ClientKeyFile    string `yaml:"client_key_file"`
 	ClientCACertFile string `yaml:"client_CAcert_file"`
 }
 
