@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+	"strconv"
+	"strings"
 
-	"github.com/VrMolodyakov/vgm/youtube/internal/controller/http/v1/validator"
 	"github.com/VrMolodyakov/vgm/youtube/pkg/logging"
+	"github.com/go-chi/chi"
 	"go.opentelemetry.io/otel"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
@@ -15,7 +16,8 @@ import (
 )
 
 var (
-	tracer = otel.Tracer("youtube-http")
+	tracer          = otel.Tracer("youtube-http")
+	playlist string = "https://www.youtube.com/watch_videos?video_ids="
 )
 
 type youtubeHandler struct {
@@ -38,24 +40,15 @@ func NewYoutubeHandler(
 }
 
 func (y *youtubeHandler) CreatePlaylist(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("here")
 	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
-
-	var req CreatePlaylistReq
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, fmt.Sprintf("invalid request body: %s", err.Error()), http.StatusBadRequest)
+	limitStr := chi.URLParam(r, "limit")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-
-	errs := validator.Validate(req)
-	if errs != nil {
-		jsonErr, _ := json.Marshal(errs)
-		http.Error(w, string(jsonErr), http.StatusBadRequest)
-		return
-	}
-
-	titles, err := y.music.FindRandomTitles(ctx, req.Count)
+	titles, err := y.music.FindRandomTitles(ctx, uint64(limit))
 	if err != nil {
 		y.logger.Error(err.Error())
 		if e, ok := status.FromError(err); ok {
@@ -71,12 +64,6 @@ func (y *youtubeHandler) CreatePlaylist(w http.ResponseWriter, r *http.Request) 
 	}
 	g, ctx := errgroup.WithContext(ctx)
 	ids := make([]string, len(titles))
-	playlistTitle := fmt.Sprintf("random VGM playlist date = %s", generateDateString())
-	playlistID, err := y.youtube.CreatePlaylist(playlistTitle)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 	for i, title := range titles {
 		i, title := i, title
 		g.Go(func() error {
@@ -92,8 +79,14 @@ func (y *youtubeHandler) CreatePlaylist(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	y.youtube.AddVideosToPlaylist(playlistID, ids)
-	jsonResponse, err := json.Marshal(titles)
+	if empty := emptyPlaylist(ids); empty {
+		http.Error(w, "cannot collect video IDs", http.StatusNotFound)
+		return
+	}
+	resURL := createPlaylistUrl(playlist, ids)
+	var url CreatePlaylistRes
+	url.URL = resURL
+	jsonResponse, err := json.Marshal(url)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -103,8 +96,35 @@ func (y *youtubeHandler) CreatePlaylist(w http.ResponseWriter, r *http.Request) 
 	w.Write(jsonResponse)
 }
 
-func generateDateString() string {
-	currentTime := time.Now()
-	dateString := currentTime.Format("2006-01-02 15:04:05")
-	return dateString
+func createPlaylistUrl(playlistBase string, ids []string) string {
+	var sb strings.Builder
+	n := len(ids) + len(playlistBase)
+	for i := range ids {
+		n += len(ids[i])
+	}
+	sb.Grow(n)
+	sb.WriteString(playlistBase)
+	var i int
+	for ; i < len(ids); i++ {
+		if ids[i] != "" {
+			sb.WriteString(ids[i])
+			break
+		}
+	}
+	for i := i + 1; i < len(ids); i++ {
+		if ids[i] != "" {
+			sb.WriteString(",")
+			sb.WriteString(ids[i])
+		}
+	}
+	return sb.String()
+}
+
+func emptyPlaylist(ids []string) bool {
+	for _, id := range ids {
+		if id != "" {
+			return false
+		}
+	}
+	return true
 }

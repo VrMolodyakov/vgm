@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './features/auth/context/auth';
-import App from './components/app/app';
+import App from './app/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ClientProvider } from './features/music/client-provider/provider';
 

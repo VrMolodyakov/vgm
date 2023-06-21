@@ -52,5 +52,4 @@ export class MusicService {
                 return Promise.reject(err)
             })
     }
-
 }

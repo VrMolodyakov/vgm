@@ -4,7 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"go.opentelemetry.io/otel"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/youtube/v3"
+)
+
+var (
+	tracer = otel.Tracer("youtube-api")
 )
 
 type YoutubeAPI interface {
@@ -22,6 +28,9 @@ func NewYoutubeService(youtube *youtube.Service) *youtubeService {
 }
 
 func (s *youtubeService) GetVideoIDByTitle(ctx context.Context, videoTitle string) (string, error) {
+	_, span := tracer.Start(ctx, "api.GetVideoIDByTitle")
+	defer span.End()
+
 	searchResponse, err := s.youtube.Search.List([]string{"id"}).Q(videoTitle).MaxResults(1).Do()
 	if err != nil {
 		return "", fmt.Errorf("error executing search query: %v", err)
@@ -36,7 +45,10 @@ func (s *youtubeService) GetVideoIDByTitle(ctx context.Context, videoTitle strin
 	return "", nil
 }
 
-func (s *youtubeService) CreatePlaylist(title string) (string, error) {
+func (s *youtubeService) CreatePlaylist(ctx context.Context, title string) (string, error) {
+	_, span := tracer.Start(ctx, "api.CreatePlaylist")
+	defer span.End()
+
 	playlist := &youtube.Playlist{
 		Snippet: &youtube.PlaylistSnippet{
 			Title: title,
@@ -57,22 +69,35 @@ func (s *youtubeService) CreatePlaylist(title string) (string, error) {
 	return playlistURL, nil
 }
 
-func (s *youtubeService) AddVideosToPlaylist(playlistID string, videoIDs []string) error {
-	for _, videoID := range videoIDs {
-		playlistItem := &youtube.PlaylistItem{
-			Snippet: &youtube.PlaylistItemSnippet{
-				PlaylistId: playlistID,
-				ResourceId: &youtube.ResourceId{
-					Kind:    "youtube#video",
-					VideoId: videoID,
-				},
-			},
-		}
+func (s *youtubeService) AddVideosToPlaylist(ctx context.Context, playlistID string, videoIDs []string) error {
+	ctx, span := tracer.Start(ctx, "api.AddVideosToPlaylist")
+	defer span.End()
 
-		_, err := s.youtube.PlaylistItems.Insert([]string{"snippet"}, playlistItem).Do()
-		if err != nil {
-			return fmt.Errorf("cannot add to playlist due to: %v", err)
-		}
+	g, _ := errgroup.WithContext(ctx)
+	for _, id := range videoIDs {
+		id := id
+		g.Go(func() error {
+			playlistItem := &youtube.PlaylistItem{
+				Snippet: &youtube.PlaylistItemSnippet{
+					PlaylistId: playlistID,
+					ResourceId: &youtube.ResourceId{
+						Kind:    "youtube#video",
+						VideoId: id,
+					},
+				},
+			}
+
+			_, err := s.youtube.PlaylistItems.Insert([]string{"snippet"}, playlistItem).Do()
+			if err != nil {
+				return fmt.Errorf("cannot add to playlist due to: %v", err)
+			}
+
+			return nil
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return fmt.Errorf("error when executing the gorutin group: %v", err)
 	}
 
 	return nil

@@ -1,0 +1,43 @@
+.playlist-box{
+    background-color: #070975f1;
+    color: aliceblue;
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+    border-radius: 8px;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 100px;
+
+}
+
+.playlist-link{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+.playlist-container {
+    height: 100vh; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.playlist-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #e69090;
+}
+
+.playlist-icon {
+    width: 60px; /* Установите ширину и высоту изображения по вашему усмотрению */
+    height: 60px;
+    background-image: url(../../../assets/youtube.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+    margin-right: 10px; /* Задайте отступ справа от изображения для разделения с текстом ссылки */
+}

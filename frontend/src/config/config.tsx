@@ -10,6 +10,7 @@ interface ENV {
   CreateAlbumUrl: string | undefined
   GetPersonsUrl: string | undefined
   CreatePersonsUrl: string | undefined
+  GetPlaylistLink: string | undefined
 }
 
 interface Config {
@@ -24,7 +25,7 @@ interface Config {
   CreateAlbumUrl: string 
   GetPersonsUrl: string 
   CreatePersonsUrl: string 
-
+  GetPlaylistLink: string 
 }
 
 const getConfig = (): ENV => {
@@ -39,7 +40,8 @@ const getConfig = (): ENV => {
     RefreshTokenUrl: process.env.REACT_APP_REFRESH_TOKEN_URL,
     CreateAlbumUrl: process.env.REACT_APP_CREATE_ALBUM_URL,
     GetPersonsUrl:  process.env.REACT_APP_ALL_PERSONS_URL,
-    CreatePersonsUrl: process.env.REACT_APP_CREATE_PERSONS_URL
+    CreatePersonsUrl: process.env.REACT_APP_CREATE_PERSONS_URL,
+    GetPlaylistLink: process.env.REACT_APP_GET_PLAYLIST_URL,
 
   };
 };
