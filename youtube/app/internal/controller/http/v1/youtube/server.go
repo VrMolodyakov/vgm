@@ -18,9 +18,11 @@ func NewServer(
 	cors middleware.Cors,
 	music MusicService,
 	youtube YoutubeService,
+	cache Cache,
+	cacheExpire int,
 ) *http.Server {
 
-	handler := NewYoutubeHandler(logger, youtube, music)
+	handler := NewYoutubeHandler(logger, youtube, music, cache, cacheExpire)
 	router := chi.NewRouter()
 	router.Use(chiMiddleware.Logger)
 	router.Use(cors.CORS)

@@ -12,7 +12,7 @@ import { PersonList } from "../features/music/persons/list/list";
 import CreateAlbumForm from "../features/music/album/create-album";
 import "./app.css"
 import CreatePersonForm from "../features/music/persons/create/create-person";
-import PlaylistForm from "../features/music/playlist/playlist";
+import PlaylistForm from "../features/playlist/playlist";
 
 //TODO:index router
 const App: React.FC = () => {

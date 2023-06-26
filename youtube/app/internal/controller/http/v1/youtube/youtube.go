@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/VrMolodyakov/vgm/youtube/pkg/logging"
 	"github.com/go-chi/chi"
@@ -21,21 +22,27 @@ var (
 )
 
 type youtubeHandler struct {
-	logger  logging.Logger
-	youtube YoutubeService
-	music   MusicService
+	logger      logging.Logger
+	youtube     YoutubeService
+	music       MusicService
+	cache       Cache
+	cacheExpire int
 }
 
 func NewYoutubeHandler(
 	logger logging.Logger,
 	youtube YoutubeService,
 	music MusicService,
+	cache Cache,
+	cacheExpire int,
 
 ) *youtubeHandler {
 	return &youtubeHandler{
-		music:   music,
-		youtube: youtube,
-		logger:  logger,
+		music:       music,
+		youtube:     youtube,
+		logger:      logger,
+		cache:       cache,
+		cacheExpire: cacheExpire,
 	}
 }
 
@@ -43,50 +50,56 @@ func (y *youtubeHandler) CreatePlaylist(w http.ResponseWriter, r *http.Request) 
 	ctx, span := tracer.Start(r.Context(), fmt.Sprintf("%s %s", r.Method, r.RequestURI))
 	defer span.End()
 	limitStr := chi.URLParam(r, "limit")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-	titles, err := y.music.FindRandomTitles(ctx, uint64(limit))
-	if err != nil {
-		y.logger.Error(err.Error())
-		if e, ok := status.FromError(err); ok {
-			switch e.Code() {
-			case codes.Internal:
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			default:
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
+	var url string
+	url, inCache := y.cache.Get(limitStr)
+	if !inCache {
+		limit, err := strconv.Atoi(limitStr)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+		titles, err := y.music.FindRandomTitles(ctx, uint64(limit))
+		if err != nil {
+			y.logger.Error(err.Error())
+			if e, ok := status.FromError(err); ok {
+				switch e.Code() {
+				case codes.Internal:
+					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+					return
+				default:
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
 			}
 		}
-	}
-	g, ctx := errgroup.WithContext(ctx)
-	ids := make([]string, len(titles))
-	for i, title := range titles {
-		i, title := i, title
-		g.Go(func() error {
-			id, err := y.youtube.GetVideoIDByTitle(ctx, title)
-			if err == nil {
-				ids[i] = id
-			}
-			return err
-		})
+		g, ctx := errgroup.WithContext(ctx)
+		ids := make([]string, len(titles))
+		for i, title := range titles {
+			i, title := i, title
+			g.Go(func() error {
+				id, err := y.youtube.GetVideoIDByTitle(ctx, title)
+				if err == nil {
+					ids[i] = id
+				}
+				return err
+			})
 
+		}
+		if err := g.Wait(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if empty := emptyPlaylist(ids); empty {
+			http.Error(w, "cannot collect video IDs", http.StatusNotFound)
+			return
+		}
+		url = createPlaylistUrl(playlist, ids)
+		y.cache.Set(limitStr, url, time.Duration(y.cacheExpire)*time.Minute)
 	}
-	if err := g.Wait(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if empty := emptyPlaylist(ids); empty {
-		http.Error(w, "cannot collect video IDs", http.StatusNotFound)
-		return
-	}
-	resURL := createPlaylistUrl(playlist, ids)
-	var url CreatePlaylistRes
-	url.URL = resURL
-	jsonResponse, err := json.Marshal(url)
+
+	var playlistRes CreatePlaylistRes
+	playlistRes.URL = url
+	jsonResponse, err := json.Marshal(playlistRes)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

@@ -10,6 +10,9 @@ start:
 stop:
 	docker-compose down
 
+build:
+	docker-compose build
+
 cert:
 	@echo Generating SSL certificates
 	cd ./cert && sh instructions.sh

@@ -16,6 +16,11 @@ type Youtube struct {
 	ApiKey string `env:"YOUTUBE_API_KEY"       env-required:""`
 }
 
+type Cache struct {
+	ExpireAt      int `yaml:"expire_at"`
+	CleanInterval int `yaml:"clean_interval"`
+}
+
 type MusicGRPC struct {
 	HostName string `env:"MUSIC_SERVICE_NAME"`
 	Port     int    `env:"MUSIC_GRPC_PORT"`
@@ -64,6 +69,7 @@ type Config struct {
 	YoutubeClientCert YoutubeClientCert `yaml:"youtube_client"`
 	CORS              CORS              `yaml:"cors"`
 	YoutubeServer     YoutubeServer     `yaml:"youtube_server"`
+	Cache             Cache             `yaml:"cache"`
 	Youtube           Youtube
 	Jaeger            Jaeger
 	MusicGRPC         MusicGRPC

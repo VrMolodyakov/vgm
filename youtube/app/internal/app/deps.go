@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	ttlcache "github.com/VrMolodyakov/ttl-cache"
 	"github.com/VrMolodyakov/vgm/youtube/internal/config"
 	"github.com/VrMolodyakov/vgm/youtube/internal/controller/grpc/v1/client"
 	"github.com/VrMolodyakov/vgm/youtube/internal/controller/grpc/v1/client/music"
@@ -14,12 +15,14 @@ import (
 	youtubeServer "github.com/VrMolodyakov/vgm/youtube/internal/controller/http/v1/youtube"
 	musicService "github.com/VrMolodyakov/vgm/youtube/internal/domain/music/service"
 	youtubeService "github.com/VrMolodyakov/vgm/youtube/internal/domain/youtube/service"
+	"github.com/VrMolodyakov/vgm/youtube/pkg/cache"
 	"github.com/VrMolodyakov/vgm/youtube/pkg/logging"
 	"github.com/VrMolodyakov/vgm/youtube/pkg/youtube"
 )
 
 type Deps struct {
 	youtubeServer *http.Server
+	cache         *ttlcache.Cache[string, string]
 }
 
 func (d *Deps) Setup(ctx context.Context, cfg *config.Config, logger logging.Logger) error {
@@ -35,7 +38,17 @@ func (d *Deps) Setup(ctx context.Context, cfg *config.Config, logger logging.Log
 	}
 	youtube := youtubeService.NewYoutubeService(client)
 	cors := d.setupCORS(cfg.CORS)
-	d.youtubeServer = youtubeServer.NewServer(cfg.YoutubeServer, logger, cors, music, youtube)
+	d.cache = cache.New[string, string](cfg.Cache.CleanInterval)
+	d.cache.Clean()
+	d.youtubeServer = youtubeServer.NewServer(
+		cfg.YoutubeServer,
+		logger,
+		cors,
+		music,
+		youtube,
+		d.cache,
+		cfg.Cache.ExpireAt,
+	)
 
 	return nil
 }
@@ -46,6 +59,7 @@ func (d *Deps) Close(ctx context.Context, logger logging.Logger) {
 			logger.Error(err, "shutdown user server")
 		}
 	}
+	d.cache.Close()
 }
 
 func (d *Deps) loadYoutubeClientCert(cfg config.YoutubeClientCert) client.ClientCerts {

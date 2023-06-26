@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(rgb(0, 162, 255), rgba(13, 47, 160, 0.651)), url('../assets/background-image.jpg');
+    background: linear-gradient(rgba(0, 81, 255, 0.795), rgba(13, 47, 160, 0.651));
     background-blend-mode: overlay;
     background-repeat: no-repeat;
     overflow-y: hidden;

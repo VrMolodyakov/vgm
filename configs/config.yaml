@@ -81,3 +81,7 @@ email_metrics_server:
   port: 7171
   read_timeout: 15
   write_timeout: 15
+
+cache:
+  expire_at: 30
+  clean_interval: 30

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import "./playlist.css"
 import axios from "axios";
-import config from "../../../config/config";
+import config from "../../config/config";
 
 const baseAxiosClient = axios.create({
     baseURL: "http://localhost:8082",
